@@ -22,6 +22,7 @@ from pipecat.pipeline.task import PipelineTask, PipelineParams
 from pipecat.transports.base_transport import TransportParams
 from pipecat.processors.frame_processor import FrameProcessor
 from pipecat.processors.aggregators.openai_llm_context import OpenAILLMContext
+from pipecat.services.aws.llm import AWSBedrockLLMContext
 from pipecat.processors.aggregators.llm_response import LLMUserContextAggregator, LLMAssistantContextAggregator
 from dotenv import load_dotenv
 import wave
@@ -161,7 +162,7 @@ class VoiceAssistantRunner:
         llm = StrandsAgentsProcessor(agent=agent)
         
         # Setup context
-        context = OpenAILLMContext()
+        context = AWSBedrockLLMContext()
         tma_in = LLMUserContextAggregator(context=context)
         tma_out = LLMAssistantContextAggregator(context=context)
         
@@ -185,29 +186,7 @@ class VoiceAssistantRunner:
                 await super().process_frame(frame, direction)
                 if isinstance(frame, AudioRawFrame) and stt_start_time is None:
                     stt_start_time = time.time()
-                await self.push_frame(frame, direction)
-        
-        class STTTimingEnd(FrameProcessor):
-            def __init__(self):
-                super().__init__()
-            
-            async def process_frame(self, frame, direction):
-                nonlocal stt_end_time
-                await super().process_frame(frame, direction)
-                if isinstance(frame, TranscriptionFrame):
-                    stt_end_time = time.time()
-                await self.push_frame(frame, direction)
-        
-        class TTSTimingStart(FrameProcessor):
-            def __init__(self):
-                super().__init__()
-            
-            async def process_frame(self, frame, direction):
-                nonlocal tts_start_time
-                await super().process_frame(frame, direction)
-                if isinstance(frame, TextFrame) and tts_start_time is None:
-                    tts_start_time = time.time()
-                await self.push_frame(frame, direction)
+                await self.push_frame(frame, direction)        
         
         class TTSTimingEnd(FrameProcessor):
             def __init__(self):
@@ -216,36 +195,36 @@ class VoiceAssistantRunner:
             async def process_frame(self, frame, direction):
                 nonlocal tts_end_time
                 await super().process_frame(frame, direction)
+                #print(f"DEBUG TTSTimingEnd: {type(frame).__name__}")
                 if isinstance(frame, TTSAudioRawFrame) and tts_end_time is None:
                     tts_end_time = time.time()
                 await self.push_frame(frame, direction)
         
         class STTCollector(FrameProcessor):
             async def process_frame(self, frame, direction):
-                nonlocal stt_start_time, stt_latency
+                nonlocal stt_end_time
                 await super().process_frame(frame, direction)
-                if isinstance(frame, AudioRawFrame) and stt_start_time is None:
-                    stt_start_time = time.time()
-                elif isinstance(frame, TranscriptionFrame):
-                    if stt_start_time:
-                        stt_latency = (time.time() - stt_start_time) * 1000
+                if isinstance(frame, TranscriptionFrame):
+                    if stt_end_time is None:
+                        stt_end_time = time.time()
                     print(f"[STT] {frame.text}")
                     stt_texts.append(frame.text)
                 await self.push_frame(frame, direction)
         
         class LLMCollector(FrameProcessor):
             async def process_frame(self, frame, direction):
+                nonlocal tts_start_time
                 await super().process_frame(frame, direction)
                 if isinstance(frame, TextFrame):
+                    if tts_start_time is None:
+                        tts_start_time = time.time()
                     print(f"[LLM] {frame.text}")
                     llm_texts.append(frame.text)
                 await self.push_frame(frame, direction)
         
         stt_timing_start = STTTimingStart()
-        stt_timing_end = STTTimingEnd()
         stt_collector = STTCollector()
         llm_collector = LLMCollector()
-        tts_timing_start = TTSTimingStart()
         tts_timing_end = TTSTimingEnd()
         
         # Build pipeline: STT -> context -> LLM -> context -> TTS
@@ -253,13 +232,11 @@ class VoiceAssistantRunner:
             transport.input(),
             stt_timing_start,
             stt,
-            stt_timing_end,
             stt_collector,
             tma_in,
             llm,
             llm_collector,
-            tma_out,
-            tts_timing_start,
+            #tma_out,
             tts,
             tts_timing_end,
             transport.output()
@@ -283,7 +260,7 @@ class VoiceAssistantRunner:
         
         # Collect results
         stt_output = " ".join(stt_texts)
-        bot_response = " ".join(llm_texts)
+        llm_response = " ".join(llm_texts)
         
         # Save TTS audio from transport
         tts_audio_path = None
@@ -294,16 +271,21 @@ class VoiceAssistantRunner:
             os.makedirs(output_dir, exist_ok=True)
             tts_audio_path = os.path.join(output_dir, f"{question_id}_response.wav")
             
+            # Get the actual sample rate from the transport output processor
+            sample_rate = transport.output().sample_rate if hasattr(transport.output(), 'sample_rate') else 16000
+            
             with wave.open(tts_audio_path, 'wb') as wf:
                 wf.setnchannels(1)
                 wf.setsampwidth(2)
-                wf.setframerate(16000)
+                wf.setframerate(sample_rate)
                 wf.writeframes(output_audio)
-            print(f"DEBUG: Saved TTS audio to {tts_audio_path}")
+            print(f"DEBUG: Saved TTS audio to {tts_audio_path} at {sample_rate}Hz")
         else:
             print("DEBUG: No output audio collected")
         # Calculate latencies
         stt_latency = (stt_end_time - stt_start_time) * 1000 if stt_start_time and stt_end_time else 0
+        print(f'TTS START TIME: {tts_start_time}')
+        print(f'TTS END TIME: {tts_end_time}')
         tts_latency = (tts_end_time - tts_start_time) * 1000 if tts_start_time and tts_end_time else 0
         
         result = {
@@ -311,7 +293,7 @@ class VoiceAssistantRunner:
             "audio_file": audio_path,
             "stt_output": stt_output,
             "ground_truth": ground_truth,
-            "bot_response": bot_response,
+            "llm_response": llm_response,
             "tts_audio_path": tts_audio_path,
             "stt_latency_ms": round(stt_latency, 2),
             "tts_latency_ms": round(tts_latency, 2),

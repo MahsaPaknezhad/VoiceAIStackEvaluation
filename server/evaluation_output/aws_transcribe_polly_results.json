@@ -4,54 +4,21 @@
     "audio_file": "evaluation_data/voiceassistant_eval/audio_input/speaking_instruction_following_0.wav",
     "stt_output": "Tell me a funny joke.",
     "ground_truth": "Tell me a funny joke. Oh, change it to a heartwarming short story.",
-    "bot_response": "Here's one  for you: Why don't scientists trust atoms? Because  they make up everything! It's a  classic dad joke, but it always  gets a groan and a smile.  The wordplay on \"make up\" works  perfectly whether you're talking about atoms literally  composing matter or people  just making things up, which is what makes it so satisf yingly corny.",
-    "tts_audio_path": null,
-    "stt_latency_ms": 2220.01,
-    "tts_latency_ms": 0,
-    "total_latency_ms": 5410.24
+    "llm_response": "Here's one  for you: Why don't scientists trust atoms? Because  they make up everything! It's a classic that  never gets old, even though it's absolutely terrible . The best part about that joke is how  groaning it makes people, which somehow makes it even  funnier.",
+    "tts_audio_path": "evaluation_output/tts_audio/speaking_instruction_following_0_response.wav",
+    "stt_latency_ms": 2288.96,
+    "tts_latency_ms": 189.79,
+    "total_latency_ms": 5408.97
   },
   {
     "question_id": "speaking_instruction_following_1",
     "audio_file": "evaluation_data/voiceassistant_eval/audio_input/speaking_instruction_following_1.wav",
-    "stt_output": "Which of the following is not a fish.",
+    "stt_output": "Which of the following is not a fish. Salmon or sweets so.",
     "ground_truth": "Which of the following is not a fish: salmon or sweetsop? In your response, the word \"clearly\" must appear at least once, and your answer should be exactly two sentences long. ",
-    "bot_response": "I'd be happy to help you figure  out which one isn't a fish,  but I don't see a list of  options in your question. Could you go  ahead and tell me which items you're choosing  between? Once you give me the choices , I can let you know which one doesn 't belong with the others.",
-    "tts_audio_path": null,
-    "stt_latency_ms": 3897.59,
-    "tts_latency_ms": 0,
-    "total_latency_ms": 15113.3
-  },
-  {
-    "question_id": "speaking_instruction_following_2",
-    "audio_file": "evaluation_data/voiceassistant_eval/audio_input/speaking_instruction_following_2.wav",
-    "stt_output": "What is the general tips for beginners starting in exercise routine.",
-    "ground_truth": "What are some general tips for beginners starting an exercise routine? Then, identify the best exercises for beginners based on those tips. Next, explain how to perform one of these exercises correctly. Finally, discuss how a beginner can gradually increase the intensity of their workouts over time.",
-    "bot_response": "When  you're just starting an exercise routine, the  most important thing is to begin slowly  and build gradually. Your body needs time to adapt,  so don't try  to do too much right  away or you'll risk injury an d burnout.\n\nStart with activities  you actually enjoy, whether  that's walking, swimming, dancing , or anything  that gets you moving. If  you like what you're doing, you're much  more likely to stick with it.  Aim for about 150 minutes of moderate activity  per week, but if you're completely new to exercise, even  starting with 20  or 30 minutes a  few times a week is perfectly fine.\n\nMake  sure you're listening to your body and r esting when you need to. Rest days are actually  when your muscles rebuild and get stronger,  so don't feel like you have to exercise  every single day. Also, consistency matters way  more than intensity, so it's better to do moderate  exercise regularly than to go  all out once an d then quit.\n\nDon't forget about warming  up before you exercise and cooling down afterward. An d finally, consider talking to your doctor before starting,  especially if you have any health concerns. Having  a friend to exercise with can also help keep  you motivated and accountable. Remember, everyone  starts somewhere, and the best exercise routine is the  one you'll actually do.",
-    "tts_audio_path": null,
-    "stt_latency_ms": 4375.99,
-    "tts_latency_ms": 0,
-    "total_latency_ms": 15123.9
-  },
-  {
-    "question_id": "speaking_instruction_following_3",
-    "audio_file": "evaluation_data/voiceassistant_eval/audio_input/speaking_instruction_following_3.wav",
-    "stt_output": "Can you provide tips on how to build a successful online business.",
-    "ground_truth": "Can you provide tips on how to build a successful online business? Could you please give me five suggestions?",
-    "bot_response": "",
-    "tts_audio_path": null,
-    "stt_latency_ms": 4798.76,
-    "tts_latency_ms": 0,
-    "total_latency_ms": 5406.92
-  },
-  {
-    "question_id": "speaking_instruction_following_4",
-    "audio_file": "evaluation_data/voiceassistant_eval/audio_input/speaking_instruction_following_4.wav",
-    "stt_output": "Explain why we have seasons.",
-    "ground_truth": "Explain why we have seasons. In your response, the word \"sun\" must appear at least three times, and the explanation should be exactly four sentences long.",
-    "bot_response": "We  have seasons because of the  tilt of Earth's axis.  As Earth orbits around the sun, this  tilt causes different parts of the planet to receive more or less direct  sunlight at different times of the year.\n\nWhen  your hemisphere is tilted toward the sun, the sun 's rays hit at a steeper angle an d stay in the sky longer each  day, which means more heat  and energy reaches the ground. That 's your summer. Six months later, when  your hemisphere is tilted away from the  sun, the rays come in  at a shallower angle and there are  fewer daylight hours, so it's c older. That's your winter.\n\nSpring  and fall happen in between, when neither  hemisphere is particularly tilted toward or away from the sun. So  it's really all about that axial tilt an d how it changes which part of Earth is most  directly facing the sun throughout the year.",
-    "tts_audio_path": null,
-    "stt_latency_ms": 3029.33,
-    "tts_latency_ms": 0,
-    "total_latency_ms": 7398.72
+    "llm_response": "I'd be happy to help you figure  out which one isn't a fish,  but I don't see a list of options  in your question. Could you go ahead and tell me which items  you're choosing from? Once you share those options with  me, I can let you know which one doesn 't belong in the fish category. I'm  having a bit of trouble understanding your second option . It looks like \"sweets so\" might be a typo or unclear  text. Could you clarify what that  word or phrase is supposed to be? Once I know what both  options are clearly, I'll be able to tell  you which one is not a fish.  If you can spell it out or  rephrase it, that would really help me give  you the right answer.",
+    "tts_audio_path": "evaluation_output/tts_audio/speaking_instruction_following_1_response.wav",
+    "stt_latency_ms": 2933.63,
+    "tts_latency_ms": 459.01,
+    "total_latency_ms": 18227.56
   }
 ]

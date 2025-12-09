@@ -84,6 +84,7 @@ class EvaluationOutput(FrameProcessor):
         super().__init__()
         self._output_list = output_list
         self._collecting_tts = False
+        self.sample_rate = 16000  # Default, will be updated from first frame
     
     async def process_frame(self, frame: Frame, direction: FrameDirection):
         await super().process_frame(frame, direction)
@@ -91,6 +92,7 @@ class EvaluationOutput(FrameProcessor):
         # Start collecting when we see TTS audio (after TextFrame processing)
         if isinstance(frame, TTSAudioRawFrame) and self._collecting_tts:
             print(f"DEBUG: Collecting TTS audio chunk: {len(frame.audio)} bytes")
+            self.sample_rate = frame.sample_rate  # Get actual sample rate
             self._output_list.append(frame.audio)
         elif isinstance(frame, TextFrame):
             # TextFrame indicates TTS is about to start
