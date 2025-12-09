@@ -15,7 +15,7 @@ from pathlib import Path
 # Import Pipecat components
 from pipecat.services.deepgram.stt import DeepgramSTTService, LiveOptions
 from pipecat.audio.vad.silero import SileroVADAnalyzer
-from pipecat.frames.frames import AudioRawFrame, EndFrame, StartFrame, TranscriptionFrame, TextFrame, LLMFullResponseStartFrame
+from pipecat.frames.frames import AudioRawFrame, EndFrame, StartFrame, TranscriptionFrame, TextFrame, LLMFullResponseStartFrame, TTSAudioRawFrame
 from pipecat.pipeline.pipeline import Pipeline
 from pipecat.pipeline.runner import PipelineRunner
 from pipecat.pipeline.task import PipelineTask, PipelineParams
@@ -216,7 +216,7 @@ class VoiceAssistantRunner:
             async def process_frame(self, frame, direction):
                 nonlocal tts_end_time
                 await super().process_frame(frame, direction)
-                if isinstance(frame, AudioRawFrame) and hasattr(frame, 'audio'):
+                if isinstance(frame, TTSAudioRawFrame) and tts_end_time is None:
                     tts_end_time = time.time()
                 await self.push_frame(frame, direction)
         
@@ -235,23 +235,16 @@ class VoiceAssistantRunner:
         
         class LLMCollector(FrameProcessor):
             async def process_frame(self, frame, direction):
-                nonlocal tts_start_time, tts_latency
                 await super().process_frame(frame, direction)
-                if isinstance(frame, LLMFullResponseStartFrame) and tts_start_time is None:
-                    tts_start_time = time.time()
-                elif isinstance(frame, TextFrame):
+                if isinstance(frame, TextFrame):
                     print(f"[LLM] {frame.text}")
                     llm_texts.append(frame.text)
-                elif isinstance(frame, AudioRawFrame) and hasattr(frame, 'audio') and tts_start_time:
-                    tts_latency = (time.time() - tts_start_time) * 1000
-                    tts_start_time = None  # Reset for next response
                 await self.push_frame(frame, direction)
         
         stt_timing_start = STTTimingStart()
         stt_timing_end = STTTimingEnd()
         stt_collector = STTCollector()
         llm_collector = LLMCollector()
-        
         tts_timing_start = TTSTimingStart()
         tts_timing_end = TTSTimingEnd()
         
@@ -295,8 +288,9 @@ class VoiceAssistantRunner:
         # Save TTS audio from transport
         tts_audio_path = None
         output_audio = transport.get_output_audio()
+        print(f"DEBUG: Output audio length: {len(output_audio) if output_audio else 0}")
         if output_audio:
-            output_dir = "evaluation_data/tts_output"
+            output_dir = "evaluation_output/tts_audio"
             os.makedirs(output_dir, exist_ok=True)
             tts_audio_path = os.path.join(output_dir, f"{question_id}_response.wav")
             
@@ -305,6 +299,9 @@ class VoiceAssistantRunner:
                 wf.setsampwidth(2)
                 wf.setframerate(16000)
                 wf.writeframes(output_audio)
+            print(f"DEBUG: Saved TTS audio to {tts_audio_path}")
+        else:
+            print("DEBUG: No output audio collected")
         # Calculate latencies
         stt_latency = (stt_end_time - stt_start_time) * 1000 if stt_start_time and stt_end_time else 0
         tts_latency = (tts_end_time - tts_start_time) * 1000 if tts_start_time and tts_end_time else 0
@@ -336,7 +333,7 @@ class VoiceAssistantRunner:
         return result
     
     
-    async def run_all(self) -> List[Dict]:
+    async def run_all(self, output_path: str = None) -> List[Dict]:
         """Run bot on all audio files in dataset"""
         results = []
         
@@ -352,6 +349,11 @@ class VoiceAssistantRunner:
             try:
                 result = await self.process_audio_file(audio_path, question_id)
                 results.append(result)
+                
+                # Save results after each sample
+                if output_path:
+                    self.save_results(results, output_path)
+                    
             except Exception as e:
                 logger.error(f"Error processing {question_id}: {e}")
                 results.append({
@@ -361,6 +363,10 @@ class VoiceAssistantRunner:
                     "bot_response": "",
                     "error": str(e)
                 })
+                
+                # Save results even on error
+                if output_path:
+                    self.save_results(results, output_path)
         
         return results
     
@@ -399,7 +405,7 @@ async def main():
     )
     
     logger.info("Running bot on all audio files...")
-    results = await runner.run_all()
+    results = await runner.run_all(args.output)
     
     runner.save_results(results, args.output)
     

@@ -1,6 +1,6 @@
-# NAB P&C AI Coach
+# Voice Assistant Evaluation Pipeline
 
-An AI-powered coaching system designed to help NAB P&C employees improve their customer interaction skills through voice coaching and performance feedback.
+A comprehensive evaluation framework for voice assistants that measures speech-to-text accuracy, response quality, and latency metrics across different AI service combinations.
 
 ![](demo.png)
 
@@ -27,7 +27,7 @@ This system uses the following frameworks and AI services:
 │   │   └── transport/     # Audio transport layers
 │   ├── scripts/           # Evaluation and deployment scripts
 │   ├── evaluation_data/   # Test datasets and configurations
-│   └── evaluation_output/ # Evaluation results
+│   └── evaluation_output/ # Evaluation results and TTS audio
 └── .nab_venv/             # Python virtual environment
 ```
 
@@ -88,7 +88,7 @@ The system measures:
 - **Latency Metrics** - STT, TTS, and total processing times
 - **Voice Quality** - Audio output assessment
 
-Results are saved in `server/evaluation_output/` with detailed metrics and analysis.
+Results are saved in `server/evaluation_output/` with detailed metrics, analysis, and TTS audio files.
 
 ## Development
 

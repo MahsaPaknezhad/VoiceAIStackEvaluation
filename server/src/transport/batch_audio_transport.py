@@ -4,7 +4,7 @@ Evaluation transport for batch processing audio files.
 
 import asyncio
 from pipecat.transports.base_transport import BaseTransport
-from pipecat.frames.frames import AudioRawFrame, Frame, StartFrame, TextFrame
+from pipecat.frames.frames import AudioRawFrame, Frame, StartFrame, TextFrame, TTSAudioRawFrame
 from pipecat.processors.frame_processor import FrameDirection, FrameProcessor
 
 
@@ -89,10 +89,12 @@ class EvaluationOutput(FrameProcessor):
         await super().process_frame(frame, direction)
         
         # Start collecting when we see TTS audio (after TextFrame processing)
-        if hasattr(frame, 'audio') and frame.audio and self._collecting_tts:
+        if isinstance(frame, TTSAudioRawFrame) and self._collecting_tts:
+            print(f"DEBUG: Collecting TTS audio chunk: {len(frame.audio)} bytes")
             self._output_list.append(frame.audio)
         elif isinstance(frame, TextFrame):
             # TextFrame indicates TTS is about to start
+            print(f"DEBUG: TextFrame detected, starting TTS collection: {frame.text[:50]}...")
             self._collecting_tts = True
             
         await self.push_frame(frame, direction)
