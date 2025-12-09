@@ -1,0 +1,104 @@
+{
+  "timestamp": "2025-12-09T23:53:44.571989",
+  "dataset": "evaluation_data/voiceassistant_eval/voiceassistant_eval_dataset.json",
+  "total_questions": 4,
+  "evaluations": [
+    {
+      "question_id": "speaking_instruction_following_0",
+      "category": "instruction_following",
+      "ground_truth": "Tell me a funny joke. Oh, change it to a heartwarming short story.",
+      "stt_output": "Tell me a funny joke.",
+      "wer": 61.53846153846154,
+      "llm_response": "Here's one  for you: Why don't scientists trust atoms? Because  they make up everything! It's a classic, but I still  think it gets a chuckle. The wor dplay with \"make up\" works on two levels,  which is what makes it stick in people's heads even  though it's been around forever.",
+      "judge_scores": {
+        "correctness": 9,
+        "relevance": 10,
+        "completeness": 9,
+        "clarity": 7,
+        "overall": 8,
+        "reasoning": "The response successfully delivers a well-known, appropriate joke that is genuinely funny due to its wordplay. It directly addresses the request and even explains the humor mechanism, showing good understanding. The main weakness is presentation quality - there are awkward spacing issues and typos ('wor dplay' instead of 'wordplay') that detract from clarity. The explanation of why the joke works is insightful and adds value. The joke itself is correct and appropriately chosen for a general audience."
+      },
+      "stt_latency_ms": 2271.62,
+      "tts_latency_ms": 158.95,
+      "total_latency_ms": 8198.79
+    },
+    {
+      "question_id": "speaking_instruction_following_1",
+      "category": "instruction_following",
+      "ground_truth": "Which of the following is not a fish: salmon or sweetsop? In your response, the word \"clearly\" must appear at least once, and your answer should be exactly two sentences long. ",
+      "stt_output": "Which of the following is not a fish. Salmon or sweets so.",
+      "wer": 74.19354838709677,
+      "llm_response": "I'd be happy to help you figure  out which one isn't a fish,  but I don't see a list of  options in your question. Could you go ahead and tell  me which items you're choosing from?  Once you do, I'll let you know which one  doesn't belong with the others. I'm  having a bit of trouble understanding your question. It  looks like there might be some unclear text there. Could you clar ify what options you're asking about? Are you asking whether  a salmon is a fish, or is  there a specific list of animals or items you' d like me to compare? If you can rephrase that  second part more clearly, I'll be able  to give you a straight answer about which one isn't a fish.",
+      "judge_scores": {
+        "correctness": 0,
+        "relevance": 0,
+        "completeness": 0,
+        "clarity": 0,
+        "overall": 0,
+        "reasoning": "Evaluation failed: An error occurred (serviceUnavailableException) when calling the ConverseStream operation: Bedrock is unable to process your request."
+      },
+      "stt_latency_ms": 3114.25,
+      "tts_latency_ms": 386.88,
+      "total_latency_ms": 17905.54
+    },
+    {
+      "question_id": "speaking_reasoning_2",
+      "category": "reasoning",
+      "ground_truth": "Why is it hard for a young child to read a long book due to a lack of knowledge, because of the cover, due to no pictures, or because of many words?",
+      "stt_output": "",
+      "wer": 1.0,
+      "llm_response": "",
+      "judge_scores": {
+        "correctness": 6,
+        "relevance": 5,
+        "completeness": 4,
+        "clarity": 5,
+        "overall": 5,
+        "reasoning": "The assistant struggles to interpret a somewhat garbled question. While the response attempts to be helpful by asking for clarification, it misses what appears to be the intended comparison: 'Salmon' (a fish) vs 'sweets' (not a fish). The question, though poorly written, seems answerable - sweets are clearly not a fish. The assistant's request for clarification is somewhat reasonable given the unclear phrasing, but a more competent response would have recognized the apparent intended options and provided the answer (sweets) while noting the unclear wording. The response is repetitive, contains formatting issues ('clar ify' instead of 'clarify'), and doesn't attempt to answer despite sufficient context clues. The assistant prioritizes asking for clarification over attempting to help, which is overly cautious."
+      },
+      "stt_latency_ms": null,
+      "tts_latency_ms": null,
+      "total_latency_ms": 5406.68
+    },
+    {
+      "question_id": "speaking_reasoning_3",
+      "category": "reasoning",
+      "ground_truth": "Answering multiple-choice questions is often easier than answering fill-in or completion questions, because multiple choice questions\nA. require less time to answer\nB. provide more retrieval cues\nC. check memorization rather than critical thinking\nD. are definitional rather than conceptual\n\nWhat is the answer to the above multiple choice question? Select one of the following: A, B, C, or D.",
+      "stt_output": "",
+      "wer": 1.0,
+      "llm_response": "",
+      "judge_scores": {
+        "correctness": 0,
+        "relevance": 0,
+        "completeness": 0,
+        "clarity": 0,
+        "overall": 0,
+        "reasoning": "No question or response was provided to evaluate. Both fields are empty, making it impossible to assess correctness, relevance, completeness, or clarity. Please provide an actual question and response for evaluation."
+      },
+      "stt_latency_ms": null,
+      "tts_latency_ms": null,
+      "total_latency_ms": 15117.54
+    }
+  ],
+  "summary": {
+    "average_wer": 34.43300248138958,
+    "average_overall_score": 3.25,
+    "average_stt_latency_ms": 2692.935,
+    "average_tts_latency_ms": 272.91499999999996,
+    "average_total_latency_ms": 11657.1375,
+    "by_category": {
+      "instruction_following": {
+        "count": 2,
+        "avg_wer": 67.86600496277916,
+        "avg_score": 4.0,
+        "avg_stt_latency_ms": 2692.935,
+        "avg_tts_latency_ms": 272.91499999999996
+      },
+      "reasoning": {
+        "count": 2,
+        "avg_wer": 1.0,
+        "avg_score": 2.5
+      }
+    }
+  }
+}

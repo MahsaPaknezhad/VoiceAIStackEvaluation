@@ -1,0 +1,46 @@
+[
+  {
+    "question_id": "speaking_instruction_following_0",
+    "audio_file": "evaluation_data/voiceassistant_eval_small/audio_input/speaking_instruction_following_0.wav",
+    "stt_output": "Tell me a funny joke.",
+    "ground_truth": "Tell me a funny joke. Oh, change it to a heartwarming short story.",
+    "llm_response": "Here's one  for you: Why don't scientists trust atoms? Because  they make up everything! It's a classic, but I still  think it gets a chuckle. The wor dplay with \"make up\" works on two levels,  which is what makes it stick in people's heads even  though it's been around forever.",
+    "tts_audio_path": "evaluation_output/tts_audio/speaking_instruction_following_0_response.wav",
+    "stt_latency_ms": 2271.62,
+    "tts_latency_ms": 158.95,
+    "total_latency_ms": 8198.79
+  },
+  {
+    "question_id": "speaking_instruction_following_1",
+    "audio_file": "evaluation_data/voiceassistant_eval_small/audio_input/speaking_instruction_following_1.wav",
+    "stt_output": "Which of the following is not a fish. Salmon or sweets so.",
+    "ground_truth": "Which of the following is not a fish: salmon or sweetsop? In your response, the word \"clearly\" must appear at least once, and your answer should be exactly two sentences long. ",
+    "llm_response": "I'd be happy to help you figure  out which one isn't a fish,  but I don't see a list of  options in your question. Could you go ahead and tell  me which items you're choosing from?  Once you do, I'll let you know which one  doesn't belong with the others. I'm  having a bit of trouble understanding your question. It  looks like there might be some unclear text there. Could you clar ify what options you're asking about? Are you asking whether  a salmon is a fish, or is  there a specific list of animals or items you' d like me to compare? If you can rephrase that  second part more clearly, I'll be able  to give you a straight answer about which one isn't a fish.",
+    "tts_audio_path": "evaluation_output/tts_audio/speaking_instruction_following_1_response.wav",
+    "stt_latency_ms": 3114.25,
+    "tts_latency_ms": 386.88,
+    "total_latency_ms": 17905.54
+  },
+  {
+    "question_id": "speaking_reasoning_2",
+    "audio_file": "evaluation_data/voiceassistant_eval_small/audio_input/speaking_reasoning_2.wav",
+    "stt_output": "",
+    "ground_truth": "Why is it hard for a young child to read a long book due to a lack of knowledge, because of the cover, due to no pictures, or because of many words?",
+    "llm_response": "",
+    "tts_audio_path": null,
+    "stt_latency_ms": null,
+    "tts_latency_ms": null,
+    "total_latency_ms": 5406.68
+  },
+  {
+    "question_id": "speaking_reasoning_3",
+    "audio_file": "evaluation_data/voiceassistant_eval_small/audio_input/speaking_reasoning_3.wav",
+    "stt_output": "",
+    "ground_truth": "Answering multiple-choice questions is often easier than answering fill-in or completion questions, because multiple choice questions\nA. require less time to answer\nB. provide more retrieval cues\nC. check memorization rather than critical thinking\nD. are definitional rather than conceptual\n\nWhat is the answer to the above multiple choice question? Select one of the following: A, B, C, or D.",
+    "llm_response": "",
+    "tts_audio_path": null,
+    "stt_latency_ms": null,
+    "tts_latency_ms": null,
+    "total_latency_ms": 15117.54
+  }
+]

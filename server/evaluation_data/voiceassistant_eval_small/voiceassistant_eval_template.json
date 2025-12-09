@@ -1,0 +1,56 @@
+{
+  "metadata": {
+    "evaluation_date": "2025-12-09T06:58:47.027939",
+    "source": "VoiceAssistant-Eval",
+    "model_id": "us.anthropic.claude-3-5-haiku-20241022-v1:0",
+    "stt_service": "deepgram-nova-3",
+    "tts_service": "deepgram-aura-2-delia",
+    "judge_model_id": "us.anthropic.claude-3-5-haiku-20241022-v1:0"
+  },
+  "results": [
+    {
+      "question_id": "speaking_instruction_following_0",
+      "question_text": "Tell me a funny joke. Oh, change it to a heartwarming short story.",
+      "question_category": "instruction_following",
+      "expected_answer": "",
+      "audio_file": "speaking_instruction_following_0.wav",
+      "transcription": "",
+      "agent_response": "",
+      "wer_metrics": {},
+      "validity_evaluation": {}
+    },
+    {
+      "question_id": "speaking_instruction_following_1",
+      "question_text": "Which of the following is not a fish: salmon or sweetsop? In your response, the word \"clearly\" must appear at least once, and your answer should be exactly two sentences long. ",
+      "question_category": "instruction_following",
+      "expected_answer": "",
+      "audio_file": "speaking_instruction_following_1.wav",
+      "transcription": "",
+      "agent_response": "",
+      "wer_metrics": {},
+      "validity_evaluation": {}
+    },
+    {
+      "question_id": "speaking_reasoning_0",
+      "question_text": "Birds have wings, fish have fins, so what does a puppy have?",
+      "question_category": "reasoning",
+      "expected_answer": "Birds have wings, fish have fins, so a puppy has legs.",
+      "audio_file": "speaking_reasoning_0.wav",
+      "transcription": "",
+      "agent_response": "",
+      "wer_metrics": {},
+      "validity_evaluation": {}
+    },
+    {
+      "question_id": "speaking_reasoning_1",
+      "question_text": "A surgeon is to operations as a lawyer is to cases, so what is a pilot to?",
+      "question_category": "reasoning",
+      "expected_answer": "A surgeon is to operations as a lawyer is to cases, so a pilot is to flights.",
+      "audio_file": "speaking_reasoning_1.wav",
+      "transcription": "",
+      "agent_response": "",
+      "wer_metrics": {},
+      "validity_evaluation": {}
+    }
+  ]
+}

@@ -54,13 +54,11 @@ Return ONLY valid JSON with this structure:
 }"""
         )
     
-    async def evaluate_response(self, question: str, expected_answer: str, actual_response: str) -> Dict:
+    async def evaluate_response(self, question: str, llm_response: str) -> Dict:
         """Use LLM to judge response quality"""
         prompt = f"""Question: {question}
 
-Expected Answer: {expected_answer}
-
-Actual Response: {actual_response}
+Response: {llm_response}
 
 Evaluate the actual response."""
 
@@ -97,38 +95,34 @@ Evaluate the actual response."""
             return 1.0
         return wer(reference, hypothesis) * 100
     
-    async def evaluate_single(self, question_data: Dict, stt_output: str, bot_response: str, 
+    async def evaluate_single(self, question_id: str, category: str, stt_output: str, ground_truth: str, llm_response: str, 
                              stt_latency: float = None, tts_latency: float = None, 
                              total_latency: float = None) -> Dict:
+
         """Evaluate a single question"""
-        question_id = question_data['id']
-        expected_text = question_data['text']
-        expected_answer = question_data['expected_answer']
+        question = stt_output
+        llm_response = llm_response
         
         # Calculate WER for STT
-        wer_score = self.calculate_wer(expected_text, stt_output)
+        wer_score = self.calculate_wer(ground_truth, stt_output)
         
         # Evaluate response quality
-        judge_scores = await self.evaluate_response(expected_text, expected_answer, bot_response)
+        judge_scores = await self.evaluate_response(question, llm_response)
         
         result = {
             "question_id": question_id,
-            "category": question_data['category'],
-            "expected_text": expected_text,
+            "category": category,
+            "ground_truth": ground_truth,
             "stt_output": stt_output,
             "wer": wer_score,
-            "expected_answer": expected_answer,
-            "bot_response": bot_response,
+            "llm_response": llm_response,
             "judge_scores": judge_scores
         }
         
         # Add latency metrics if available
-        if stt_latency is not None:
-            result["stt_latency_ms"] = stt_latency
-        if tts_latency is not None:
-            result["tts_latency_ms"] = tts_latency
-        if total_latency is not None:
-            result["total_latency_ms"] = total_latency
+        result["stt_latency_ms"] = stt_latency
+        result["tts_latency_ms"] = tts_latency
+        result["total_latency_ms"] = total_latency
             
         return result
     
@@ -157,9 +151,11 @@ Evaluate the actual response."""
             logger.info(f"Evaluating {question_id}...")
             
             eval_result = await self.evaluate_single(
-                question,
+                question_id,
+                question.get('category',''),
                 result.get('stt_output', ''),
-                result.get('bot_response', ''),
+                result.get('ground_truth', ''),
+                result.get('llm_response', ''),
                 result.get('stt_latency_ms'),
                 result.get('tts_latency_ms'),
                 result.get('total_latency_ms')
@@ -186,10 +182,10 @@ Evaluate the actual response."""
         avg_wer = sum(e['wer'] for e in evaluations) / len(evaluations)
         avg_overall = sum(e['judge_scores']['overall'] for e in evaluations) / len(evaluations)
         
-        # Calculate average latencies if available
-        stt_latencies = [e['stt_latency_ms'] for e in evaluations if 'stt_latency_ms' in e]
-        tts_latencies = [e['tts_latency_ms'] for e in evaluations if 'tts_latency_ms' in e]
-        total_latencies = [e['total_latency_ms'] for e in evaluations if 'total_latency_ms' in e]
+        # Calculate average latencies if available - filter out None values
+        stt_latencies = [e['stt_latency_ms'] for e in evaluations if 'stt_latency_ms' in e and e['stt_latency_ms'] is not None]
+        tts_latencies = [e['tts_latency_ms'] for e in evaluations if 'tts_latency_ms' in e and e['tts_latency_ms'] is not None]
+        total_latencies = [e['total_latency_ms'] for e in evaluations if 'total_latency_ms' in e and e['total_latency_ms'] is not None]
         
         summary = {
             "average_wer": avg_wer,
@@ -213,8 +209,8 @@ Evaluate the actual response."""
         
         category_stats = {}
         for cat, evals in by_category.items():
-            cat_stt = [e['stt_latency_ms'] for e in evals if 'stt_latency_ms' in e]
-            cat_tts = [e['tts_latency_ms'] for e in evals if 'tts_latency_ms' in e]
+            cat_stt = [e['stt_latency_ms'] for e in evals if 'stt_latency_ms' in e and e['stt_latency_ms'] is not None]
+            cat_tts = [e['tts_latency_ms'] for e in evals if 'tts_latency_ms' in e and e['tts_latency_ms'] is not None]
             
             stats = {
                 "count": len(evals),

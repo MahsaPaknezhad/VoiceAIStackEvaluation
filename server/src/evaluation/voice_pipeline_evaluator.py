@@ -175,7 +175,6 @@ class VoiceAssistantRunner:
         stt_end_time = None
         tts_start_time = None
         tts_end_time = None
-        tts_latency = 0
         
         class STTTimingStart(FrameProcessor):
             def __init__(self):
@@ -283,10 +282,10 @@ class VoiceAssistantRunner:
         else:
             print("DEBUG: No output audio collected")
         # Calculate latencies
-        stt_latency = (stt_end_time - stt_start_time) * 1000 if stt_start_time and stt_end_time else 0
+        stt_latency = (stt_end_time - stt_start_time) * 1000 if stt_start_time and stt_end_time else None
         print(f'TTS START TIME: {tts_start_time}')
         print(f'TTS END TIME: {tts_end_time}')
-        tts_latency = (tts_end_time - tts_start_time) * 1000 if tts_start_time and tts_end_time else 0
+        tts_latency = (tts_end_time - tts_start_time) * 1000 if tts_start_time and tts_end_time else None
         
         result = {
             "question_id": question_id,
@@ -295,9 +294,9 @@ class VoiceAssistantRunner:
             "ground_truth": ground_truth,
             "llm_response": llm_response,
             "tts_audio_path": tts_audio_path,
-            "stt_latency_ms": round(stt_latency, 2),
-            "tts_latency_ms": round(tts_latency, 2),
-            "total_latency_ms": round(total_latency, 2)
+            "stt_latency_ms": round(stt_latency, 2) if stt_latency is not None else None,
+            "tts_latency_ms": round(tts_latency, 2) if tts_latency is not None else None,
+            "total_latency_ms": round(total_latency, 2) if total_latency is not None else None
         }
         
         # Add voice quality metrics if enabled
