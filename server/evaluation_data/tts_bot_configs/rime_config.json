@@ -1,0 +1,11 @@
+{
+  "tts_service_id": "rime",
+  "tts_service_name": "Rime",
+  "module": "pipecat.services.rime.tts",
+  "class": "RimeTTSService",
+  "config": {
+    "voice": "amber"
+  },
+  "available_voices": [],
+  "instructions": "\n# Configuration for Rime\n\nTo use this TTS service in bot.py, replace the TTS initialization with:\n\nfrom pipecat.services.rime.tts import RimeTTSService\n\ntts = RimeTTSService(\n    api_key=os.getenv(\"API_KEY\"),  # Use appropriate env var\n    **{\n    \"voice\": \"amber\"\n}\n)\n\n# Available voices: Check service documentation\n"
+}

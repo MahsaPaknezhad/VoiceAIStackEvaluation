@@ -1,0 +1,52 @@
+{
+    "rubric":[
+       {
+          "expectation":"Kept customers experience and expectations at centre of the conversation",
+          "stars":3,
+          "observations":"Ryan consistently focused on Madison's experience throughout the call. He asked 'could you firstly walk me through what actually happened?' and 'how are you expecting or ideally wanting to get an update on this dispute?' demonstrating clear customer-centricity.",
+          "user_stars":2
+       },
+       {
+          "expectation":"Sought to understand and learn more at a deeper level the experience and impact(s)",
+          "stars":3,
+          "observations":"Ryan probed deeper into Madison's experience by asking follow-up questions like 'How long were you waiting?' and acknowledged the emotional impact: 'That sounds really frustrating, you know, especially if it's your money and and you might have been relying on those funds.'",
+          "user_stars":1
+       },
+       {
+          "expectation":"Respected customer time by not over-explaining/over-asking",
+          "stars":2,
+          "observations":"Ryan was generally efficient but did provide a lengthy explanation about feedback processes: 'we actually use this feedback and suggestions within our teams each week to identify how we can serve our customers better...' This could have been more concise.",
+          "user_stars":2
+       },
+       {
+          "expectation":"Explained purpose of call as learning from their feedback, without referring to 'scores', 'NPS' or 'groups'",
+          "stars":3,
+          "observations":"Ryan clearly explained the purpose: 'I'm just reaching out regarding some recent feedback that you provided for us. I was hoping I could learn a little bit more about your experience so we can improve for our customers.' No mention of scores, NPS, or groups.",
+          "user_stars":3
+       },
+       {
+          "expectation":"Listened without limiting answers. Asked questions that encouraged customer to reflect on experience and respond candidly",
+          "stars":3,
+          "observations":"Ryan used open-ended questions like 'could you firstly walk me through what actually happened?' and 'how are you expecting or ideally wanting to get an update on this dispute?' allowing Madison to share her full experience without interruption.",
+          "user_stars":2
+       },
+       {
+          "expectation":"Showed interest in responses. Asked clarifying and follow-up questions to understand experience, expectations and any improvement suggestions",
+          "stars":3,
+          "observations":"Ryan demonstrated genuine interest with responses like 'Yeah, I totally see where you're coming from' and asked for specific improvement suggestions: 'I'd actually love to know how are you expecting or ideally wanting to get an update on this dispute?'",
+          "user_stars":1
+       },
+       {
+          "expectation":"Demonstrated appreciation of customer perspective and commitment to improve their experience. Apologised and solved discrete issues as appropriate",
+          "stars":2,
+          "observations":"Ryan showed appreciation: 'This is definitely something that we can improve on for our customers' and 'I'll take this further to improve the experience for sure.' However, he did not offer a specific apology for Madison's frustrating experience or attempt to resolve her current dispute status.",
+          "user_stars":3
+       },
+       {
+          "expectation":"Ended call with a summary of main points to confirm understanding",
+          "stars":3,
+          "observations":"Ryan provided an excellent comprehensive summary: 'So from my understanding, you've gone through multiple staff members who couldn't give you an update... An ideal way would have been to see this in the app like you can with deliveries, with Etas, in a progress bar...' and confirmed understanding with 'Have I understood that correctly?'",
+          "user_stars":3
+       }
+    ]
+ }

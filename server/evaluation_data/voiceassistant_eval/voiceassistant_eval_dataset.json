@@ -1,0 +1,619 @@
+{
+  "metadata": {
+    "created_date": "2025-12-09T06:58:47.027075",
+    "source": "MathLLMs/VoiceAssistant-Eval",
+    "total_questions": 50,
+    "splits_used": [
+      "listening_general",
+      "listening_speech",
+      "speaking_assistant",
+      "speaking_instruction_following",
+      "speaking_reasoning"
+    ],
+    "max_samples_per_split": 10,
+    "description": "Evaluation dataset generated from VoiceAssistant-Eval",
+    "audio_location": "evaluation_data/voiceassistant_eval/audio_input"
+  },
+  "questions": [
+    {
+      "id": "listening_general_0",
+      "text": "Does the music sound more like something from today, or does it sound like it is from the past?",
+      "expected_answer": "Vintage",
+      "category": "general",
+      "split": "listening_general",
+      "audio_file": "listening_general_0.wav",
+      "metadata": {
+        "original_index": 1,
+        "has_audio": true
+      }
+    },
+    {
+      "id": "listening_general_1",
+      "text": "Which bowing technique is the fiddler probably using to create the rhythmic melody in the music?",
+      "expected_answer": "The fiddler is likely using a combination of slurs and staccato bowing techniques.",
+      "category": "general",
+      "split": "listening_general",
+      "audio_file": "listening_general_1.wav",
+      "metadata": {
+        "original_index": 2,
+        "has_audio": true
+      }
+    },
+    {
+      "id": "listening_general_2",
+      "text": "If you hear a sound that might mean there is an emergency nearby, what should you do right away as someone living in the area?",
+      "expected_answer": "Remain indoors if possible, and do not add to the congestion by attempting to approach or investigate the scene.",
+      "category": "general",
+      "split": "listening_general",
+      "audio_file": "listening_general_2.wav",
+      "metadata": {
+        "original_index": 3,
+        "has_audio": true
+      }
+    },
+    {
+      "id": "listening_general_3",
+      "text": "If you hear a sound that suggests something is being packed away, what should you do next to stay safe?",
+      "expected_answer": "Ensure the item is securely stored to prevent damage.",
+      "category": "general",
+      "split": "listening_general",
+      "audio_file": "listening_general_3.wav",
+      "metadata": {
+        "original_index": 6,
+        "has_audio": true
+      }
+    },
+    {
+      "id": "listening_general_4",
+      "text": "You are planning to walk to your destination and you hear a sound. What should you wear?",
+      "expected_answer": "Waterproof boots.",
+      "category": "general",
+      "split": "listening_general",
+      "audio_file": "listening_general_4.wav",
+      "metadata": {
+        "original_index": 7,
+        "has_audio": true
+      }
+    },
+    {
+      "id": "listening_general_5",
+      "text": "Based on the sound you hear, what can you guess about the type of event that is happening?",
+      "expected_answer": "The event is likely casual and sociable, involving people who are familiar with each other.",
+      "category": "general",
+      "split": "listening_general",
+      "audio_file": "listening_general_5.wav",
+      "metadata": {
+        "original_index": 9,
+        "has_audio": true
+      }
+    },
+    {
+      "id": "listening_general_6",
+      "text": "If you wanted to use this sound in a sound installation, what kind of interactive feature could you add to make the listener's experience better?",
+      "expected_answer": "An interactive mechanism could be motion sensors that trigger the chimes when someone walks by, or wind simulators to mimic the natural occurrence of wind.",
+      "category": "general",
+      "split": "listening_general",
+      "audio_file": "listening_general_6.wav",
+      "metadata": {
+        "original_index": 15,
+        "has_audio": true
+      }
+    },
+    {
+      "id": "listening_general_7",
+      "text": "Should people pay more attention to their surroundings when they are outside, especially because of the sounds around them?",
+      "expected_answer": "Yes.",
+      "category": "general",
+      "split": "listening_general",
+      "audio_file": "listening_general_7.wav",
+      "metadata": {
+        "original_index": 16,
+        "has_audio": true
+      }
+    },
+    {
+      "id": "listening_general_8",
+      "text": "What sound made by humans can you hear before the train goes by?",
+      "expected_answer": "Sniffing.",
+      "category": "general",
+      "split": "listening_general",
+      "audio_file": "listening_general_8.wav",
+      "metadata": {
+        "original_index": 19,
+        "has_audio": true
+      }
+    },
+    {
+      "id": "listening_general_9",
+      "text": "What should you do if a sound makes you feel anxious or uncomfortable?",
+      "expected_answer": "Leave the area where the sound is playing or use noise-cancelling headphones.",
+      "category": "general",
+      "split": "listening_general",
+      "audio_file": "listening_general_9.wav",
+      "metadata": {
+        "original_index": 20,
+        "has_audio": true
+      }
+    },
+    {
+      "id": "listening_speech_0",
+      "text": "Please listen to this audio file and identify whether the voice sounds like a man or a woman.",
+      "expected_answer": "Man",
+      "category": "speech",
+      "split": "listening_speech",
+      "audio_file": "listening_speech_0.wav",
+      "metadata": {
+        "original_index": 0,
+        "has_audio": true
+      }
+    },
+    {
+      "id": "listening_speech_1",
+      "text": "Please listen to the recorded voice and determine whether the speaker is male or female.",
+      "expected_answer": "Male",
+      "category": "speech",
+      "split": "listening_speech",
+      "audio_file": "listening_speech_1.wav",
+      "metadata": {
+        "original_index": 1,
+        "has_audio": true
+      }
+    },
+    {
+      "id": "listening_speech_2",
+      "text": "Listen to the audio and determine whether the voice is male or female.",
+      "expected_answer": "Male",
+      "category": "speech",
+      "split": "listening_speech",
+      "audio_file": "listening_speech_2.wav",
+      "metadata": {
+        "original_index": 2,
+        "has_audio": true
+      }
+    },
+    {
+      "id": "listening_speech_3",
+      "text": "Which of the following is the first word connected to 'alarm type' that you hear in this audio? Is it A: please, B: at, C: soccer practice, or D: wake up?",
+      "expected_answer": "wake up",
+      "category": "speech",
+      "split": "listening_speech",
+      "audio_file": "listening_speech_3.wav",
+      "metadata": {
+        "original_index": 3,
+        "has_audio": true
+      }
+    },
+    {
+      "id": "listening_speech_4",
+      "text": "What is the first coffee-related word you hear in this clip? Is it A. please, B. make, C. creamy, or D. without sweetener?",
+      "expected_answer": "without sweetener",
+      "category": "speech",
+      "split": "listening_speech",
+      "audio_file": "listening_speech_4.wav",
+      "metadata": {
+        "original_index": 4,
+        "has_audio": true
+      }
+    },
+    {
+      "id": "listening_speech_5",
+      "text": "Which word in this audio is related to 'device type'? Is it A. the, B. start, C. coffee pot, or D. vacuum cleaner?",
+      "expected_answer": "vacuum cleaner",
+      "category": "speech",
+      "split": "listening_speech",
+      "audio_file": "listening_speech_5.wav",
+      "metadata": {
+        "original_index": 5,
+        "has_audio": true
+      }
+    },
+    {
+      "id": "listening_speech_6",
+      "text": "Which of the following is the first word in this sound clip that refers to a person? Is it A. Bob, B. An, C. Mariah Carey, or D. Jessica's?",
+      "expected_answer": "bob",
+      "category": "speech",
+      "split": "listening_speech",
+      "audio_file": "listening_speech_6.wav",
+      "metadata": {
+        "original_index": 6,
+        "has_audio": true
+      }
+    },
+    {
+      "id": "listening_speech_7",
+      "text": "Listen to this audio clip and tell me: Which is the first word that refers to a person? Is it A. pink, B. a, C. Ajay Devgn, or D. AllEarsNet?",
+      "expected_answer": "pink",
+      "category": "speech",
+      "split": "listening_speech",
+      "audio_file": "listening_speech_7.wav",
+      "metadata": {
+        "original_index": 7,
+        "has_audio": true
+      }
+    },
+    {
+      "id": "listening_speech_8",
+      "text": "In the following audio clip, which of these is the first word that relates to 'game_name'? Is it A: \"and\", B: \"begin\", C: \"Harry Potter and the Chamber of Secrets\", or D: \"chess\"?",
+      "expected_answer": "chess",
+      "category": "speech",
+      "split": "listening_speech",
+      "audio_file": "listening_speech_8.wav",
+      "metadata": {
+        "original_index": 8,
+        "has_audio": true
+      }
+    },
+    {
+      "id": "listening_speech_9",
+      "text": "Listen to the audio and identify the first time a word related to 'game_name' is mentioned. Your options are: A. a, B. game, C. contra, D. parcheese game.",
+      "expected_answer": "contra",
+      "category": "speech",
+      "split": "listening_speech",
+      "audio_file": "listening_speech_9.wav",
+      "metadata": {
+        "original_index": 9,
+        "has_audio": true
+      }
+    },
+    {
+      "id": "speaking_assistant_0",
+      "text": "what would be a good idea for a quiz about omnichannel marketing on my website",
+      "expected_answer": "",
+      "category": "assistant",
+      "split": "speaking_assistant",
+      "audio_file": "speaking_assistant_0.wav",
+      "metadata": {
+        "original_index": 2,
+        "has_audio": true
+      }
+    },
+    {
+      "id": "speaking_assistant_1",
+      "text": "How do I bake a perfect loaf of bread? Could you provide the steps?",
+      "expected_answer": "",
+      "category": "assistant",
+      "split": "speaking_assistant",
+      "audio_file": "speaking_assistant_1.wav",
+      "metadata": {
+        "original_index": 3,
+        "has_audio": true
+      }
+    },
+    {
+      "id": "speaking_assistant_2",
+      "text": "What is the method for making homemade pizza from scratch? Please guide me.",
+      "expected_answer": "",
+      "category": "assistant",
+      "split": "speaking_assistant",
+      "audio_file": "speaking_assistant_2.wav",
+      "metadata": {
+        "original_index": 4,
+        "has_audio": true
+      }
+    },
+    {
+      "id": "speaking_assistant_3",
+      "text": "How can I set up a home office that promotes focus and efficiency? What are the steps?",
+      "expected_answer": "",
+      "category": "assistant",
+      "split": "speaking_assistant",
+      "audio_file": "speaking_assistant_3.wav",
+      "metadata": {
+        "original_index": 5,
+        "has_audio": true
+      }
+    },
+    {
+      "id": "speaking_assistant_4",
+      "text": "How do I make cold brew coffee at home? Can you share the process?",
+      "expected_answer": "",
+      "category": "assistant",
+      "split": "speaking_assistant",
+      "audio_file": "speaking_assistant_4.wav",
+      "metadata": {
+        "original_index": 7,
+        "has_audio": true
+      }
+    },
+    {
+      "id": "speaking_assistant_5",
+      "text": "What are the steps to write a compelling cover letter for a job application?",
+      "expected_answer": "",
+      "category": "assistant",
+      "split": "speaking_assistant",
+      "audio_file": "speaking_assistant_5.wav",
+      "metadata": {
+        "original_index": 8,
+        "has_audio": true
+      }
+    },
+    {
+      "id": "speaking_assistant_6",
+      "text": "How can I create a capsule wardrobe that maximizes versatility and minimizes clutter?",
+      "expected_answer": "",
+      "category": "assistant",
+      "split": "speaking_assistant",
+      "audio_file": "speaking_assistant_6.wav",
+      "metadata": {
+        "original_index": 9,
+        "has_audio": true
+      }
+    },
+    {
+      "id": "speaking_assistant_7",
+      "text": "Can you provide steps for creating a self-made home decor project, like wall art?",
+      "expected_answer": "",
+      "category": "assistant",
+      "split": "speaking_assistant",
+      "audio_file": "speaking_assistant_7.wav",
+      "metadata": {
+        "original_index": 10,
+        "has_audio": true
+      }
+    },
+    {
+      "id": "speaking_assistant_8",
+      "text": "What are the steps to create a successful YouTube channel from scratch?",
+      "expected_answer": "",
+      "category": "assistant",
+      "split": "speaking_assistant",
+      "audio_file": "speaking_assistant_8.wav",
+      "metadata": {
+        "original_index": 11,
+        "has_audio": true
+      }
+    },
+    {
+      "id": "speaking_assistant_9",
+      "text": "How do I start composting at home to reduce waste? Could you share the process?",
+      "expected_answer": "",
+      "category": "assistant",
+      "split": "speaking_assistant",
+      "audio_file": "speaking_assistant_9.wav",
+      "metadata": {
+        "original_index": 12,
+        "has_audio": true
+      }
+    },
+    {
+      "id": "speaking_instruction_following_0",
+      "text": "Tell me a funny joke. Oh, change it to a heartwarming short story.",
+      "expected_answer": "",
+      "category": "instruction_following",
+      "split": "speaking_instruction_following",
+      "audio_file": "speaking_instruction_following_0.wav",
+      "metadata": {
+        "original_index": 0,
+        "has_audio": true
+      }
+    },
+    {
+      "id": "speaking_instruction_following_1",
+      "text": "Which of the following is not a fish: salmon or sweetsop? In your response, the word \"clearly\" must appear at least once, and your answer should be exactly two sentences long. ",
+      "expected_answer": "",
+      "category": "instruction_following",
+      "split": "speaking_instruction_following",
+      "audio_file": "speaking_instruction_following_1.wav",
+      "metadata": {
+        "original_index": 1,
+        "has_audio": true
+      }
+    },
+    {
+      "id": "speaking_instruction_following_2",
+      "text": "What are some general tips for beginners starting an exercise routine? Then, identify the best exercises for beginners based on those tips. Next, explain how to perform one of these exercises correctly. Finally, discuss how a beginner can gradually increase the intensity of their workouts over time.",
+      "expected_answer": "",
+      "category": "instruction_following",
+      "split": "speaking_instruction_following",
+      "audio_file": "speaking_instruction_following_2.wav",
+      "metadata": {
+        "original_index": 2,
+        "has_audio": true
+      }
+    },
+    {
+      "id": "speaking_instruction_following_3",
+      "text": "Can you provide tips on how to build a successful online business? Could you please give me five suggestions?",
+      "expected_answer": "",
+      "category": "instruction_following",
+      "split": "speaking_instruction_following",
+      "audio_file": "speaking_instruction_following_3.wav",
+      "metadata": {
+        "original_index": 3,
+        "has_audio": true
+      }
+    },
+    {
+      "id": "speaking_instruction_following_4",
+      "text": "Explain why we have seasons. In your response, the word \"sun\" must appear at least three times, and the explanation should be exactly four sentences long.",
+      "expected_answer": "",
+      "category": "instruction_following",
+      "split": "speaking_instruction_following",
+      "audio_file": "speaking_instruction_following_4.wav",
+      "metadata": {
+        "original_index": 4,
+        "has_audio": true
+      }
+    },
+    {
+      "id": "speaking_instruction_following_5",
+      "text": "Repeat the following question with sad emotion. I've been experiencing panic attacks whenever the phone rings, and it's making me feel increasingly isolated",
+      "expected_answer": "",
+      "category": "instruction_following",
+      "split": "speaking_instruction_following",
+      "audio_file": "speaking_instruction_following_5.wav",
+      "metadata": {
+        "original_index": 5,
+        "has_audio": true
+      }
+    },
+    {
+      "id": "speaking_instruction_following_6",
+      "text": "I am a full-time college student with a part-time job to support myself, and my weekly schedule is quite packed. Additionally, I live in a rural area where volunteer opportunities are limited, and transportation is not always reliable. Furthermore, I have a mild physical disability that restricts me from engaging in physically demanding tasks. Could you provide suggestions on how to engage in community service or volunteer work despite these challenges? Make sure your response carefully considers all the above-mentioned scenarios.",
+      "expected_answer": "",
+      "category": "instruction_following",
+      "split": "speaking_instruction_following",
+      "audio_file": "speaking_instruction_following_6.wav",
+      "metadata": {
+        "original_index": 6,
+        "has_audio": true
+      }
+    },
+    {
+      "id": "speaking_instruction_following_7",
+      "text": "How do I make cold brew coffee at home? The last sentence in your response should repeat twice.",
+      "expected_answer": "",
+      "category": "instruction_following",
+      "split": "speaking_instruction_following",
+      "audio_file": "speaking_instruction_following_7.wav",
+      "metadata": {
+        "original_index": 7,
+        "has_audio": true
+      }
+    },
+    {
+      "id": "speaking_instruction_following_8",
+      "text": "Repeat the following question at twice my speaking speed. I've been struggling to keep up with my studies, and the constant effort is giving me headaches",
+      "expected_answer": "",
+      "category": "instruction_following",
+      "split": "speaking_instruction_following",
+      "audio_file": "speaking_instruction_following_8.wav",
+      "metadata": {
+        "original_index": 8,
+        "has_audio": true
+      }
+    },
+    {
+      "id": "speaking_instruction_following_9",
+      "text": "Repeat the following question without any explanation. I started gardening this weekend and already feel a wonderful connection with my plants. Could this positive energy be a sign of a great gardening season ahead?",
+      "expected_answer": "",
+      "category": "instruction_following",
+      "split": "speaking_instruction_following",
+      "audio_file": "speaking_instruction_following_9.wav",
+      "metadata": {
+        "original_index": 9,
+        "has_audio": true
+      }
+    },
+    {
+      "id": "speaking_reasoning_0",
+      "text": "Birds have wings, fish have fins, so what does a puppy have?",
+      "expected_answer": "Birds have wings, fish have fins, so a puppy has legs.",
+      "category": "reasoning",
+      "split": "speaking_reasoning",
+      "audio_file": "speaking_reasoning_0.wav",
+      "metadata": {
+        "original_index": 0,
+        "has_audio": true
+      }
+    },
+    {
+      "id": "speaking_reasoning_1",
+      "text": "A surgeon is to operations as a lawyer is to cases, so what is a pilot to?",
+      "expected_answer": "A surgeon is to operations as a lawyer is to cases, so a pilot is to flights.",
+      "category": "reasoning",
+      "split": "speaking_reasoning",
+      "audio_file": "speaking_reasoning_1.wav",
+      "metadata": {
+        "original_index": 2,
+        "has_audio": true
+      }
+    },
+    {
+      "id": "speaking_reasoning_2",
+      "text": "Why is it hard for a young child to read a long book due to a lack of knowledge, because of the cover, due to no pictures, or because of many words?",
+      "expected_answer": "It is hard for a young child to read a long book because of many words.",
+      "category": "reasoning",
+      "split": "speaking_reasoning",
+      "audio_file": "speaking_reasoning_2.wav",
+      "metadata": {
+        "original_index": 3,
+        "has_audio": true
+      }
+    },
+    {
+      "id": "speaking_reasoning_3",
+      "text": "Answering multiple-choice questions is often easier than answering fill-in or completion questions, because multiple choice questions\nA. require less time to answer\nB. provide more retrieval cues\nC. check memorization rather than critical thinking\nD. are definitional rather than conceptual\n\nWhat is the answer to the above multiple choice question? Select one of the following: A, B, C, or D.",
+      "expected_answer": "B",
+      "category": "reasoning",
+      "split": "speaking_reasoning",
+      "audio_file": "speaking_reasoning_3.wav",
+      "metadata": {
+        "original_index": 4,
+        "has_audio": true
+      }
+    },
+    {
+      "id": "speaking_reasoning_4",
+      "text": "What are the two major functions of the spinal cord? Discuss.\nA. Stores memories and processes complex thought\nB. Acts as a messenger and directs some simple actions independently\nC. Controls breathing and circulates lymph\nD. Regulates hormone release and immune response\n\nWhat is the answer to the above multiple choice question? Select one of the following: A, B, C, or D.",
+      "expected_answer": "B",
+      "category": "reasoning",
+      "split": "speaking_reasoning",
+      "audio_file": "speaking_reasoning_4.wav",
+      "metadata": {
+        "original_index": 5,
+        "has_audio": true
+      }
+    },
+    {
+      "id": "speaking_reasoning_5",
+      "text": "Experiencing intense feelings of shame and guilt upon admitting to a counselor that a family problem exists is common among traditional\nA. Eastern European-Americans\nB. Asian-Americans\nC. African-Americans\nD. Native North Americans\n\nWhat is the answer to the above multiple choice question? Select one of the following: A, B, C, or D.",
+      "expected_answer": "B",
+      "category": "reasoning",
+      "split": "speaking_reasoning",
+      "audio_file": "speaking_reasoning_5.wav",
+      "metadata": {
+        "original_index": 6,
+        "has_audio": true
+      }
+    },
+    {
+      "id": "speaking_reasoning_6",
+      "text": "What are three factors that influence our olfactory experience?\nA. Volume, density, and mass of the substance\nB. Color, texture, and size of the substance\nC. Quality, concentration, and rate of flow of the stimulus\nD. Sound intensity, pitch, and duration\n\nWhat is the answer to the above multiple choice question? Select one of the following: A, B, C, or D.",
+      "expected_answer": "C",
+      "category": "reasoning",
+      "split": "speaking_reasoning",
+      "audio_file": "speaking_reasoning_6.wav",
+      "metadata": {
+        "original_index": 7,
+        "has_audio": true
+      }
+    },
+    {
+      "id": "speaking_reasoning_7",
+      "text": "A 66-year-old client who is depressed, has rhythmic hand movements, and has a flattened affect is probably suffering from\nA. Multiple Sclerosis\nB. Schizophrenia\nC. Vascular Dementia\nD. Parkinson's disease\n\nWhat is the answer to the above multiple choice question? Select one of the following: A, B, C, or D.",
+      "expected_answer": "D",
+      "category": "reasoning",
+      "split": "speaking_reasoning",
+      "audio_file": "speaking_reasoning_7.wav",
+      "metadata": {
+        "original_index": 8,
+        "has_audio": true
+      }
+    },
+    {
+      "id": "speaking_reasoning_8",
+      "text": "Individuals with Moderate Mental Retardation\nA. can be trained to perform unskilled work under close supervision\nB. make up the majority of the mentally retarded population\nC. usually acquire academic skills up to approximately eighth-grade level\nD. can live independently without any supervision\n\nWhat is the answer to the above multiple choice question? Select one of the following: A, B, C, or D.",
+      "expected_answer": "A",
+      "category": "reasoning",
+      "split": "speaking_reasoning",
+      "audio_file": "speaking_reasoning_8.wav",
+      "metadata": {
+        "original_index": 9,
+        "has_audio": true
+      }
+    },
+    {
+      "id": "speaking_reasoning_9",
+      "text": "Which of the following kinds of therapies would most likely be used by a somatic therapist?\nA. psychoanalysis\nB. chemotherapy\nC. counterconditioning\nD. hypnotherapy\n\nWhat is the answer to the above multiple choice question? Select one of the following: A, B, C, or D.",
+      "expected_answer": "B",
+      "category": "reasoning",
+      "split": "speaking_reasoning",
+      "audio_file": "speaking_reasoning_9.wav",
+      "metadata": {
+        "original_index": 10,
+        "has_audio": true
+      }
+    }
+  ]
+}

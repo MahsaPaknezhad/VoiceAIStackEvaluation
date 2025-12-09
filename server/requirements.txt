@@ -1,0 +1,12 @@
+fastapi
+uvicorn
+python-dotenv
+pipecat-ai[aws,webrtc,deepgram,local-smart-turn-v3]
+pipecat-ai-small-webrtc-prebuilt
+pipecat-ai-whisker
+strands-agents
+soundfile
+jiwer
+datasets
+torchaudio
+librosa

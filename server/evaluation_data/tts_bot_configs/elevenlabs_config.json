@@ -1,0 +1,15 @@
+{
+  "tts_service_id": "elevenlabs",
+  "tts_service_name": "ElevenLabs",
+  "module": "pipecat.services.elevenlabs.tts",
+  "class": "ElevenLabsTTSService",
+  "config": {
+    "voice_id": "21m00Tcm4TlvDq8ikWAM"
+  },
+  "available_voices": [
+    "21m00Tcm4TlvDq8ikWAM",
+    "AZnzlk1XvdvUeBnXmlld",
+    "EXAVITQu4vr4xnSDxMaL"
+  ],
+  "instructions": "\n# Configuration for ElevenLabs\n\nTo use this TTS service in bot.py, replace the TTS initialization with:\n\nfrom pipecat.services.elevenlabs.tts import ElevenLabsTTSService\n\ntts = ElevenLabsTTSService(\n    api_key=os.getenv(\"API_KEY\"),  # Use appropriate env var\n    **{\n    \"voice_id\": \"21m00Tcm4TlvDq8ikWAM\"\n}\n)\n\n# Available voices: ['21m00Tcm4TlvDq8ikWAM', 'AZnzlk1XvdvUeBnXmlld', 'EXAVITQu4vr4xnSDxMaL']\n"
+}

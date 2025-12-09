@@ -1,0 +1,9 @@
+{
+  "tts_service_id": "fish_audio",
+  "tts_service_name": "Fish Audio",
+  "module": "pipecat.services.fish.tts",
+  "class": "FishTTSService",
+  "config": {},
+  "available_voices": [],
+  "instructions": "\n# Configuration for Fish Audio\n\nTo use this TTS service in bot.py, replace the TTS initialization with:\n\nfrom pipecat.services.fish.tts import FishTTSService\n\ntts = FishTTSService(\n    api_key=os.getenv(\"API_KEY\"),  # Use appropriate env var\n    **{}\n)\n\n# Available voices: Check service documentation\n"
+}

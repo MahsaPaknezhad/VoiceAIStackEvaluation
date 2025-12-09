@@ -1,0 +1,8 @@
+{
+  "stt_service_id": "assemblyai",
+  "stt_service_name": "AssemblyAI",
+  "module": "pipecat.services.assemblyai.stt",
+  "class": "AssemblyAISTTService",
+  "config": {},
+  "instructions": "\n# Configuration for AssemblyAI\n\nTo use this STT service in bot.py, replace the STT initialization with:\n\nfrom pipecat.services.assemblyai.stt import AssemblyAISTTService\n\nstt = AssemblyAISTTService(\n    api_key=os.getenv(\"API_KEY\"),  # Use appropriate env var\n    **{}\n)\n"
+}

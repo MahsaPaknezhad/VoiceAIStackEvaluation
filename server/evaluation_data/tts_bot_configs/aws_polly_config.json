@@ -1,0 +1,23 @@
+{
+  "tts_service_id": "aws_polly",
+  "tts_service_name": "AWS Polly",
+  "module": "pipecat.services.aws.tts",
+  "class": "AWSPollyTTSService",
+  "config": {
+    "voice_id": "Joanna",
+    "engine": "neural"
+  },
+  "available_voices": [
+    "Joanna",
+    "Matthew",
+    "Olivia",
+    "Salli",
+    "Kendra",
+    "Kimberly",
+    "Ivy",
+    "Joey",
+    "Justin",
+    "Kevin"
+  ],
+  "instructions": "\n# Configuration for AWS Polly\n\nTo use this TTS service in bot.py, replace the TTS initialization with:\n\nfrom pipecat.services.aws.tts import AWSPollyTTSService\n\ntts = AWSPollyTTSService(\n    api_key=os.getenv(\"API_KEY\"),  # Use appropriate env var\n    **{\n    \"voice_id\": \"Joanna\",\n    \"engine\": \"neural\"\n}\n)\n\n# Available voices: ['Joanna', 'Matthew', 'Olivia', 'Salli', 'Kendra', 'Kimberly', 'Ivy', 'Joey', 'Justin', 'Kevin']\n"
+}
