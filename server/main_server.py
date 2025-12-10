@@ -12,7 +12,7 @@ from contextlib import asynccontextmanager
 from typing import Dict
 
 import uvicorn
-from bot import run_bot
+from src.core.voice_bot import run_bot
 from dotenv import load_dotenv
 from fastapi import BackgroundTasks, FastAPI, HTTPException
 from fastapi.responses import FileResponse

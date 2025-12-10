@@ -6,7 +6,11 @@
   "config": {
     "model": "nova-3-general",
     "language": "en-AU",
-    "smart_format": true
+    "smart_format": true,
+    "interim_results": true,
+    "endpointing": 1000,
+    "utterance_end_ms": 2000,
+    "vad_events": true
   },
-  "instructions": "\n# Configuration for Deepgram Nova 3\n\nTo use this STT service in bot.py, replace the STT initialization with:\n\nfrom pipecat.services.deepgram.stt import DeepgramSTTService\n\nstt = DeepgramSTTService(\n    api_key=os.getenv(\"API_KEY\"),  # Use appropriate env var\n    **{\n    \"model\": \"nova-3-general\",\n    \"language\": \"en-AU\",\n    \"smart_format\": true\n}\n)\n"
+  "instructions": "\n# Configuration for Deepgram Nova 3\n\nTo use this STT service in bot.py, replace the STT initialization with:\n\nfrom pipecat.services.deepgram.stt import DeepgramSTTService\n\nstt = DeepgramSTTService(\n    api_key=os.getenv(\"API_KEY\"),  # Use appropriate env var\n    **{\n    \"model\": \"nova-3-general\",\n    \"language\": \"en-AU\",\n    \"smart_format\": true,\n    \"endpointing\": 1000,\n    \"utterance_end_ms\": 2000\n}\n)\n"
 }

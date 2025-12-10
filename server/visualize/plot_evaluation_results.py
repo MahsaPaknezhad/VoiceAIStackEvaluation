@@ -73,10 +73,11 @@ def load_evaluation_results(results_dir: str) -> List[Dict]:
     
     return results
 
-def extract_metrics(results: List[Dict]) -> Tuple[Dict, Dict]:
+def extract_metrics(results: List[Dict]) -> Tuple[Dict, Dict, Dict]:
     """Extract STT and TTS metrics with statistics."""
     stt_metrics = {}
     tts_metrics = {}
+    quality_metrics = {}
     
     for result in results:
         stt_model = result['stt_model']
@@ -86,6 +87,12 @@ def extract_metrics(results: List[Dict]) -> Tuple[Dict, Dict]:
         tts_latencies = []
         scores = []
         wers = []
+        fluency = []
+        tone = []
+        naturalness = []
+        llm_fluency = []
+        llm_tone = []
+        llm_naturalness = []
         
         for eval_item in result.get('evaluations', []):
             if eval_item.get('stt_latency_ms') is not None:
@@ -97,6 +104,20 @@ def extract_metrics(results: List[Dict]) -> Tuple[Dict, Dict]:
             judge_scores = eval_item.get('judge_scores', {})
             if judge_scores.get('overall') is not None:
                 scores.append(judge_scores['overall'])
+            
+            voice_quality = eval_item.get('voice_quality', {})
+            if voice_quality.get('fluency', {}).get('score') is not None:
+                fluency.append(voice_quality['fluency']['score'])
+            if voice_quality.get('tone', {}).get('score') is not None:
+                tone.append(voice_quality['tone']['score'])
+            if voice_quality.get('naturalness', {}).get('score') is not None:
+                naturalness.append(voice_quality['naturalness']['score'])
+            if voice_quality.get('llm_fluency') is not None:
+                llm_fluency.append(voice_quality['llm_fluency'])
+            if voice_quality.get('llm_tone') is not None:
+                llm_tone.append(voice_quality['llm_tone'])
+            if voice_quality.get('llm_naturalness') is not None:
+                llm_naturalness.append(voice_quality['llm_naturalness'])
         
         # STT metrics
         if stt_model not in stt_metrics:
@@ -123,6 +144,34 @@ def extract_metrics(results: List[Dict]) -> Tuple[Dict, Dict]:
             tts_metrics[tts_model]['score'].append(np.mean(scores))
             tts_metrics[tts_model]['latency_std'].append(np.std(tts_latencies))
             tts_metrics[tts_model]['score_std'].append(np.std(scores))
+        
+        # Quality metrics
+        if tts_model not in quality_metrics:
+            quality_metrics[tts_model] = {
+                'fluency': [], 'tone': [], 'naturalness': [],
+                'llm_fluency': [], 'llm_tone': [], 'llm_naturalness': [],
+                'fluency_std': [], 'tone_std': [], 'naturalness_std': [],
+                'llm_fluency_std': [], 'llm_tone_std': [], 'llm_naturalness_std': []
+            }
+        
+        if fluency:
+            quality_metrics[tts_model]['fluency'].append(np.mean(fluency))
+            quality_metrics[tts_model]['fluency_std'].append(np.std(fluency))
+        if tone:
+            quality_metrics[tts_model]['tone'].append(np.mean(tone))
+            quality_metrics[tts_model]['tone_std'].append(np.std(tone))
+        if naturalness:
+            quality_metrics[tts_model]['naturalness'].append(np.mean(naturalness))
+            quality_metrics[tts_model]['naturalness_std'].append(np.std(naturalness))
+        if llm_fluency:
+            quality_metrics[tts_model]['llm_fluency'].append(np.mean(llm_fluency))
+            quality_metrics[tts_model]['llm_fluency_std'].append(np.std(llm_fluency))
+        if llm_tone:
+            quality_metrics[tts_model]['llm_tone'].append(np.mean(llm_tone))
+            quality_metrics[tts_model]['llm_tone_std'].append(np.std(llm_tone))
+        if llm_naturalness:
+            quality_metrics[tts_model]['llm_naturalness'].append(np.mean(llm_naturalness))
+            quality_metrics[tts_model]['llm_naturalness_std'].append(np.std(llm_naturalness))
     
     # Aggregate
     for model in stt_metrics:
@@ -141,7 +190,23 @@ def extract_metrics(results: List[Dict]) -> Tuple[Dict, Dict]:
             'score_std': np.mean(tts_metrics[model]['score_std'])
         }
     
-    return stt_metrics, tts_metrics
+    for model in quality_metrics:
+        quality_metrics[model] = {
+            'fluency': np.mean(quality_metrics[model]['fluency']) if quality_metrics[model]['fluency'] else None,
+            'tone': np.mean(quality_metrics[model]['tone']) if quality_metrics[model]['tone'] else None,
+            'naturalness': np.mean(quality_metrics[model]['naturalness']) if quality_metrics[model]['naturalness'] else None,
+            'llm_fluency': np.mean(quality_metrics[model]['llm_fluency']) if quality_metrics[model]['llm_fluency'] else None,
+            'llm_tone': np.mean(quality_metrics[model]['llm_tone']) if quality_metrics[model]['llm_tone'] else None,
+            'llm_naturalness': np.mean(quality_metrics[model]['llm_naturalness']) if quality_metrics[model]['llm_naturalness'] else None,
+            'fluency_std': np.mean(quality_metrics[model]['fluency_std']) if quality_metrics[model]['fluency_std'] else 0,
+            'tone_std': np.mean(quality_metrics[model]['tone_std']) if quality_metrics[model]['tone_std'] else 0,
+            'naturalness_std': np.mean(quality_metrics[model]['naturalness_std']) if quality_metrics[model]['naturalness_std'] else 0,
+            'llm_fluency_std': np.mean(quality_metrics[model]['llm_fluency_std']) if quality_metrics[model]['llm_fluency_std'] else 0,
+            'llm_tone_std': np.mean(quality_metrics[model]['llm_tone_std']) if quality_metrics[model]['llm_tone_std'] else 0,
+            'llm_naturalness_std': np.mean(quality_metrics[model]['llm_naturalness_std']) if quality_metrics[model]['llm_naturalness_std'] else 0
+        }
+    
+    return stt_metrics, tts_metrics, quality_metrics
 
 def confidence_ellipse(x, y, ax, n_std=1.0, facecolor='none', **kwargs):
     """Draw confidence ellipse."""
@@ -190,38 +255,39 @@ def plot_stt_metrics(stt_metrics: Dict, output_path: str):
         x_std = metrics['latency_std']
         y_std = metrics['wer_std']
         
-        # Error ellipse
-        ellipse = Ellipse((x, y), width=x_std*2, height=y_std*2,
-                         facecolor=style['color'], alpha=0.15, 
-                         edgecolor=style['color'], linewidth=1, linestyle='--')
+        # Smaller error ellipse
+        ellipse = Ellipse((x, y), width=x_std*1.2, height=y_std*1.2,
+                         facecolor=style['color'], alpha=0.1, 
+                         edgecolor=style['color'], linewidth=1.5, linestyle='--')
         ax.add_patch(ellipse)
         
         # Data point
         label = style['label'] if provider not in plotted_providers else None
-        ax.scatter(x, y, s=120, marker=style['marker'], 
-                  color=style['color'], edgecolors='white', linewidth=1.5,
+        ax.scatter(x, y, s=150, marker=style['marker'], 
+                  color=style['color'], edgecolors='white', linewidth=2,
                   label=label, zorder=3, alpha=0.9)
         
         plotted_providers.add(provider)
         
-        # Model label - use service ID directly
-        ax.annotate(model, (x, y), xytext=(8, 8), 
-                   textcoords='offset points', fontsize=9,
-                   bbox=dict(boxstyle='round,pad=0.3', facecolor='white', 
-                            edgecolor='gray', alpha=0.8, linewidth=0.5))
+        # Model label
+        ax.annotate(model, (x, y), xytext=(10, 10), 
+                   textcoords='offset points', fontsize=10,
+                   bbox=dict(boxstyle='round,pad=0.4', facecolor='white', 
+                            edgecolor='gray', alpha=0.95, linewidth=0.8))
     
-    ax.set_xlabel('Latency (ms)', fontweight='normal')
-    ax.set_ylabel('Word Error Rate', fontweight='normal')
-    ax.set_title('Speech-to-Text Performance Analysis', fontweight='bold', pad=15)
+    ax.set_xlabel('Latency (ms)', fontweight='normal', fontsize=13)
+    ax.set_ylabel('Word Error Rate', fontweight='normal', fontsize=13)
+    ax.set_title('Speech-to-Text Performance Analysis', fontweight='bold', pad=15, fontsize=14)
+    ax.tick_params(axis='both', labelsize=11)
     
     # Add note about error ellipses
     ax.text(0.02, 0.98, 'Ellipses show ±1 standard deviation', 
-           transform=ax.transAxes, fontsize=9, verticalalignment='top',
+           transform=ax.transAxes, fontsize=10, verticalalignment='top',
            bbox=dict(boxstyle='round,pad=0.4', facecolor='white', 
-                    edgecolor='gray', alpha=0.9, linewidth=0.5))
+                    edgecolor='gray', alpha=0.95, linewidth=0.8))
     
-    ax.legend(loc='best', frameon=True, edgecolor='gray')
-    ax.grid(True, alpha=0.25, linestyle='--', linewidth=0.5)
+    ax.legend(loc='best', frameon=True, edgecolor='gray', fontsize=11)
+    ax.grid(True, alpha=0.3, linestyle='--', linewidth=0.7)
     
     plt.tight_layout()
     plt.savefig(output_path, dpi=300, bbox_inches='tight', facecolor='white')
@@ -245,41 +311,101 @@ def plot_tts_metrics(tts_metrics: Dict, output_path: str):
         x_std = metrics['latency_std']
         y_std = metrics['score_std']
         
-        # Error ellipse
-        ellipse = Ellipse((x, y), width=x_std*2, height=y_std*2,
-                         facecolor=colors[i], alpha=0.15,
-                         edgecolor=colors[i], linewidth=1, linestyle='--')
+        # Smaller error ellipse
+        ellipse = Ellipse((x, y), width=x_std*1.2, height=y_std*1.2,
+                         facecolor=colors[i], alpha=0.1,
+                         edgecolor=colors[i], linewidth=1.5, linestyle='--')
         ax.add_patch(ellipse)
         
         # Data point
         marker = markers[i % len(markers)]
-        ax.scatter(x, y, s=120, marker=marker, color=colors[i],
-                  edgecolors='white', linewidth=1.5, label=model,
+        ax.scatter(x, y, s=150, marker=marker, color=colors[i],
+                  edgecolors='white', linewidth=2, label=model,
                   zorder=3, alpha=0.9)
         
-        # Model label - use service ID directly
-        ax.annotate(model, (x, y), xytext=(8, 8),
-                   textcoords='offset points', fontsize=9,
-                   bbox=dict(boxstyle='round,pad=0.3', facecolor='white',
-                            edgecolor='gray', alpha=0.8, linewidth=0.5))
+        # Model label
+        ax.annotate(model, (x, y), xytext=(10, 10),
+                   textcoords='offset points', fontsize=10,
+                   bbox=dict(boxstyle='round,pad=0.4', facecolor='white',
+                            edgecolor='gray', alpha=0.95, linewidth=0.8))
     
     # Add note about error ellipses
     ax.text(0.02, 0.98, 'Ellipses show ±1 standard deviation', 
-           transform=ax.transAxes, fontsize=9, verticalalignment='top',
+           transform=ax.transAxes, fontsize=10, verticalalignment='top',
            bbox=dict(boxstyle='round,pad=0.4', facecolor='white', 
-                    edgecolor='gray', alpha=0.9, linewidth=0.5))
+                    edgecolor='gray', alpha=0.95, linewidth=0.8))
     
-    ax.set_xlabel('Latency (ms)', fontweight='normal')
-    ax.set_ylabel('Quality Score (0-10)', fontweight='normal')
-    ax.set_title('Text-to-Speech Performance Analysis', fontweight='bold', pad=15)
+    ax.set_xlabel('Latency (ms)', fontweight='normal', fontsize=13)
+    ax.set_ylabel('Quality Score (0-10)', fontweight='normal', fontsize=13)
+    ax.set_title('Text-to-Speech Performance Analysis', fontweight='bold', pad=15, fontsize=14)
     ax.set_ylim(0, 10.5)
-    ax.legend(loc='best', frameon=True, edgecolor='gray', ncol=1)
-    ax.grid(True, alpha=0.25, linestyle='--', linewidth=0.5)
+    ax.tick_params(axis='both', labelsize=11)
+    ax.legend(loc='best', frameon=True, edgecolor='gray', ncol=1, fontsize=11)
+    ax.grid(True, alpha=0.3, linestyle='--', linewidth=0.7)
     
     plt.tight_layout()
     plt.savefig(output_path, dpi=300, bbox_inches='tight', facecolor='white')
     print(f"Saved: {output_path}")
     plt.close()
+
+def plot_quality_metrics(quality_metrics: Dict, output_dir: str):
+    """Plot quality metrics: fluency, tone, naturalness and LLM variants."""
+    metrics_to_plot = [
+        ('fluency', 'Fluency', 'Acoustic Analysis'),
+        ('tone', 'Tone', 'Acoustic Analysis'),
+        ('naturalness', 'Naturalness', 'Acoustic Analysis'),
+        ('llm_fluency', 'Fluency', 'LLM Evaluation'),
+        ('llm_tone', 'Tone', 'LLM Evaluation'),
+        ('llm_naturalness', 'Naturalness', 'LLM Evaluation')
+    ]
+    
+    # Provider-specific colors
+    provider_colors = {
+        'aws_polly': '#1f77b4',
+        'deepgram_aura': '#17becf',
+        'elevenlabs': '#9467bd',
+        'cartesia': '#ff7f0e',
+        'openai': '#2ca02c'
+    }
+    
+    for metric_key, metric_label, method in metrics_to_plot:
+        filtered = {k: v for k, v in quality_metrics.items() if v.get(metric_key) is not None}
+        if not filtered:
+            continue
+        
+        fig, ax = plt.subplots(figsize=(10, 7))
+        
+        models = sorted(filtered.keys())
+        values = [filtered[m][metric_key] for m in models]
+        stds = [filtered[m].get(f'{metric_key}_std', 0) for m in models]
+        
+        # Assign distinct colors per service
+        colors = [provider_colors.get(m, provider_colors.get(m.split('_')[0] + '_' + m.split('_')[-1], '#7f7f7f')) for m in models]
+        
+        bars = ax.barh(models, values, xerr=stds, color=colors, alpha=0.2, 
+                      edgecolor='white', linewidth=2.5, capsize=6, 
+                      error_kw={'ecolor': '#333333', 'elinewidth': 2})
+        
+        ax.set_xlabel('Score (0-10)', fontweight='normal', fontsize=13)
+        ax.set_ylabel('TTS Service', fontweight='normal', fontsize=13)
+        ax.set_title(f'{metric_label} Assessment ({method})', fontweight='bold', pad=15, fontsize=14)
+        ax.set_xlim(0, 10.5)
+        ax.tick_params(axis='both', labelsize=11)
+        ax.grid(True, axis='x', alpha=0.3, linestyle='--', linewidth=0.7)
+        ax.axvline(x=5, color='#666666', linestyle=':', linewidth=1.5, alpha=0.6, zorder=0)
+        
+        # Add statistical note
+        ax.text(0.98, 0.02, 'Error bars: ±1 SD', 
+               transform=ax.transAxes, fontsize=10, 
+               horizontalalignment='right', verticalalignment='bottom',
+               bbox=dict(boxstyle='round,pad=0.4', facecolor='white', 
+                        edgecolor='gray', alpha=0.95, linewidth=0.8))
+        
+        plt.tight_layout()
+        filename = f"tts_{metric_key}.png"
+        plt.savefig(f"{output_dir}/{filename}", dpi=300, bbox_inches='tight', facecolor='white')
+        print(f"Saved: {output_dir}/{filename}")
+        plt.close()
 
 def main():
     script_dir = Path(__file__).parent
@@ -298,12 +424,13 @@ def main():
         return
     
     print("Extracting metrics...")
-    stt_metrics, tts_metrics = extract_metrics(results)
+    stt_metrics, tts_metrics, quality_metrics = extract_metrics(results)
     print(f"STT models: {len(stt_metrics)}, TTS models: {len(tts_metrics)}")
     
     print("Generating plots...")
     plot_stt_metrics(stt_metrics, str(output_dir / "stt_latency_vs_wer.png"))
     plot_tts_metrics(tts_metrics, str(output_dir / "tts_latency_vs_quality.png"))
+    plot_quality_metrics(quality_metrics, str(output_dir))
     
     print(f"\nComplete. Plots saved to {output_dir}")
 

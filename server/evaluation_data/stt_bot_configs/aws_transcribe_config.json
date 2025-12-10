@@ -4,7 +4,12 @@
   "module": "pipecat.services.aws.stt",
   "class": "AWSTranscribeSTTService",
   "config": {
-    "region": "us-east-1"
+    "region": "ap-southeast-2",
+    "session_timeout": 60000,
+    "enable_partial_results_stabilization": true,
+    "partial_results_stability": "high",
+    "vocabulary_filter_method": "remove",
+    "max_speaker_labels": 1
   },
-  "instructions": "\n# Configuration for AWS Transcribe\n\nTo use this STT service in bot.py, replace the STT initialization with:\n\nfrom pipecat.services.aws.stt import AWSTranscribeSTTService\n\nstt = AWSTranscribeSTTService(\n    api_key=os.getenv(\"API_KEY\"),  # Use appropriate env var\n    **{\n    \"region\": \"us-east-1\"\n}\n)\n"
+  "instructions": "\n# Configuration for AWS Transcribe\n\nTo use this STT service in bot.py, replace the STT initialization with:\n\nfrom pipecat.services.aws.stt import AWSTranscribeSTTService\n\nstt = AWSTranscribeSTTService(\n    region=\"ap-southeast-2\",\n    session_timeout=60000,\n    enable_partial_results_stabilization=True,\n    partial_results_stability=\"high\"\n)\n"
 }

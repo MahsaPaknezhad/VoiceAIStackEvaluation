@@ -1,0 +1,967 @@
+{
+  "timestamp": "2025-12-10T21:27:34.357833",
+  "dataset": "evaluation_data/voiceassistant_eval_new/voiceassistant_eval_dataset.json",
+  "total_questions": 20,
+  "evaluations": [
+    {
+      "question_id": "listening_general_0",
+      "category": "general",
+      "ground_truth": "Does the music sound more like something from today, or does it sound like it is from the past?",
+      "stt_output": "Does the music sound more? Like something from today? Or does it sound like it is from the past?",
+      "wer": 21.052631578947366,
+      "llm_response": "I 'm not quite sure what you're asking!  Your question seems a bit incomplete.  Could you clarify what you mean by  \"does the music sound more\"? Are  you asking if music sounds louder, better, or different  in some way? Or maybe  you're asking about a specific type of music or audio  quality? If you give me a bit more detail  about what you're wondering, I'd be happy to help! I'm still  a bit unclear about what you're asking!  Are you wondering if music from today sounds different from music in  the past? Or are you asking whether a  particular song sounds like it's from today's  era? If you could give me a little  more context, like what music you're referring to or  what aspect of the sound you're curious  about, I'd be able to give you a better  answer! Ah, I think I understand now! You're asking whether  something sounds like modern music or whether it has more of a ret ro or older vibe to it. But I 'm not sure what specific song or piece of  music you're referring to. If you tell me the  name of the song or artist you're asking about, I can let  you know whether it has a contemporary soun d or if it sounds more like it could be from an  earlier era!",
+      "judge_scores": {
+        "correctness": 6,
+        "relevance": 5,
+        "completeness": 4,
+        "clarity": 3,
+        "overall": 4,
+        "reasoning": "The assistant correctly identifies that the user's question is unclear and incomplete, which is accurate. However, the response is repetitive (asking for clarification multiple times), overly verbose, and lacks concision. While the assistant eventually makes a reasonable guess about what the user might be asking (whether music sounds modern or retro), it never actually addresses the core question directly. The response would have been more helpful with a single, clear request for clarification plus one or two examples of what information would help. The repetition and rambling nature significantly diminishes clarity and usefulness."
+      },
+      "stt_latency_ms": 5196.25,
+      "tts_latency_ms": 1094.89,
+      "total_latency_ms": 26932.78,
+      "voice_quality": {
+        "fluency": {
+          "score": 9.08,
+          "speaking_rate_sps": 3.91,
+          "silence_ratio": 0.201,
+          "energy_consistency": 0.949999988079071
+        },
+        "naturalness": {
+          "score": 8.39,
+          "pitch_mean_hz": 229.7,
+          "pitch_std_hz": 81.2,
+          "pitch_range_hz": 350.0,
+          "pitch_variation": 0.353,
+          "spectral_centroid_hz": 1267.4
+        },
+        "tone": {
+          "score": 3.6,
+          "clarity": 23.92,
+          "smoothness": 0.111,
+          "hnr_db": 3.4600000381469727
+        },
+        "overall_quality": 7.023333333333333,
+        "llm_fluency": 7,
+        "llm_naturalness": 6,
+        "llm_tone": 7,
+        "llm_overall": 7,
+        "llm_reasoning": "The speech shows good fluency with natural conversational flow and appropriate pauses. The pitch (229.7 Hz) and speaking rate (3.9 syl/sec) are within natural ranges. However, the low energy variation (0.053) suggests somewhat monotonous delivery lacking dynamic expression. The tone is pleasant and clear, though could benefit from more emotional variation to sound fully natural."
+      }
+    },
+    {
+      "question_id": "listening_general_1",
+      "category": "general",
+      "ground_truth": "Which bowing technique is the fiddler probably using to create the rhythmic melody in the music?",
+      "stt_output": "Which bowing technique is the fiddler probably using to create create the rhythmic melody in the music.",
+      "wer": 12.5,
+      "llm_response": "It  looks like your question got cut off! You  were asking about which bowing technique,  but I didn't catch the rest of it .\n\nCould you complete your question? Are  you asking about bowing techniques for a string  instrument like violin or cello? Or perhaps you're curious  about bowing techniques in martial arts or as a form  of respect? Once you let me know what you're interested in,  I'll be happy to help! It  seems like your question got cut off again ! You're asking about what b owing technique a fiddler is  probably using to create something, but I'm  not sure what the en d of your question is.\n\nAre  you asking about what technique  creates a particular sound, like a  fast tremolo effect, or a smooth sustaine d note? Or maybe you're wondering about a  specific style of fiddle music?  If you can finish your thought , I'd be glad to help explain  the bowing techniques  fiddlers use! Ah, got it! For  creating rhythmic melodies in  fiddle music, fiddlers typically use a technique called ** shuffling** or **syncopate d bowing**. This involves using shorter , more controlled bow strokes that emphas ize certain notes to create that  driving, rhythmic feel that's characteristic of fiddle music. \n\nFiddlers often combine this with what's called **ch op strokes**, where they use quick , punchy bow movements to accent specific beats  and create that percussive quality. They  might also use **down-bow an d up-bow patterns** in  a deliberate way to emphasize the  rhythm and make the melody dance  along with a steady pulse.\n\nThe key  is that fiddlers are really  thinking rhythmically with their bow, not just smooth ly drawing it across the strings like classical  violinists might. They're using the bow as  a rhythmic instrument just as much as a  melodic one, which  gives fiddle music that infectious,  toe-tapping quality that makes people want to dance.",
+      "judge_scores": {
+        "correctness": 5,
+        "relevance": 6,
+        "completeness": 5,
+        "clarity": 4,
+        "overall": 5,
+        "reasoning": "The assistant makes an attempt to answer the question but with significant issues. On the positive side, it eventually provides relevant bowing technique information (shuffling, syncopated bowing, chop strokes, down-bow/up-bow patterns) that are somewhat accurate for fiddle music. However, there are major problems: (1) The response is again repetitive with multiple clarification attempts before attempting an answer; (2) The terminology used is somewhat imprecise\u2014'shuffling' and 'syncopated bowing' are not standard fiddle terminology; (3) Without hearing the actual music or seeing the context, the assistant cannot determine which specific technique is being used; (4) The response lacks specificity about what 'rhythmic melody' means in this context; (5) The explanation, while attempting to be comprehensive, would benefit from mentioning established techniques like double-stops, drones, or specific rhythmic patterns common in different fiddle traditions. The response shows partial understanding but fails to address that without audio/context, a definitive answer is impossible."
+      },
+      "stt_latency_ms": 5127.92,
+      "tts_latency_ms": 199.99,
+      "total_latency_ms": 28120.52,
+      "voice_quality": {
+        "fluency": {
+          "score": 8.79,
+          "speaking_rate_sps": 4.46,
+          "silence_ratio": 0.201,
+          "energy_consistency": 0.9539999961853027
+        },
+        "naturalness": {
+          "score": 8.46,
+          "pitch_mean_hz": 235.9,
+          "pitch_std_hz": 84.2,
+          "pitch_range_hz": 350.0,
+          "pitch_variation": 0.357,
+          "spectral_centroid_hz": 1423.8
+        },
+        "tone": {
+          "score": 3.43,
+          "clarity": 23.29,
+          "smoothness": 0.095,
+          "hnr_db": 3.1500000953674316
+        },
+        "overall_quality": 6.8933333333333335,
+        "llm_fluency": 6,
+        "llm_naturalness": 5,
+        "llm_tone": 6,
+        "llm_overall": 6,
+        "llm_reasoning": "The speech shows decent conversational flow but has some issues. The faster speaking rate (4.5 syl/sec) makes it feel slightly rushed, and the very low energy variation (0.048) creates a monotonous delivery that lacks natural expressiveness. While the content is well-structured and the tone is clear, the lack of dynamic range and slightly robotic rhythm detract from naturalness. The voice sounds somewhat artificial due to insufficient prosodic variation."
+      }
+    },
+    {
+      "question_id": "listening_general_2",
+      "category": "general",
+      "ground_truth": "If you hear a sound that might mean there is an emergency nearby, what should you do right away as someone living in the area?",
+      "stt_output": "If you hear a sound that might mean there is an emergency nearby, what should you do right away as someone living in the area?",
+      "wer": 0.0,
+      "llm_response": "If  you hear a sound that might indicate  an emergency nearby, the first thing to do is stay  calm and try to identify what you're hearing. Listen  carefully to determine if it's a s iren, alarm, or dist ress call, and try to figure out where it 's coming from. Once you've identified the sound, assess  whether you or anyone near you is in immediate danger. If it  seems like a serious emergency, move  to a safe location away from the sound source if  possible, and then contact emergency services by  calling 911 or your local emergency number. If  you're not sure whether it's a real emergency,  it's always better to err on the  side of caution and report it.  Provide the dispatcher with as much detail as you can about  what you heard and where you are.  If you're in a building, you  might also alert people around you an d follow any emergency procedures that are in place,  like moving to an assembly point or shelter  area. The key is to take  it seriously, stay safe, and let  trained professionals handle the situation. Right  away, you should first move to a safe location,  ideally indoors an d away from windows if possible. Then listen  carefully to figure out what kin d of emergency it might be and where it's coming from. Call  911 or your local emergency number immediately to report what  you heard and provide them with details  about the sound and your location. This  helps emergency responders know what they're dealing with and where to go . While you're waiting for help, stay  alert and keep listening for any additional information or  updates. If you're in a neighborhood, you might also check  on nearby neighbors, especially elderly people or those who  might need help, but only if it's safe for  you to do so. Avoid going towar d the source of the emergency sound, an d don't put yourself in danger trying to investigate . If authorities issue any evacuation orders or  warnings, follow them immediately.  Basically, the priority is to get yourself  to safety, alert the professionals, and then stay  informed and ready to follow any instructions that  come from emergency services or local officials.",
+      "judge_scores": {
+        "correctness": 8,
+        "relevance": 9,
+        "completeness": 8,
+        "clarity": 7,
+        "overall": 8,
+        "reasoning": "This response is substantially better than the previous two. The assistant provides accurate, relevant, and actionable advice for responding to potential emergency sounds. Key strengths: (1) Correctly prioritizes safety (move to safe location first); (2) Accurately advises calling 911/emergency services; (3) Provides practical steps (identify sound, assess danger, alert others, follow procedures); (4) Includes important safety warnings (don't investigate, avoid danger); (5) Mentions respecting evacuation orders and official instructions; (6) Addresses checking on neighbors responsibly. Minor weaknesses: (1) Somewhat repetitive structure with two main explanation blocks covering similar ground; (2) Could be more concise; (3) Doesn't mention specific types of emergency sounds (sirens, alarms, specific patterns) that might require different responses; (4) Doesn't address special cases (deaf/hard of hearing individuals, language barriers). Overall, this is a solid, helpful response that directly answers the question with appropriate guidance."
+      },
+      "stt_latency_ms": 5116.99,
+      "tts_latency_ms": 394.32,
+      "total_latency_ms": 23302.78,
+      "voice_quality": {
+        "fluency": {
+          "score": 8.75,
+          "speaking_rate_sps": 3.47,
+          "silence_ratio": 0.201,
+          "energy_consistency": 0.9589999914169312
+        },
+        "naturalness": {
+          "score": 8.57,
+          "pitch_mean_hz": 211.2,
+          "pitch_std_hz": 70.7,
+          "pitch_range_hz": 350.0,
+          "pitch_variation": 0.335,
+          "spectral_centroid_hz": 1418.0
+        },
+        "tone": {
+          "score": 3.45,
+          "clarity": 24.02,
+          "smoothness": 0.089,
+          "hnr_db": 2.9200000762939453
+        },
+        "overall_quality": 6.923333333333333,
+        "llm_fluency": 5,
+        "llm_naturalness": 4,
+        "llm_tone": 5,
+        "llm_overall": 5,
+        "llm_reasoning": "The speech has significant naturalness issues. The very low energy variation (0.043) creates an extremely monotonous delivery that sounds robotic and artificial. While the speaking rate (3.5 syl/sec) and pitch (211.2 Hz) are reasonable, the lack of prosodic variation makes it difficult to follow and engage with. The content is well-structured but the flat delivery undermines comprehension and listenability. Sounds more like text-to-speech than natural human speech."
+      }
+    },
+    {
+      "question_id": "listening_general_3",
+      "category": "general",
+      "ground_truth": "Can you identify the metallic noise that can be heard in the recording?",
+      "stt_output": "Can you identify the metallic noise that can be heard in the recording?",
+      "wer": 0.0,
+      "llm_response": "I  appreciate the question, but I'm not able to  hear or process audio files. I can only rea d and respond to text. \n\nIf you'd like me to help identify a  metallic noise, could you describe what you're  hearing? For example, you could tell me things  like whether it's a ringing sound, a c langing, a scraping, a buzzing, or something else.  You could also mention the context\u2014where  the sound is coming from or what might be causing it.  With that description, I'd be happy to help you  figure out what it might be!",
+      "judge_scores": {
+        "correctness": 10,
+        "relevance": 10,
+        "completeness": 9,
+        "clarity": 10,
+        "overall": 9,
+        "reasoning": "This is an excellent response that stands in stark contrast to the previous examples. The assistant: (1) Correctly and immediately identifies its limitation (cannot process audio); (2) Provides a clear, honest explanation of why it cannot answer the question; (3) Offers a practical alternative by asking for a text description; (4) Provides helpful guidance on what details to include (type of sound: ringing, clanging, scraping, buzzing; context); (5) Is concise and avoids unnecessary repetition; (6) Maintains a helpful, respectful tone. The only minor limitation is that it could have mentioned file format issues as a secondary reason, but this is not necessary. This response demonstrates excellent communication by being upfront about limitations while still attempting to be helpful within those constraints."
+      },
+      "stt_latency_ms": 5264.49,
+      "tts_latency_ms": 583.93,
+      "total_latency_ms": 20344.99,
+      "voice_quality": {
+        "fluency": {
+          "score": 8.99,
+          "speaking_rate_sps": 4.17,
+          "silence_ratio": 0.202,
+          "energy_consistency": 0.9419999718666077
+        },
+        "naturalness": {
+          "score": 8.6,
+          "pitch_mean_hz": 227.2,
+          "pitch_std_hz": 85.6,
+          "pitch_range_hz": 350.0,
+          "pitch_variation": 0.377,
+          "spectral_centroid_hz": 1519.4
+        },
+        "tone": {
+          "score": 2.74,
+          "clarity": 22.68,
+          "smoothness": 0.082,
+          "hnr_db": -0.3100000023841858
+        },
+        "overall_quality": 6.776666666666666,
+        "llm_fluency": 8,
+        "llm_naturalness": 7,
+        "llm_tone": 8,
+        "llm_overall": 8,
+        "llm_reasoning": "This sample shows significantly better voice quality than previous examples. The higher energy variation (0.062) provides more natural prosodic expression, making it sound less monotonous. The speaking rate (4.2 syl/sec) is well-paced, and the pitch (227.2 Hz) is pleasant. The delivery has good conversational flow with appropriate emphasis and intonation patterns that enhance comprehension and engagement. While still slightly synthetic, it approaches natural human speech quality."
+      }
+    },
+    {
+      "question_id": "listening_general_4",
+      "category": "general",
+      "ground_truth": "If you hear a sound that suggests something is being packed away, what should you do next to stay safe?",
+      "stt_output": "If you hear a sound that suggests something is being packed away, what should you do next to stay safe?",
+      "wer": 0.0,
+      "llm_response": "I'd interpret  that as a sound that typically happens when someone  is putting things into a container or storage  space. You might hear things like the rustling of paper  or plastic, the soft thud of items being placed down , the closing of boxes or bags, or maybe  the sound of tape being applied. It could be someone  organizing their belongings, preparing for a move, p acking for a trip, or just tidying up  and storing things away. The specific sounds would really  depend on what's being packed and what materials are involved, but generally  those kinds of noises suggest someone is in the process of collecting  and putting away items rather than unp acking or retrieving them. If  you hear sounds suggesting something is being packed away, the  safest thing to do is stay alert and aware  of your surroundings. First, try  to identify where the sound is coming from an d what's actually happening. If you're in your  own home and you recognize it as normal activity like someone  packing for a trip or storing seasonal items, there 's nothing to worry about. However, if you 're uncertain about what's happening or  the sound is coming from an unexpected place , it's reasonable to investigate carefully or ask someone nearby  what's going on. If you're in a public space or  somewhere you don't feel comfortable, trust  your instincts and move to a safer area  or let someone know what you've  noticed. The key is not  to ignore unusual sounds that concern you, but also  not to panic. Stay calm, gather more  information if you can do so safely, and reach  out to appropriate people like family  members, friends, or authorities if something  genuinely seems wrong or unsafe.",
+      "judge_scores": {
+        "correctness": 7,
+        "relevance": 6,
+        "completeness": 6,
+        "clarity": 7,
+        "overall": 6,
+        "reasoning": "This response is moderately helpful but has some issues. Strengths: (1) Provides reasonable general safety advice (stay alert, assess context, trust instincts); (2) Acknowledges context matters (normal home activity vs. unexpected); (3) Avoids panic while encouraging appropriate caution; (4) Good advice about contacting authorities if genuinely unsafe. Weaknesses: (1) The first paragraph explaining what 'packing sounds' are is somewhat unnecessary and deflates the urgency\u2014the question implies concern about a safety threat, not just describing packing sounds; (2) The response doesn't recognize that the phrasing 'suggests something is being packed away' in a safety context might imply suspicious activity (e.g., a break-in where someone is stealing items); (3) Lacks specificity about what actions to take if it IS suspicious (e.g., don't confront, call police, secure yourself); (4) Overly assumes benign scenarios when the safety framing suggests concern; (5) The advice to 'investigate carefully' could be risky if actual criminal activity is occurring. The response would be stronger if it better understood the safety implications of the question and provided more concrete guidance for genuinely suspicious situations."
+      },
+      "stt_latency_ms": 5144.56,
+      "tts_latency_ms": 1032.87,
+      "total_latency_ms": 22776.32,
+      "voice_quality": {
+        "fluency": {
+          "score": 8.8,
+          "speaking_rate_sps": 4.46,
+          "silence_ratio": 0.201,
+          "energy_consistency": 0.9580000042915344
+        },
+        "naturalness": {
+          "score": 8.67,
+          "pitch_mean_hz": 202.5,
+          "pitch_std_hz": 72.9,
+          "pitch_range_hz": 350.0,
+          "pitch_variation": 0.36,
+          "spectral_centroid_hz": 1525.6
+        },
+        "tone": {
+          "score": 3.66,
+          "clarity": 23.45,
+          "smoothness": 0.086,
+          "hnr_db": 4.579999923706055
+        },
+        "overall_quality": 7.043333333333333,
+        "llm_fluency": 6,
+        "llm_naturalness": 4,
+        "llm_tone": 5,
+        "llm_overall": 5,
+        "llm_reasoning": "The speech has poor naturalness due to very low energy variation (0.044) creating a flat, monotonous delivery that sounds robotic. The fast speaking rate (4.5 syl/sec) combined with the low pitch (202.5 Hz) and lack of prosodic variation makes it difficult to follow and engage with. While the content flows logically, the artificial-sounding delivery significantly impacts listenability and comprehension."
+      }
+    },
+    {
+      "question_id": "listening_general_5",
+      "category": "general",
+      "ground_truth": "You are planning to walk to your destination and you hear a sound. What should you wear?",
+      "stt_output": "You are planning to walk to your destination and you hear a sound. What should you wear?",
+      "wer": 0.0,
+      "llm_response": "I'd be happy to help you think  through this scenario! If I'm  walking to my destination and I hear a sound, my  reaction would depend on what kind of sound it is.  If it's something ordinary like traffic or people  talking, I'd probably just keep  walking without much concern. But if it's an  unusual or concerning sound, like something  that seems dangerous or out of place, I'd stop  for a moment to listen more carefully and figure  out where it's coming from. That would help me decide  whether I need to change my route,  move to a safer location, or if it 's nothing to worry about. The key  would be to stay aware  of my surroundings and trust  my instincts about whether the sound indicates  something I should pay attention to. Is there  a specific type of sound you're curious  about, or are you working  through a particular situation? That  really depends on what kind of weather you're expecting  and how long your walk will be.  If it's cold outside, you'd want to dress in layers so  you can adjust as you warm up from  walking. A good jacket, hat , and gloves would help keep you comfortable. For war mer weather, light and breathable clothing  would be better, and you'd definitely  want to wear sunscreen or a hat to protect yourself  from the sun.\n\nFor footwear, comfortable walking  shoes are really important since  you'll be on your feet for a  while. They should have good support and be  broken in so you don't get b listers. You might also want to consider wearing  moisture-wicking socks to keep your  feet dry.\n\nBeyond weather -appropriate clothing, think about practical things too . Wearing something visible or reflective is  smart if you're walking during low -light hours, especially near roads.  And having pockets or a small bag to carry  essentials like your phone, keys, or water  bottle makes the walk much easier.  Basically, the goal is to dress in a way that keeps  you comfortable, safe, and able to move  freely for however long your walk will take .",
+      "judge_scores": {
+        "correctness": 5,
+        "relevance": 3,
+        "completeness": 4,
+        "clarity": 6,
+        "overall": 4,
+        "reasoning": "This response demonstrates a fundamental misunderstanding of the question. The question asks 'what should you wear?' in the context of hearing a sound while planning to walk\u2014which is ambiguous but likely relates to safety clothing (visibility, protective gear, etc.) in response to a concerning sound. Instead, the assistant: (1) Initially addresses what to do when hearing a sound (largely irrelevant to the clothing question); (2) Then pivots to general weather-appropriate walking clothing advice, which, while accurate and well-explained, completely misses the likely intent of the question; (3) Never connects the sound mentioned in the question to the clothing recommendation; (4) Provides generic walking attire advice rather than addressing the specific scenario context. Strengths: The clothing advice itself is reasonable (layers, visibility, good shoes, reflective gear). Weaknesses: (1) Fails to recognize the question likely implies a connection between hearing a sound and what safety precautions (clothing-wise) to take; (2) The response is somewhat incoherent, jumping from discussing the sound to generic walking wear without logical connection; (3) Doesn't ask for clarification about what sound was heard or what the actual concern is; (4) Misses the implied urgency or danger suggested by the question's phrasing."
+      },
+      "stt_latency_ms": 5217.52,
+      "tts_latency_ms": 477.48,
+      "total_latency_ms": 23019.59,
+      "voice_quality": {
+        "fluency": {
+          "score": 9.1,
+          "speaking_rate_sps": 3.91,
+          "silence_ratio": 0.201,
+          "energy_consistency": 0.9549999833106995
+        },
+        "naturalness": {
+          "score": 8.53,
+          "pitch_mean_hz": 209.7,
+          "pitch_std_hz": 77.4,
+          "pitch_range_hz": 350.0,
+          "pitch_variation": 0.369,
+          "spectral_centroid_hz": 1376.5
+        },
+        "tone": {
+          "score": 3.58,
+          "clarity": 23.75,
+          "smoothness": 0.092,
+          "hnr_db": 3.8299999237060547
+        },
+        "overall_quality": 7.07,
+        "llm_fluency": 6,
+        "llm_naturalness": 4,
+        "llm_tone": 5,
+        "llm_overall": 5,
+        "llm_reasoning": "The speech shows adequate fluency with reasonable pacing (3.9 syl/sec) and appropriate pitch (209.7 Hz). However, the very low energy variation (0.047) creates a monotonous, flat delivery that sounds artificial and robotic. While the content flows well logically, the lack of prosodic variation makes it difficult to maintain engagement and sounds more like text-to-speech than natural human conversation. The tone is clear but lacks the dynamic expression needed for natural speech."
+      }
+    },
+    {
+      "question_id": "listening_general_6",
+      "category": "general",
+      "ground_truth": "Based on the sound you hear, what can you guess about the type of event that is happening?",
+      "stt_output": "Based on the sound you hear, what can you guess about the type of event that is happening?",
+      "wer": 0.0,
+      "llm_response": "I appreciate  you reaching out, but I should let you know that I'm  a text-based AI assistant, so I'm  not able to hear any sounds or audio.  I can only read and respond to the text you type to me.\n\nIf  you'd like to describe a sound you're hearing or  ask me about something audio-related, feel  free to tell me about it in words an d I'll do my best to help! Whether  it's about identifying a noise, understanding audio concepts , or anything else sound-related, just I  appreciate the question, but I should let you know that I'm  not actually able to hear sounds or audio files. I can only rea d and respond to text that's written to me.\n\nIf  you'd like me to help you figure  out what kind of event might be happening based on a  sound, you could describe it to me in words . For example, you could tell me about things like whether  it's loud or quiet, what kinds of no ises you're hearing, if there are people talking  or music playing, or any other details you notice . Then I'd be happy to take a guess at  what event might be going on!",
+      "judge_scores": {
+        "correctness": 0,
+        "relevance": 0,
+        "completeness": 0,
+        "clarity": 0,
+        "overall": 0,
+        "reasoning": "Evaluation failed: An error occurred (serviceUnavailableException) when calling the ConverseStream operation: Bedrock is unable to process your request."
+      },
+      "stt_latency_ms": 5116.64,
+      "tts_latency_ms": 193.93,
+      "total_latency_ms": 22740.34,
+      "voice_quality": {
+        "fluency": {
+          "score": 9.06,
+          "speaking_rate_sps": 3.91,
+          "silence_ratio": 0.202,
+          "energy_consistency": 0.9440000057220459
+        },
+        "naturalness": {
+          "score": 8.65,
+          "pitch_mean_hz": 224.1,
+          "pitch_std_hz": 82.1,
+          "pitch_range_hz": 350.0,
+          "pitch_variation": 0.367,
+          "spectral_centroid_hz": 1546.5
+        },
+        "tone": {
+          "score": 3.38,
+          "clarity": 24.05,
+          "smoothness": 0.09,
+          "hnr_db": 2.4200000762939453
+        },
+        "overall_quality": 7.03,
+        "llm_fluency": 7,
+        "llm_naturalness": 6,
+        "llm_tone": 7,
+        "llm_overall": 7,
+        "llm_reasoning": "This sample shows improved voice quality with better energy variation (0.059) compared to previous examples, creating more natural prosodic expression. The speaking rate (3.9 syl/sec) and pitch (224.1 Hz) are well-balanced and pleasant. The delivery has good conversational flow with appropriate emphasis and intonation that makes it engaging to listen to. While still slightly artificial, it approaches natural human speech patterns and is quite listenable."
+      }
+    },
+    {
+      "question_id": "listening_general_7",
+      "category": "general",
+      "ground_truth": "Does the sound of water stay the same, or does it change?",
+      "stt_output": "So by does the sound of water stay the same, or does it change?",
+      "wer": 25.0,
+      "llm_response": "The  sound of water actually changes quite a bit depending on the  circumstances. When water is gently flowing or  trickling, you hear a soft, soothing sound.  But if that same water is rushing rapidly over rocks or falling from  a height, the sound becomes much louder and more turb ulent. Even still water can make different sounds depending  on what's disturbing it\u2014a  light rain creates a gentle patter, while heavy rain sounds  more intense and chaotic.\n\nThe basic  reason is that sound is created by vibrations,  and water moving at different speeds and hitting  different surfaces creates different vibrations. Calm water moving slowly vibrates g ently, while turbulent water with lots of spl ashing and churning creates much more energetic vib rations, which we hear as a louder, rough",
+      "judge_scores": {
+        "correctness": 9,
+        "relevance": 10,
+        "completeness": 8,
+        "clarity": 9,
+        "overall": 9,
+        "reasoning": "This response is excellent and directly addresses the question asked. Strengths: (1) Correctly explains that water sounds vary based on conditions (flowing vs. rushing, gentle vs. heavy); (2) Provides concrete examples (trickling, rapids, rain patterns) that illustrate the concept; (3) Explains the underlying mechanism (vibrations at different speeds/intensities); (4) Directly answers why sound changes (different water movements create different vibrations); (5) Well-organized and easy to follow; (6) Avoids unnecessary repetition or tangents. Minor weaknesses: (1) The response appears to be cut off mid-sentence at the end ('rough' is incomplete); (2) Could have mentioned additional factors like surface material, container type, or acoustic environment; (3) Could have been slightly more comprehensive about frequency changes, not just volume changes. Overall, this is a high-quality response that directly and accurately answers the user's question with relevant examples and clear explanations."
+      },
+      "stt_latency_ms": 4511.06,
+      "tts_latency_ms": 727.48,
+      "total_latency_ms": 19569.28,
+      "voice_quality": {
+        "fluency": {
+          "score": 9.15,
+          "speaking_rate_sps": 3.91,
+          "silence_ratio": 0.198,
+          "energy_consistency": 0.9660000205039978
+        },
+        "naturalness": {
+          "score": 8.77,
+          "pitch_mean_hz": 209.8,
+          "pitch_std_hz": 78.3,
+          "pitch_range_hz": 350.0,
+          "pitch_variation": 0.373,
+          "spectral_centroid_hz": 1676.2
+        },
+        "tone": {
+          "score": 3.45,
+          "clarity": 23.3,
+          "smoothness": 0.074,
+          "hnr_db": 3.690000057220459
+        },
+        "overall_quality": 7.123333333333334,
+        "llm_fluency": 5,
+        "llm_naturalness": 3,
+        "llm_tone": 4,
+        "llm_overall": 4,
+        "llm_reasoning": "This sample has significant quality issues. The extremely low energy variation (0.036) creates a very flat, monotonous delivery that sounds highly artificial and robotic. While the speaking rate (3.9 syl/sec) and pitch (209.8 Hz) are reasonable, the complete lack of prosodic variation makes it very difficult to engage with. The speech sounds like poor text-to-speech synthesis rather than natural human voice, severely impacting listenability and comprehension."
+      }
+    },
+    {
+      "question_id": "listening_general_8",
+      "category": "general",
+      "ground_truth": "What should you do if you want to join the conversation after you hear the sound?",
+      "stt_output": "What should you do if you wanna join the conversation after you hear the sound?",
+      "wer": 12.5,
+      "llm_response": "If  you hear a sound that signals the start of a conversation",
+      "judge_scores": {
+        "correctness": 2,
+        "relevance": 1,
+        "completeness": 1,
+        "clarity": 1,
+        "overall": 1,
+        "reasoning": "This response is essentially incomplete and non-functional. The assistant begins to answer the question ('If you hear a sound that signals the start of a conversation') but then cuts off abruptly without providing any actual guidance or information. The response provides: (1) No actionable advice; (2) No explanation or clarification; (3) No attempt to ask for more information or acknowledge ambiguity; (4) Just a sentence fragment that goes nowhere. This appears to be a technical error or truncation where the response was not fully generated or transmitted. A proper response would need to either: address the ambiguous question by asking for clarification, provide tips on politely joining conversations, or explain etiquette for interjecting into discussions. As it stands, this response fails on all evaluation criteria and provides zero value to the user."
+      },
+      "stt_latency_ms": 5217.56,
+      "tts_latency_ms": 501.88,
+      "total_latency_ms": 11262.88,
+      "voice_quality": {
+        "fluency": {
+          "score": 9.11,
+          "speaking_rate_sps": 3.91,
+          "silence_ratio": 0.202,
+          "energy_consistency": 0.9580000042915344
+        },
+        "naturalness": {
+          "score": 8.87,
+          "pitch_mean_hz": 219.8,
+          "pitch_std_hz": 77.0,
+          "pitch_range_hz": 350.0,
+          "pitch_variation": 0.351,
+          "spectral_centroid_hz": 1790.0
+        },
+        "tone": {
+          "score": 3.35,
+          "clarity": 23.78,
+          "smoothness": 0.058,
+          "hnr_db": 3.0999999046325684
+        },
+        "overall_quality": 7.109999999999999,
+        "llm_fluency": 4,
+        "llm_naturalness": 3,
+        "llm_tone": 4,
+        "llm_overall": 4,
+        "llm_reasoning": "This very short sample shows poor voice quality due to extremely low energy variation (0.044), creating a flat, monotonous delivery that sounds robotic. While the pitch (219.8 Hz) and speaking rate (3.9 syl/sec) are acceptable, the lack of prosodic variation makes it sound artificial. The brief duration limits assessment, but the available audio suggests text-to-speech rather than natural human speech patterns."
+      }
+    },
+    {
+      "question_id": "listening_general_9",
+      "category": "general",
+      "ground_truth": "What is happening when you hear the sound of the fire?",
+      "stt_output": "What is happening when you hear the sound of the fire?",
+      "wer": 0.0,
+      "llm_response": "When you hear the sound of fire , you're actually hearing several different things  happening at once. The main sound comes from the rapi",
+      "judge_scores": {
+        "correctness": 5,
+        "relevance": 6,
+        "completeness": 1,
+        "clarity": 2,
+        "overall": 2,
+        "reasoning": "This response is severely incomplete and essentially non-functional. While the assistant appears to be starting a reasonable answer about fire sounds (beginning to explain that multiple sounds occur simultaneously and mentioning 'rapid' combustion), the response cuts off abruptly mid-sentence without completing the thought. What we can evaluate: (1) The opening approach is sound\u2014acknowledging that fire produces multiple simultaneous sounds; (2) The direction seems to be heading toward explaining the physics (combustion, crackling, etc.). However, critical failures: (1) Completeness is nearly zero\u2014the response provides only a fragment; (2) No usable information is conveyed; (3) The user cannot understand what is actually happening based on this truncated response; (4) No attempt to continue, clarify, or redirect; (5) Appears to be a technical error or generation failure. A complete response would explain crackling sounds (wood breaking), roaring sounds (hot air rising), popping sounds (moisture/sap), and the physics behind fire acoustics. As presented, this response provides no meaningful value."
+      },
+      "stt_latency_ms": 4436.06,
+      "tts_latency_ms": 483.58,
+      "total_latency_ms": 19370.92,
+      "voice_quality": {
+        "fluency": {
+          "score": 7.63,
+          "speaking_rate_sps": 5.68,
+          "silence_ratio": 0.222,
+          "energy_consistency": 0.9309999942779541
+        },
+        "naturalness": {
+          "score": 8.29,
+          "pitch_mean_hz": 203.3,
+          "pitch_std_hz": 110.6,
+          "pitch_range_hz": 272.7,
+          "pitch_variation": 0.544,
+          "spectral_centroid_hz": 829.1
+        },
+        "tone": {
+          "score": 4.08,
+          "clarity": 22.4,
+          "smoothness": 0.256,
+          "hnr_db": 4.409999847412109
+        },
+        "overall_quality": 6.666666666666667,
+        "llm_fluency": 6,
+        "llm_naturalness": 6,
+        "llm_tone": 6,
+        "llm_overall": 6,
+        "llm_reasoning": "This very brief sample (0.8 seconds) shows moderate quality with better energy variation (0.074) than previous examples, suggesting more natural prosodic expression. However, the speaking rate is quite fast (5.7 syl/sec) which may impact clarity. The pitch (203.3 Hz) is reasonable. The higher energy variation indicates better dynamic range, but the extremely short duration limits comprehensive assessment of naturalness and fluency patterns."
+      }
+    },
+    {
+      "question_id": "listening_general_10",
+      "category": "general",
+      "ground_truth": "Which type of microphone technique was probably used when recording this music?",
+      "stt_output": "Which type of microphone technique was probably used when recording this music?",
+      "wer": 0.0,
+      "llm_response": "I appreciate  the question, but I'm not able  to hear or analyze audio files. If you'd like to describe  the music to me\u2014such as what instruments are playing, the setting  where it sounds like it was recorded, whether it sounds intimate  or distant, or any other details about the sound quality\u2014I'd be happy to discuss  what microphone techniques might have been used to achieve that effect.  For example, I could talk about whether it sounds like a close -miked vocal, room ambience, or a  more distant ensemble recording.",
+      "judge_scores": {
+        "correctness": 10,
+        "relevance": 10,
+        "completeness": 9,
+        "clarity": 10,
+        "overall": 9,
+        "reasoning": "This is an excellent response that handles a limitation very well. Strengths: (1) Clearly and immediately identifies the core limitation (cannot hear or analyze audio); (2) Provides a constructive alternative by offering to work with a text description; (3) Gives specific guidance on what details would be helpful (instruments, setting, intimacy level, sound quality); (4) Demonstrates knowledge by providing relevant examples (close-miked vocals, room ambience, distant ensemble); (5) Maintains a helpful, professional tone; (6) Concise and well-organized without unnecessary repetition; (7) Shows understanding of microphone techniques by mentioning specific approaches; (8) Encourages the user to provide additional information rather than dismissing the question. Minor areas for improvement: (1) Could have mentioned one or two additional microphone placement techniques (e.g., overhead mics, boundary mics); (2) Could have asked whether the user has access to information about the recording (liner notes, metadata) that might provide clues. Overall, this represents a model response for how to handle capability limitations while remaining helpful and respectful to the user."
+      },
+      "stt_latency_ms": 5230.72,
+      "tts_latency_ms": 402.61,
+      "total_latency_ms": 21026.45,
+      "voice_quality": {
+        "fluency": {
+          "score": 9.07,
+          "speaking_rate_sps": 3.91,
+          "silence_ratio": 0.203,
+          "energy_consistency": 0.9459999799728394
+        },
+        "naturalness": {
+          "score": 8.66,
+          "pitch_mean_hz": 217.2,
+          "pitch_std_hz": 91.6,
+          "pitch_range_hz": 350.0,
+          "pitch_variation": 0.422,
+          "spectral_centroid_hz": 1457.7
+        },
+        "tone": {
+          "score": 3.59,
+          "clarity": 24.04,
+          "smoothness": 0.093,
+          "hnr_db": 3.6600000858306885
+        },
+        "overall_quality": 7.1066666666666665,
+        "llm_fluency": 7,
+        "llm_naturalness": 6,
+        "llm_tone": 7,
+        "llm_overall": 7,
+        "llm_reasoning": "This sample shows good voice quality with decent energy variation (0.057) providing more natural prosodic expression than many previous examples. The speaking rate (3.9 syl/sec) and pitch (217.2 Hz) are well-balanced and pleasant. The delivery has good conversational flow with appropriate pacing and intonation that enhances comprehension. While still slightly synthetic sounding, it approaches natural human speech quality and is quite listenable."
+      }
+    },
+    {
+      "question_id": "listening_general_11",
+      "category": "general",
+      "ground_truth": "Was the laughter a reaction to something that was said?",
+      "stt_output": "Was the laughter a reaction to something that was said?",
+      "wer": 0.0,
+      "llm_response": "I  don't have any context about what l aughter you're referring to. I haven",
+      "judge_scores": {
+        "correctness": 5,
+        "relevance": 3,
+        "completeness": 1,
+        "clarity": 2,
+        "overall": 2,
+        "reasoning": "This response is incomplete and provides minimal value. The assistant begins to acknowledge the lack of context ('I don't have any context about what laughter you're referring to. I haven...') but then cuts off mid-sentence without finishing the thought. What can be evaluated: (1) The opening correctly identifies that more information is needed; (2) The direction suggests the assistant planned to ask for clarification. Critical failures: (1) Completeness is severely lacking\u2014the response ends abruptly; (2) No actual helpful content is provided; (3) The user cannot take action based on this truncated response; (4) The incomplete 'I haven' suggests a technical error or generation failure; (5) No alternative suggestions or questions are completed. A proper response would: (1) Acknowledge the lack of context; (2) Ask for clarification about what audio/recording is being discussed; (3) Offer to help once more information is provided; (4) Perhaps ask whether the user is referring to a specific recording, conversation, or media. This appears to be a technical issue rather than an assistant error, but regardless, it fails to meet basic standards for helpfulness and completeness."
+      },
+      "stt_latency_ms": 5213.09,
+      "tts_latency_ms": 440.85,
+      "total_latency_ms": 11031.44,
+      "voice_quality": {
+        "fluency": {
+          "score": 8.17,
+          "speaking_rate_sps": 5.21,
+          "silence_ratio": 0.202,
+          "energy_consistency": 0.9559999704360962
+        },
+        "naturalness": {
+          "score": 8.31,
+          "pitch_mean_hz": 201.5,
+          "pitch_std_hz": 95.7,
+          "pitch_range_hz": 350.0,
+          "pitch_variation": 0.475,
+          "spectral_centroid_hz": 1216.5
+        },
+        "tone": {
+          "score": 3.47,
+          "clarity": 23.44,
+          "smoothness": 0.119,
+          "hnr_db": 2.819999933242798
+        },
+        "overall_quality": 6.6499999999999995,
+        "llm_fluency": 4,
+        "llm_naturalness": 3,
+        "llm_tone": 4,
+        "llm_overall": 4,
+        "llm_reasoning": "This brief sample shows poor voice quality due to very low energy variation (0.046) creating a flat, monotonous delivery. The speaking rate is quite fast (5.2 syl/sec) which may impact clarity, and the low pitch (201.5 Hz) combined with lack of prosodic variation makes it sound robotic and artificial. The short duration and incomplete sentence structure further limit assessment, but the available audio suggests text-to-speech rather than natural human speech."
+      }
+    },
+    {
+      "question_id": "listening_general_12",
+      "category": "general",
+      "ground_truth": "If you wanted to use this sound in a sound installation, what kind of interactive feature could you add to make the listener's experience better?",
+      "stt_output": "If you wanted to use this sound in a sound installation, what kind of interactive feature could you add? To make the listener's experience better?",
+      "wer": 8.0,
+      "llm_response": "I'd be happy to help you think  through using a sound in an installation! However, I don't see  any sound file attached or described in your message. Coul I 'd be happy to help you think through  interactive features for a sound installation, but I don't actually  have access to any sound file or know what soun d you're referring to. Could you tell me a  bit more about it? For instance, is it  a natural sound like rain or birds, something more abstract  or electronic, music, or something else entirely?\n\nOnce  I understand what you're working with, I can suggest some really  interesting interactive possibilities. Generally speaking, sound installations can respon d to visitor movement, touch, proximity , or even biometric data like heartbeat.  The best interactive features usually complement the emotional  or conceptual quality of the sound itself , so knowing more about what you're creating would help me give you  more targeted ideas. Great  question! To improve the listener's experience, you could add inter activity in several meaningful ways. One approach is motion  sensing, where the sound changes or evolves as  people move through the space, making them feel like active  participants rather than passive observers. This creates a  sense of discovery and personal agency.\n\nYou  could also use proximity sensors so that as  visitors get closer or move away from a speaker, the sound shifts  in volume, tone, or intensity. This  makes the physical space itself  feel responsive and alive. Another option is touch interaction , where visitors can manipulate the sound by  pressing buttons or surfaces, giving them direct control over what  they hear.\n\nLayering is  another powerful technique where different sound elements play simultaneously , and visitors can isolate or blend them using  controls. This lets people customize their own",
+      "judge_scores": {
+        "correctness": 7,
+        "relevance": 7,
+        "completeness": 5,
+        "clarity": 7,
+        "overall": 6,
+        "reasoning": "This response has both strengths and significant weaknesses. Strengths: (1) Correctly identifies the limitation (no sound file provided) and asks for clarification; (2) Provides thoughtful, accurate information about interactive sound installation techniques (motion sensing, proximity sensors, touch interaction, layering); (3) Shows good understanding of sound design principles (emotional/conceptual alignment); (4) Offers specific, implementable examples; (5) Maintains helpful tone. Weaknesses: (1) Contains repetition\u2014asks for clarification twice with nearly identical phrasing; (2) Response becomes cut off at the end ('customize their own' is incomplete); (3) The transition between asking for clarification and providing general examples is awkward and somewhat contradictory (asks what sound they're referring to, then proceeds to give suggestions anyway without waiting for an answer); (4) The repetition and incomplete ending suggest poor editing or generation issues; (5) Could have been more concise. The core content about interactive features is strong (motion sensing, proximity, touch, layering are all valid and well-explained), but the execution is compromised by structural issues and incompleteness."
+      },
+      "stt_latency_ms": 5105.84,
+      "tts_latency_ms": 566.39,
+      "total_latency_ms": 30459.12,
+      "voice_quality": {
+        "fluency": {
+          "score": 8.5,
+          "speaking_rate_sps": 4.81,
+          "silence_ratio": 0.201,
+          "energy_consistency": 0.953000009059906
+        },
+        "naturalness": {
+          "score": 8.59,
+          "pitch_mean_hz": 216.2,
+          "pitch_std_hz": 78.0,
+          "pitch_range_hz": 350.0,
+          "pitch_variation": 0.361,
+          "spectral_centroid_hz": 1488.1
+        },
+        "tone": {
+          "score": 3.43,
+          "clarity": 23.9,
+          "smoothness": 0.087,
+          "hnr_db": 2.9200000762939453
+        },
+        "overall_quality": 6.84,
+        "llm_fluency": 6,
+        "llm_naturalness": 4,
+        "llm_tone": 5,
+        "llm_overall": 5,
+        "llm_reasoning": "This sample shows moderate fluency with reasonably good pacing, though the speaking rate is somewhat fast (4.8 syl/sec). The pitch (216.2 Hz) is pleasant, but the low energy variation (0.050) creates a monotonous delivery that sounds artificial and lacks natural prosodic expression. While the content flows well logically, the flat intonation patterns make it difficult to maintain engagement and sound more like text-to-speech than natural human conversation."
+      }
+    },
+    {
+      "question_id": "listening_general_13",
+      "category": "general",
+      "ground_truth": "Should people pay more attention to their surroundings when they are outside, especially because of the sounds around them?",
+      "stt_output": "Should people pay more attention to their surroundings when they are outside? Especially because of the sounds around them.",
+      "wer": 15.789473684210526,
+      "llm_response": "Absolutely, yes. Being aware of your surroundings when you 're outside is really important for your safety and wellbeing . When you pay attention, you're more likely to notice potential  hazards like uneven pavement, traffic , or other dangers that could cause accidents.  It also helps you stay aware of people around you, which can help  you avoid uncomfortable situations or stay safe in unfamiliar areas .\n\nBeyond safety, being present and aware actually  enhances your experience too. You notice things you might otherwise  miss, like interesting details in your neighborhood, changes in the  seasons, or opportunities to connect with people. It  can also reduce stress and anxiety because you're gr ounded in the moment rather than lost in your phone  or your thoughts.\n\nThat said, it's all  about balance. You don't need to be paran oid or hyper-vigilant,  but a general awareness of what's happening around you is a  healthy habit that most people would benefit from developing . You're absolutely right.  Sounds are a really important part of being aware of your surro undings that people often overlook. Your ears can  alert you to things your eyes might miss, like a  car approaching from behind, someone calling  out a warning, or a bicycle coming  up beside you. If you're wearing headphones or focuse d on your phone, you lose that crucial auditory information. \n\nPaying attention to sounds also helps you understand what's happening in your environment. You might hear  traffic patterns that tell you when it's safe to cross a street, or  notice if something seems off or unusual in your area . In urban environments especially, soun d is a really valuable safety tool.\n\nEven beyon d safety, listening to the natural sounds around you,  like birds, wind, or distant conversations, can actually  be quite pleasant and grounding. It helps you feel  more connected to your environment rather than isolated in your own  bubble. So you're making a great point that  we should really tune in to what we're hearing when  we're outside, not just what we're seeing.",
+      "judge_scores": {
+        "correctness": 9,
+        "relevance": 10,
+        "completeness": 9,
+        "clarity": 9,
+        "overall": 9,
+        "reasoning": "This is an excellent, well-structured response that directly addresses the user's question. Strengths: (1) Clearly affirms the importance of awareness when outdoors; (2) Provides multiple concrete reasons (safety hazards, traffic awareness, personal security); (3) Specifically addresses the sound component with relevant examples (approaching cars, warnings, bicycles, traffic patterns); (4) Explains why sounds matter (eyes can miss what ears catch, especially with headphones); (5) Balances safety concerns with quality-of-life benefits (grounding, connection, stress reduction); (6) Avoids paranoia while encouraging reasonable vigilance; (7) Mentions both urban and natural sound environments; (8) Well-organized with clear logical flow; (9) Practical and actionable advice; (10) Appropriately validates the user's point about sounds being overlooked. Minor areas for potential enhancement: (1) Could mention specific warning sounds (sirens, horns, alarms) in more detail; (2) Could address accessibility (deaf/hard of hearing individuals need different strategies); (3) Could mention balance between awareness and mindfulness/relaxation. Overall, this represents a high-quality response that is comprehensive, accurate, relevant, and well-explained."
+      },
+      "stt_latency_ms": 5115.98,
+      "tts_latency_ms": 276.29,
+      "total_latency_ms": 26158.63,
+      "voice_quality": {
+        "fluency": {
+          "score": 8.89,
+          "speaking_rate_sps": 3.68,
+          "silence_ratio": 0.201,
+          "energy_consistency": 0.9480000138282776
+        },
+        "naturalness": {
+          "score": 8.5,
+          "pitch_mean_hz": 216.6,
+          "pitch_std_hz": 70.2,
+          "pitch_range_hz": 350.0,
+          "pitch_variation": 0.324,
+          "spectral_centroid_hz": 1388.3
+        },
+        "tone": {
+          "score": 3.5,
+          "clarity": 24.18,
+          "smoothness": 0.097,
+          "hnr_db": 2.950000047683716
+        },
+        "overall_quality": 6.963333333333334,
+        "llm_fluency": 7,
+        "llm_naturalness": 6,
+        "llm_tone": 7,
+        "llm_overall": 7,
+        "llm_reasoning": "This sample demonstrates good voice quality with moderate energy variation (0.055) that provides more natural prosodic expression than many previous examples. The speaking rate (3.7 syl/sec) is well-paced and comfortable to follow, and the pitch (216.6 Hz) is pleasant. The delivery shows good conversational flow with appropriate emphasis and intonation patterns that enhance engagement and comprehension. While still slightly artificial, it approaches natural human speech quality and is quite listenable."
+      }
+    },
+    {
+      "question_id": "listening_general_14",
+      "category": "general",
+      "ground_truth": "What sound made by humans can you hear before the train goes by?",
+      "stt_output": "What sound made by humans can you hear before the train goes by?",
+      "wer": 0.0,
+      "llm_response": "Humans make many different sounds! The most obvious  one is speech, where we  use our vocal cords, mouth, lips , and tongue to create words and language . But we also make lots of other sounds throughout  the day. We laugh, cry, yawn, c ough, and sneeze. We can whis tle, hum, and sing. We make clicking  sounds with our tongues, and we can  create all sorts of vocal effects. Even just  breathing creates sounds like sighing or gasping. We also make sounds with our  bodies, like clapping our hands, stom ping our feet, or snapping our fingers. So  humans are pretty noisy creatures in  all sorts of ways! Yes, you  can usually hear a train before it goes by.  Trains make quite a lot of noise,  and sound travels pretty well, so you'll  often hear the rumbling and clacking of the wheels on the  tracks before you actually see the train coming. The louder the train an d the quieter your surroundings are, the far ther away you might be able to hear it. Sometimes  you can even feel the vibrations through the  ground before you hear it clearly. This  is actually really important for safety, because  it gives people and animals time to get away from the tracks  before the train arrives. So if you're  near railroad tracks and you hear that distinctive train  sound, it's a good warning that a train is approaching .",
+      "judge_scores": {
+        "correctness": 4,
+        "relevance": 3,
+        "completeness": 2,
+        "clarity": 6,
+        "overall": 3,
+        "reasoning": "This response fundamentally misunderstands and misinterprets the question. The user is asking specifically about 'what sound made by humans can you hear before the train goes by'\u2014which appears to be asking about human-generated sounds (like warning calls, whistles, announcements, or station sounds) that occur before a train passes. Instead, the assistant: (1) Provides an extensive, irrelevant list of general human sounds (speech, laughter, coughing, clapping, etc.); (2) Then shifts to discussing the train's own sounds rather than human sounds; (3) Never actually addresses what specific human sounds precede a train's arrival. Strengths: The information about trains is accurate (rumbling, clacking sounds, vibrations, safety value), and the explanation is clear. Weaknesses: (1) Complete misinterpretation of the question; (2) First half is entirely irrelevant; (3) Fails to address human-specific sounds associated with trains (station announcements, warning bells, platform personnel, conductors); (4) Doesn't ask for clarification about an ambiguous question; (5) The response jumps topics abruptly without logical connection. A correct response would discuss sounds like station announcements, warning whistles, platform bells, or announcements that humans make before trains depart or pass."
+      },
+      "stt_latency_ms": 5106.38,
+      "tts_latency_ms": 540.09,
+      "total_latency_ms": 38225.45,
+      "voice_quality": {
+        "fluency": {
+          "score": 9.05,
+          "speaking_rate_sps": 3.91,
+          "silence_ratio": 0.2,
+          "energy_consistency": 0.9399999976158142
+        },
+        "naturalness": {
+          "score": 8.59,
+          "pitch_mean_hz": 202.1,
+          "pitch_std_hz": 85.7,
+          "pitch_range_hz": 350.0,
+          "pitch_variation": 0.424,
+          "spectral_centroid_hz": 1393.6
+        },
+        "tone": {
+          "score": 3.27,
+          "clarity": 23.7,
+          "smoothness": 0.092,
+          "hnr_db": 1.9600000381469727
+        },
+        "overall_quality": 6.97,
+        "llm_fluency": 8,
+        "llm_naturalness": 7,
+        "llm_tone": 8,
+        "llm_overall": 8,
+        "llm_reasoning": "This is one of the better samples with good energy variation (0.064) providing natural prosodic expression and dynamic range. The speaking rate (3.9 syl/sec) is well-paced and comfortable, while the pitch (202.1 Hz) is pleasant and engaging. The delivery shows strong conversational flow with appropriate emphasis, pauses, and intonation patterns that make it highly listenable. The voice sounds much more natural and human-like compared to previous examples, approaching genuine conversational quality."
+      }
+    },
+    {
+      "question_id": "listening_general_15",
+      "category": "general",
+      "ground_truth": "What should you do if a sound makes you feel anxious or uncomfortable?",
+      "stt_output": "What should you do if a sound makes you feel anxious or uncomfortable?",
+      "wer": 0.0,
+      "llm_response": "It 's completely normal to feel anxious about  certain sounds. If a sound is trigg ering anxiety for you, here are some things  you can try. First, take some  deep breaths and remind yourself that you 're safe. You might also try gradually expos ing yourself to the sound at a lower  volume so your nervous system can adjust to it over  time. Some people find it helpful to pair  the sound with something calming, like listening  to music you enjoy or being in a comfortable space . If the anxiety is really intense  or specific to certain sounds, it might be worth  talking to a therapist or counselor who can help  you work through it using techniques like cognitive behavioral therapy.  In the meantime, it's perfectly  fine to avoid the sound if you nee d to, and using white noise or e arplugs can be practical ways  to manage it day to day. Right , so if a sound makes you uncomfortable, there are several  things you can do. First, you can  simply remove yourself from the situation or turn the sound off if  you're able to. Using earplugs or noise -canceling headphones is a practical solution that many people find helpful. You coul d also try playing other sounds you fin d more pleasant to mask the uncomfortable one, like soft  music or nature sounds. If it 's a sound you encounter regularly, like a coworker's  habit or a household noise, you might g ently address it with the person involved. Sometimes our  discomfort with sounds decre ases over time as we get used to them,  but if something consistently bothers you, that 's worth paying attention to. If the discomfort is severe or affecting  your daily life, talking to a healthcare provider coul d help you figure out if there's something  specific going on, like sensory sensitivity or mis ophonia, and they can suggest  appropriate strategies or treatments.",
+      "judge_scores": {
+        "correctness": 9,
+        "relevance": 10,
+        "completeness": 9,
+        "clarity": 8,
+        "overall": 9,
+        "reasoning": "This is a high-quality, comprehensive response that directly and thoroughly addresses the user's question. Strengths: (1) Acknowledges that sound-related anxiety is normal and valid; (2) Provides multiple practical coping strategies (deep breathing, gradual exposure, pairing with calming activities); (3) Suggests professional help (therapy, CBT) for significant anxiety; (4) Offers immediate solutions (avoidance, earplugs, noise-canceling headphones); (5) Mentions masking techniques (white noise, pleasant sounds); (6) Addresses social solutions (communication with others causing the sound); (7) Acknowledges habituation over time; (8) Recognizes potential underlying conditions (sensory sensitivity, misophonia); (9) Recommends healthcare consultation when needed; (10) Well-organized with logical flow between immediate and longer-term strategies. Minor weaknesses: (1) Slight repetition between the two main paragraphs (both mention avoidance, earplugs); (2) Could have mentioned specific grounding techniques or mindfulness exercises; (3) Could have provided more detail about misophonia; (4) The response could be slightly more concise. Overall, this demonstrates excellent understanding of the topic, provides evidence-based advice, and respects the user's emotional experience while offering practical, tiered solutions."
+      },
+      "stt_latency_ms": 5174.3,
+      "tts_latency_ms": 556.83,
+      "total_latency_ms": 24421.52,
+      "voice_quality": {
+        "fluency": {
+          "score": 8.14,
+          "speaking_rate_sps": 5.21,
+          "silence_ratio": 0.2,
+          "energy_consistency": 0.9440000057220459
+        },
+        "naturalness": {
+          "score": 8.83,
+          "pitch_mean_hz": 229.2,
+          "pitch_std_hz": 83.2,
+          "pitch_range_hz": 350.0,
+          "pitch_variation": 0.363,
+          "spectral_centroid_hz": 1607.3
+        },
+        "tone": {
+          "score": 3.2,
+          "clarity": 23.29,
+          "smoothness": 0.08,
+          "hnr_db": 2.0399999618530273
+        },
+        "overall_quality": 6.723333333333333,
+        "llm_fluency": 6,
+        "llm_naturalness": 6,
+        "llm_tone": 7,
+        "llm_overall": 6,
+        "llm_reasoning": "This sample shows moderate voice quality with decent energy variation (0.059) providing some natural prosodic expression. The pitch (229.2 Hz) is pleasant and clear. However, the speaking rate is quite fast (5.2 syl/sec) which may impact clarity and comprehension. The delivery has reasonable conversational flow but the rapid pace combined with moderate energy variation creates a somewhat hurried feel that detracts from naturalness. The tone is warm and helpful, making it fairly listenable despite the pacing issues."
+      }
+    },
+    {
+      "question_id": "listening_general_16",
+      "category": "general",
+      "ground_truth": "If you hear a sound while sleeping during a camping trip, what should you do first?",
+      "stt_output": "If you hear a sound while sleeping, during a camping trip, what should you do first?",
+      "wer": 6.25,
+      "llm_response": "If  you hear a sound while sleeping, your brain is actually working  to process it even though you're not fully  conscious. Depending on how loud or unusual  the sound is, a few things might happen.  Your brain might filter it out as background noise an d let you stay asleep, especially if it's a familiar  sound like traffic or a fan. But if the sound is sudden If you hear a sound while sleeping during  a camping trip, your first instinct should be to stay  calm and listen carefully. Don't immediately jump up  or make sudden movements. Instead, lie  still for a moment and try to identify what the  sound is. Most sounds in the wilderness are from  harmless animals or natural causes like wind moving  branches or trees settling.\n\nOnce you've listene d and tried to identify the sound, assess  whether it seems threatening. If it's clearly  just an animal passing through or natural noise, you can usually go  back to sleep. However, if the  sound seems unusual or concerning, you might want to quietly  alert anyone camping with you and perhaps turn on  a flashlight to see what's nearby. In the  vast majority of cases, wildlife will avoi d you once they know humans are present. If you're genu inely worried, you can make some noise to encourage  any animal to move along, but aggressive  reactions are rarely necessary. The key is to stay  calm, listen first, and respond thoughtfully rather  than panicking.",
+      "judge_scores": {
+        "correctness": 8,
+        "relevance": 9,
+        "completeness": 8,
+        "clarity": 8,
+        "overall": 8,
+        "reasoning": "This is a solid, practical response that addresses the camping-specific scenario well. Strengths: (1) Correctly advises staying calm and not panicking; (2) Recommends listening first before reacting (key safety principle); (3) Explains that most wildlife sounds are harmless; (4) Provides a logical assessment framework (listen, identify, assess threat level); (5) Offers specific actions (alert others, use flashlight, make noise if needed); (6) Acknowledges that wildlife typically avoids humans; (7) Emphasizes thoughtful response over aggression; (8) Practical and grounded advice. Weaknesses: (1) First paragraph explaining general sleep physiology is somewhat tangential and less relevant to the camping scenario; (2) Could have mentioned checking on immediate physical safety first (tent integrity, etc.); (3) Could have addressed different types of concerning sounds (bears, humans, etc.) with more specificity; (4) Could have mentioned preparations (bear bells, proper food storage) that prevent problems; (5) Missing mention of when to contact authorities; (6) The transition between the general sleep explanation and camping-specific advice is abrupt. Overall, the core camping advice is sound and helpful, providing a calm, methodical approach to an uncertain situation. The response would benefit from trimming the irrelevant opening and adding more scenario-specific guidance."
+      },
+      "stt_latency_ms": 5106.39,
+      "tts_latency_ms": 700.27,
+      "total_latency_ms": 24759.2,
+      "voice_quality": {
+        "fluency": {
+          "score": 8.89,
+          "speaking_rate_sps": 3.68,
+          "silence_ratio": 0.199,
+          "energy_consistency": 0.9459999799728394
+        },
+        "naturalness": {
+          "score": 8.52,
+          "pitch_mean_hz": 224.8,
+          "pitch_std_hz": 82.4,
+          "pitch_range_hz": 350.0,
+          "pitch_variation": 0.367,
+          "spectral_centroid_hz": 1361.1
+        },
+        "tone": {
+          "score": 3.6,
+          "clarity": 24.05,
+          "smoothness": 0.092,
+          "hnr_db": 3.759999990463257
+        },
+        "overall_quality": 7.003333333333334,
+        "llm_fluency": 7,
+        "llm_naturalness": 6,
+        "llm_tone": 7,
+        "llm_overall": 7,
+        "llm_reasoning": "This sample shows good voice quality with moderate energy variation (0.057) providing decent prosodic expression. The speaking rate (3.7 syl/sec) is well-paced and comfortable to follow, and the pitch (224.8 Hz) is pleasant and engaging. The delivery demonstrates good conversational flow with appropriate pacing and emphasis that enhances comprehension. While still slightly synthetic sounding, it approaches natural human speech patterns and is quite listenable with clear, warm tone quality."
+      }
+    },
+    {
+      "question_id": "listening_general_17",
+      "category": "general",
+      "ground_truth": "Can you tell me what the sound in the background is?",
+      "stt_output": "Can you tell me what the sound in the background is?",
+      "wer": 0.0,
+      "llm_response": "I don 't have the ability to hear audio or access  any sound files. I can only read and respond to text.  \n\nIf you'd like me to help identify  a sound, you could describe it to me in words \u2014like whether it's a mechanical noise, nature  sounds, music, or something else\u2014and I' d do my best to help you figure out  what it might be!",
+      "judge_scores": {
+        "correctness": 10,
+        "relevance": 10,
+        "completeness": 9,
+        "clarity": 10,
+        "overall": 9,
+        "reasoning": "This is an exemplary response for handling a capability limitation. Strengths: (1) Immediately and clearly states the limitation (cannot hear audio or access sound files); (2) Concise and to-the-point without unnecessary explanation; (3) Offers a practical alternative solution (describe the sound in words); (4) Provides helpful guidance on what details to include (mechanical vs. nature vs. music); (5) Maintains helpful, collaborative tone; (6) No repetition or rambling; (7) Respectfully acknowledges the user's question while redirecting productively; (8) Professional and well-structured. Minor areas for potential enhancement: (1) Could mention that providing context (where the sound was recorded, what it sounds like compared to other things) would be helpful; (2) Could ask if the user has already attempted to identify it themselves. This response effectively demonstrates how to communicate limitations while remaining helpful and respectful. It avoids the pitfalls seen in earlier responses (repetition, over-explanation, tangential information) while providing exactly what the user needs to move forward. This is a model response for handling requests outside an AI's capabilities."
+      },
+      "stt_latency_ms": 4569.35,
+      "tts_latency_ms": 1038.35,
+      "total_latency_ms": 19430.97,
+      "voice_quality": {
+        "fluency": {
+          "score": 8.76,
+          "speaking_rate_sps": 3.47,
+          "silence_ratio": 0.202,
+          "energy_consistency": 0.9620000123977661
+        },
+        "naturalness": {
+          "score": 8.55,
+          "pitch_mean_hz": 211.5,
+          "pitch_std_hz": 72.9,
+          "pitch_range_hz": 342.7,
+          "pitch_variation": 0.345,
+          "spectral_centroid_hz": 1413.0
+        },
+        "tone": {
+          "score": 3.48,
+          "clarity": 24.47,
+          "smoothness": 0.087,
+          "hnr_db": 2.8299999237060547
+        },
+        "overall_quality": 6.930000000000001,
+        "llm_fluency": 5,
+        "llm_naturalness": 3,
+        "llm_tone": 4,
+        "llm_overall": 4,
+        "llm_reasoning": "This brief sample shows poor voice quality due to very low energy variation (0.040), creating a flat, monotonous delivery that sounds robotic and artificial. While the speaking rate (3.5 syl/sec) and pitch (211.5 Hz) are reasonable, the lack of prosodic variation makes it sound like text-to-speech rather than natural human conversation. The short duration limits full assessment, but the available audio suggests significant naturalness issues that impact listenability."
+      }
+    },
+    {
+      "question_id": "listening_general_18",
+      "category": "general",
+      "ground_truth": "What is the best way to ask if the person needs help, based on the sound, without surprising them?",
+      "stt_output": "What is the best way to ask if the person needs help? Based on the sound, without surprising them?",
+      "wer": 10.526315789473683,
+      "llm_response": "The best way to ask if someone needs  help is to be direct, genuine, and specific when  you can. Simply saying \"Can I help you with  anything?\" or \"Do you need help?\" works  well in most situations. It's friendly and straightforward.\n\nIf  you're in a specific context, being  more particular is even better. For example, if someone  looks like they're struggling with groceries, you might say \"Woul d you like a hand with those bags?\" This  shows you've noticed their situation and makes  it easier for them to say yes without feeling like they 're imposing.\n\nThe key is to soun d sincere rather than obligatory. People  can usually tell the difference between genuine concern and just  going through the motions. Also, be The best approach  is to use a calm, gentle voice  and give them a moment to notice you're there before asking . You might say something like \"Hi  there, I'm nearby if you need anything\" or \"Woul d you like some help with that?\" Speaking in  a warm, unhurried tone helps them feel at  ease rather than startled.\n\nIf they're  focused on a task, you could also try  a soft \"excuse me\" first to get their attention g ently, then ask your question. The  key is keeping your voice steady and natural , avoiding sudden loudness or urg ency, which would startle them.  This way they have time to register your presence an d respond comfortably. Think of it like  giving them a heads up before you offer  assistance.",
+      "judge_scores": {
+        "correctness": 7,
+        "relevance": 5,
+        "completeness": 6,
+        "clarity": 7,
+        "overall": 6,
+        "reasoning": "This response addresses the general question of how to ask if someone needs help, but struggles with the specific framing about 'based on the sound.' Strengths: (1) Provides practical, genuine advice about helping others (directness, sincerity, specificity); (2) Gives concrete examples of helpful phrasing; (3) Addresses tone and demeanor (calm, warm, genuine); (4) Acknowledges the importance of not startling people; (5) Generally sound social guidance. Weaknesses: (1) The question is somewhat ambiguous but seems to reference a specific sound/context that the assistant doesn't address; (2) The phrase 'based on the sound' suggests the user heard something concerning (distress, struggling, etc.) but the response doesn't engage with this; (3) Repetitive structure with two similar paragraphs covering overlapping ground; (4) Doesn't explain what specific sounds might indicate someone needs help; (5) Could have mentioned assessing the situation first before approaching; (6) Misses the connection between hearing a concerning sound and the appropriate response approach. The response would be stronger if it: (1) Acknowledged the 'based on the sound' element and discussed what types of sounds suggest someone needs help; (2) Provided more context-specific guidance (sounds of distress vs. struggle); (3) Offered clearer guidance on approaching someone safely based on auditory cues. As is, it's generic advice that doesn't fully address the question's specific framing."
+      },
+      "stt_latency_ms": 5218.3,
+      "tts_latency_ms": 524.04,
+      "total_latency_ms": 23299.57,
+      "voice_quality": {
+        "fluency": {
+          "score": 8.48,
+          "speaking_rate_sps": 4.81,
+          "silence_ratio": 0.201,
+          "energy_consistency": 0.9459999799728394
+        },
+        "naturalness": {
+          "score": 8.68,
+          "pitch_mean_hz": 224.8,
+          "pitch_std_hz": 80.3,
+          "pitch_range_hz": 350.0,
+          "pitch_variation": 0.357,
+          "spectral_centroid_hz": 1493.1
+        },
+        "tone": {
+          "score": 3.62,
+          "clarity": 24.01,
+          "smoothness": 0.088,
+          "hnr_db": 3.9600000381469727
+        },
+        "overall_quality": 6.926666666666667,
+        "llm_fluency": 6,
+        "llm_naturalness": 5,
+        "llm_tone": 6,
+        "llm_overall": 6,
+        "llm_reasoning": "This sample shows moderate voice quality with decent energy variation (0.057) providing some prosodic expression. The pitch (224.8 Hz) is pleasant, but the speaking rate is quite fast (4.8 syl/sec) which may impact clarity and naturalness. The delivery has reasonable conversational flow, though the rapid pace combined with moderate energy variation creates a somewhat hurried feel. The tone is warm and helpful, making it fairly listenable despite pacing issues that prevent it from sounding fully natural."
+      }
+    },
+    {
+      "question_id": "listening_general_19",
+      "category": "general",
+      "ground_truth": "Based on the sound, what should you do to help protect local wildlife?",
+      "stt_output": "Based on the sound, what should you do to help protect local wildlife?",
+      "wer": 0.0,
+      "llm_response": "I 'm not hearing any sound in our conversation right  now, so I'm not sure what specific  audio you're referring to. Could you tell  me more about what you heard? Is  it a particular animal sound, traffic noise, construction , or something else?\n\nOnce you describe  it to me, I'd be happy to suggest  ways you might help protect local wildlife based on what that  sound indicates. Generally speaking though, protecting  wildlife often means things like reducing noise pollution, creating  safe habitats, minimizing light pollution, and being mindful of how  human activity affects the animals in your area.  But if you can give me more details about the specific sound you're  asking about, I can give you more targeted advice.",
+      "judge_scores": {
+        "correctness": 8,
+        "relevance": 8,
+        "completeness": 7,
+        "clarity": 9,
+        "overall": 8,
+        "reasoning": "This is a well-structured response that appropriately handles ambiguity. Strengths: (1) Acknowledges the limitation (no sound provided in text conversation); (2) Asks for clarification with helpful guidance on what details would be useful (animal sound, traffic, construction, etc.); (3) Provides general wildlife protection principles while waiting for specifics (noise pollution, safe habitats, light pollution, human activity awareness); (4) Demonstrates knowledge about wildlife protection; (5) Clear, respectful tone; (6) Concise without unnecessary repetition; (7) Offers concrete next steps for the user. Weaknesses: (1) Could have mentioned more specific protective actions (wildlife corridors, pesticide reduction, water sources, seasonal considerations); (2) Could have asked if the user is asking hypothetically or about a real situation; (3) Could have provided examples of how different sounds correlate with wildlife concerns (e.g., distressed animal sounds vs. habitat disruption); (4) The opening 'I'm not hearing any sound' is slightly awkward phrasing\u2014'not provided in our conversation' would be clearer. Overall, this is a solid response that balances acknowledging limitations with providing useful information and inviting the user to provide more details. It demonstrates good problem-solving by offering general principles while requesting specifics for targeted advice."
+      },
+      "stt_latency_ms": 5284.57,
+      "tts_latency_ms": 537.13,
+      "total_latency_ms": 20487.49,
+      "voice_quality": {
+        "fluency": {
+          "score": 8.45,
+          "speaking_rate_sps": 4.81,
+          "silence_ratio": 0.204,
+          "energy_consistency": 0.9419999718666077
+        },
+        "naturalness": {
+          "score": 8.42,
+          "pitch_mean_hz": 207.1,
+          "pitch_std_hz": 91.2,
+          "pitch_range_hz": 350.0,
+          "pitch_variation": 0.44,
+          "spectral_centroid_hz": 1477.3
+        },
+        "tone": {
+          "score": 3.31,
+          "clarity": 23.69,
+          "smoothness": 0.079,
+          "hnr_db": 2.4800000190734863
+        },
+        "overall_quality": 6.726666666666666,
+        "llm_fluency": 7,
+        "llm_naturalness": 6,
+        "llm_tone": 7,
+        "llm_overall": 7,
+        "llm_reasoning": "This sample shows good voice quality with better energy variation (0.061) providing more natural prosodic expression. The pitch (207.1 Hz) is pleasant and engaging. However, the speaking rate is quite fast (4.8 syl/sec) which slightly impacts naturalness. The delivery demonstrates good conversational flow with appropriate emphasis and intonation that enhances comprehension. The tone is warm and helpful, making it quite listenable despite the faster pace. Approaches natural human speech quality."
+      }
+    }
+  ],
+  "summary": {
+    "average_wer": 5.580921052631579,
+    "average_overall_score": 5.85,
+    "average_stt_latency_ms": 5073.6985,
+    "average_tts_latency_ms": 563.6600000000001,
+    "average_total_latency_ms": 22837.012,
+    "by_category": {
+      "general": {
+        "count": 20,
+        "avg_wer": 5.580921052631579,
+        "avg_score": 5.85,
+        "avg_stt_latency_ms": 5073.6985,
+        "avg_tts_latency_ms": 563.6600000000001
+      }
+    }
+  },
+  "stt_model": "Deepgram Nova 3",
+  "stt_service_id": "deepgram_nova3",
+  "tts_model": "Deepgram Aura",
+  "tts_service_id": "deepgram_aura"
+}

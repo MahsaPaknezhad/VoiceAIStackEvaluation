@@ -7,46 +7,13 @@
     {
       "question_id": "speaking_instruction_following_0",
       "audio_file": "evaluation_data/voiceassistant_eval_small/audio_input/speaking_instruction_following_0.wav",
-      "stt_output": "Tell me a funny joke.",
+      "stt_output": "Tell me a funny joke. I'll change it to a heart warming short story.",
       "ground_truth": "Tell me a funny joke. Oh, change it to a heartwarming short story.",
-      "llm_response": "Here's one  for you: Why don't scientists trust atoms? Because  they make up everything! It's a  classic dad joke, but I think the pun  still lands pretty well. The beauty of it  is that it works on two levels\u2014atoms  literally compose matter, but \"make up\" also  means to fabricate or lie . Hope that gave you a little  chuckle!",
+      "llm_response": "Alright, here's one for you.  Why did the scarecrow win an award? Because he was outstanding in his field!  It's a classic dad joke,  but I think it's pretty funny in a gr oan-worthy kind of way. Hope  that gave you a little chuckle! Here's a short warming  story for you.\n\nOn a cold winter evening , an elderly woman sat alone by her window  watching the snow fall. Her daughter had moved away years ago, and they  rarely spoke. That day, unexpectedly, there  was a knock on her door. It was her  daughter, who had driven through the blizzard to surprise  her. They embraced for a long moment, tears  streaming down their faces. That night, they sat  together by the fireplace wrapped in a blanket, sipping hot cocoa and talking  for hours like they used to. They laughed about old memories and made  new ones. As the fire crackled warm ly beside them, the mother realized that the col d outside didn't matter anymore. Her heart  was full, and she was exactly where she neede d to be. Sometimes the warmest moments in  life come from reconnecting with the people we love most.",
       "tts_audio_path": "evaluation_output/tts_audio/deepgram_nova2_deepgram_aura/speaking_instruction_following_0_response.wav",
-      "stt_latency_ms": 2054.02,
-      "tts_latency_ms": 244.54,
-      "total_latency_ms": 18414.63
-    },
-    {
-      "question_id": "speaking_instruction_following_1",
-      "audio_file": "evaluation_data/voiceassistant_eval_small/audio_input/speaking_instruction_following_1.wav",
-      "stt_output": "Which of the following is not a fish? Salmon, or sweet salt. In your response, the word clearly must appear at least once. And your answer should be exactly",
-      "ground_truth": "Which of the following is not a fish: salmon or sweetsop? In your response, the word \"clearly\" must appear at least once, and your answer should be exactly two sentences long. ",
-      "llm_response": "I'd be happy to help you figure  out which one isn't a fish, but I don 't see a list of options in your question. Could you tell me which  items you're choosing between? Once you give  me the choices, I can let you know which one doesn 't belong with the others.",
-      "tts_audio_path": "evaluation_output/tts_audio/deepgram_nova2_deepgram_aura/speaking_instruction_following_1_response.wav",
-      "stt_latency_ms": 3699.44,
-      "tts_latency_ms": 497.61,
-      "total_latency_ms": 18280.16
-    },
-    {
-      "question_id": "speaking_reasoning_2",
-      "audio_file": "evaluation_data/voiceassistant_eval_small/audio_input/speaking_reasoning_2.wav",
-      "stt_output": "Why is it hard for a young child to read a long book due to a lack of knowledge? Because of the cover due to no pictures.",
-      "ground_truth": "Why is it hard for a young child to read a long book due to a lack of knowledge, because of the cover, due to no pictures, or because of many words?",
-      "llm_response": "Young  children find long books challenging for several reasons.  First, their attention span is still  developing, so sitting still and focusing on one  activity for an extended period is genuinely difficult for  their brains. They also have smaller working memory, which  means they might forget what happened earlier in the story, making it harder to follow the plot an d stay engaged.\n\nAdditionally, early readers are  still building their decoding skills, so  reading takes a lot of mental effort and energy. A  long book means more words to decode , which can feel exhausting rather than fun . Young children also tend to prefer immediate gratification an d visual stimulation, so a text-heavy book without  many pictures might feel boring compared to other activities .\n\nThat's why picture books and chapter books with  illustrations work so well for this age group. They  break up the text, provide visual interest, and keep the  story moving in smaller chunks that match a child's developing  abilities. As kids get older and reading becomes more automatic , they gradually build up the  stamina and interest neede d for longer novels.",
-      "tts_audio_path": "evaluation_output/tts_audio/deepgram_nova2_deepgram_aura/speaking_reasoning_2_response.wav",
-      "stt_latency_ms": 4365.14,
-      "tts_latency_ms": 740.87,
-      "total_latency_ms": 19296.41
-    },
-    {
-      "question_id": "speaking_reasoning_3",
-      "audio_file": "evaluation_data/voiceassistant_eval_small/audio_input/speaking_reasoning_3.wav",
-      "stt_output": "Answering multiple choice questions is often easier than answering fill in or completion questions. Because multiple choice questions? A, require less time to answer, b, provide more retrieval cues, c, check memorization rather than critical thinking, d, or definitional rather than conceptual,",
-      "ground_truth": "Answering multiple-choice questions is often easier than answering fill-in or completion questions, because multiple choice questions\nA. require less time to answer\nB. provide more retrieval cues\nC. check memorization rather than critical thinking\nD. are definitional rather than conceptual\n\nWhat is the answer to the above multiple choice question? Select one of the following: A, B, C, or D.",
-      "llm_response": "That 's generally true. Multiple choice questions do tend to be easier  for a few reasons. When you see the answer",
-      "tts_audio_path": null,
-      "stt_latency_ms": 4316.7,
-      "tts_latency_ms": null,
-      "total_latency_ms": 18432.46
+      "stt_latency_ms": 4577.07,
+      "tts_latency_ms": 288.36,
+      "total_latency_ms": 22914.16
     }
   ]
 }

@@ -7,6 +7,7 @@ import json
 import os
 import asyncio
 import time
+import random
 from typing import Dict, List
 from loguru import logger
 import argparse
@@ -14,6 +15,7 @@ from pathlib import Path
 
 # Import Pipecat components
 from pipecat.services.deepgram.stt import DeepgramSTTService, LiveOptions
+from pipecat.audio.vad.silero import SileroVADAnalyzer
 from pipecat.frames.frames import AudioRawFrame, EndFrame, StartFrame, TranscriptionFrame, TextFrame, LLMFullResponseStartFrame, TTSAudioRawFrame
 from pipecat.pipeline.pipeline import Pipeline
 from pipecat.pipeline.runner import PipelineRunner
@@ -36,6 +38,15 @@ from src.core.llm_processor import StrandsAgentsProcessor
 from tts import DeepgramTTSService
 from src.evaluation.audio_quality_analyzer import VoiceQualityEvaluator
 from src.transport.batch_audio_transport import EvaluationTransport
+
+# frame processing
+from src.evaluation.frame_processor import (
+    TimingCollector,
+    STTTimingProcessor,
+    TTSTimingProcessor,
+    STTCollector,
+    LLMCollector
+)
 
 load_dotenv(override=True)
 
@@ -92,14 +103,6 @@ class VoiceAssistantRunner:
                 api_key=os.getenv("OPENAI_API_KEY"),
                 **config
             )
-        elif "groq" in module_name:
-            return service_class(
-                api_key=os.getenv("GROQ_API_KEY"),
-                **config
-            )
-        elif "whisper" in module_name:
-            # Local WhisperSTTService - use minimal config
-            return service_class()
         else:
             return service_class(**config)
     
@@ -174,8 +177,6 @@ class VoiceAssistantRunner:
         
         # Create services
         stt = self._create_stt_service()
-        print(f"DEBUG: Created STT service: {type(stt).__name__} from {stt.__class__.__module__}")
-        print(f"DEBUG: STT config: {self.stt_config}")
         tts = self._create_tts_service()
         agent = build_conversation_agent(model_id="us.anthropic.claude-haiku-4-5-20251001-v1:0", tts_service=tts)
         llm = StrandsAgentsProcessor(agent=agent)
@@ -190,62 +191,12 @@ class VoiceAssistantRunner:
         stt_texts = []
         llm_texts = []
         
-        # Timing variables
-        stt_start_time = None
-        stt_end_time = None
-        tts_start_time = None
-        tts_end_time = None
-        
-        class STTTimingStart(FrameProcessor):
-            def __init__(self):
-                super().__init__()
-            
-            async def process_frame(self, frame, direction):
-                nonlocal stt_start_time
-                await super().process_frame(frame, direction)
-                if isinstance(frame, AudioRawFrame) and stt_start_time is None:
-                    stt_start_time = time.time()
-                await self.push_frame(frame, direction)        
-        
-        class TTSTimingEnd(FrameProcessor):
-            def __init__(self):
-                super().__init__()
-            
-            async def process_frame(self, frame, direction):
-                nonlocal tts_end_time
-                await super().process_frame(frame, direction)
-                #print(f"DEBUG TTSTimingEnd: {type(frame).__name__}")
-                if isinstance(frame, TTSAudioRawFrame) and tts_end_time is None:
-                    tts_end_time = time.time()
-                await self.push_frame(frame, direction)
-        
-        class STTCollector(FrameProcessor):
-            async def process_frame(self, frame, direction):
-                nonlocal stt_end_time
-                await super().process_frame(frame, direction)
-                print(f"DEBUG STTCollector: {type(frame).__name__}")
-                if isinstance(frame, TranscriptionFrame):
-                    if stt_end_time is None:
-                        stt_end_time = time.time()
-                    print(f"[STT] {frame.text}")
-                    stt_texts.append(frame.text)
-                await self.push_frame(frame, direction)
-        
-        class LLMCollector(FrameProcessor):
-            async def process_frame(self, frame, direction):
-                nonlocal tts_start_time
-                await super().process_frame(frame, direction)
-                if isinstance(frame, TextFrame):
-                    if tts_start_time is None:
-                        tts_start_time = time.time()
-                    print(f"[LLM] {frame.text}")
-                    llm_texts.append(frame.text)
-                await self.push_frame(frame, direction)
-        
-        stt_timing_start = STTTimingStart()
-        stt_collector = STTCollector()
-        llm_collector = LLMCollector()
-        tts_timing_end = TTSTimingEnd()
+        # Start frame processing
+        timing_collector = TimingCollector()
+        stt_timing_start = STTTimingProcessor(timing_collector)
+        tts_timing_end = TTSTimingProcessor(timing_collector)
+        stt_collector = STTCollector(timing_collector, stt_texts)
+        llm_collector = LLMCollector(timing_collector, llm_texts)
         
         # Build pipeline: STT -> context -> LLM -> context -> TTS
         pipeline = Pipeline([
@@ -272,9 +223,13 @@ class VoiceAssistantRunner:
             EndFrame()
         ])
         
-        # Run pipeline
+        # Run pipeline with error handling
         runner = PipelineRunner()
-        await runner.run(task)
+        try:
+            await runner.run(task)
+        except Exception as pipeline_error:
+            # Re-raise the error to be caught by outer retry logic
+            raise pipeline_error
         
         total_latency = (time.time() - start_time) * 1000
         
@@ -307,10 +262,10 @@ class VoiceAssistantRunner:
         else:
             print("DEBUG: No output audio collected")
         # Calculate latencies
-        stt_latency = (stt_end_time - stt_start_time) * 1000 if stt_start_time and stt_end_time else None
-        print(f'TTS START TIME: {tts_start_time}')
-        print(f'TTS END TIME: {tts_end_time}')
-        tts_latency = (tts_end_time - tts_start_time) * 1000 if tts_start_time and tts_end_time else None
+        stt_latency = timing_collector.get_stt_latency_ms()
+        print(f'TTS START TIME: {timing_collector.tts_start_time}')
+        print(f'TTS END TIME: {timing_collector.tts_end_time}')
+        tts_latency = timing_collector.get_tts_latency_ms()
         
         result = {
             "question_id": question_id,
@@ -343,7 +298,7 @@ class VoiceAssistantRunner:
         """Run bot on all audio files in dataset"""
         results = []
         
-        for question in self.dataset['questions']:
+        for i, question in enumerate(self.dataset['questions']):
             question_id = question['id']
             audio_file = question['audio_file']
             audio_path = os.path.join(self.audio_dir, audio_file)
@@ -352,27 +307,62 @@ class VoiceAssistantRunner:
                 logger.error(f"Audio file not found: {audio_path}")
                 continue
             
-            try:
-                result = await self.process_audio_file(audio_path, question_id)
-                results.append(result)
-                
-                # Save results after each sample
-                if output_path:
-                    self.save_results(results, output_path)
+            # Retry logic for Bedrock failures
+            max_retries = 3
+            result = None
+            
+            for attempt in range(max_retries):
+                try:
+                    if attempt > 0:
+                        logger.info(f"Retry attempt {attempt + 1}/{max_retries} for {question_id}")
+                    result = await self.process_audio_file(audio_path, question_id)
+                    results.append(result)
                     
-            except Exception as e:
-                logger.error(f"Error processing {question_id}: {e}")
-                results.append({
-                    "question_id": question_id,
-                    "audio_file": audio_path,
-                    "stt_output": "",
-                    "bot_response": "",
-                    "error": str(e)
-                })
-                
-                # Save results even on error
-                if output_path:
-                    self.save_results(results, output_path)
+                    # Save results after each sample
+                    if output_path:
+                        self.save_results(results, output_path)
+                    if attempt > 0:
+                        logger.info(f"Retry successful for {question_id}")
+                    break  # Success, exit retry loop
+                        
+                except Exception as e:
+                    error_str = str(e).lower()
+                    is_bedrock_error = any([
+                        "serviceunavailableexception" in error_str,
+                        "bedrock is unable to process" in error_str,
+                        "throttlingexception" in error_str,
+                        "rate limit" in error_str,
+                        "too many requests" in error_str,
+                        "service temporarily unavailable" in error_str,
+                        "eventstreamError" in error_str,
+                        "conversestream operation" in error_str,
+                        "botocore.exceptions.eventstreamerror" in error_str
+                    ])
+                    
+                    if attempt < max_retries - 1:  # Retry all errors, not just Bedrock ones
+                        wait_time = (3 ** (attempt + 1)) + random.uniform(0, 1)  # Add jitter
+                        error_type = "Bedrock" if is_bedrock_error else "General"
+                        logger.warning(f"{error_type} error on {question_id} (attempt {attempt + 1}), retrying in {wait_time}s: {str(e)}")
+                        await asyncio.sleep(wait_time)
+                    else:
+                        logger.error(f"Error processing {question_id} (final attempt): {e}")
+                        results.append({
+                            "question_id": question_id,
+                            "audio_file": audio_path,
+                            "stt_output": "",
+                            "bot_response": "",
+                            "error": str(e)
+                        })
+                        
+                        # Save results even on error
+                        if output_path:
+                            self.save_results(results, output_path)
+                        break
+            
+            # Pause between items (regardless of success/failure)
+            if i < len(self.dataset['questions']) - 1:  # Don't pause after last item
+                logger.info("Pausing 3 seconds to avoid rate limiting...")
+                await asyncio.sleep(3)
         
         return results
     

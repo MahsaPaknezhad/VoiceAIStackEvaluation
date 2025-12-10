@@ -4,7 +4,7 @@ Evaluation transport for batch processing audio files.
 
 import asyncio
 from pipecat.transports.base_transport import BaseTransport
-from pipecat.frames.frames import AudioRawFrame, Frame, StartFrame, EndFrame, TextFrame, TTSAudioRawFrame
+from pipecat.frames.frames import AudioRawFrame, Frame, StartFrame, TextFrame, TTSAudioRawFrame
 from pipecat.processors.frame_processor import FrameDirection, FrameProcessor
 
 
@@ -70,9 +70,25 @@ class EvaluationInput(FrameProcessor):
                     )
                     frame.id = f"audio_chunk_{i//chunk_size}"
                     await self.push_frame(frame, direction)
+                    await asyncio.sleep(0.1)  # Match chunk duration to prevent timeout
+                
+                # Add 2 seconds of silence padding to ensure full transcription
+                silence_duration = 2.0
+                silence_bytes = int(self._sample_rate * silence_duration * 2)
+                silence_chunk = b'\x00' * silence_bytes
+                for i in range(0, len(silence_chunk), chunk_size):
+                    chunk = silence_chunk[i:i+chunk_size]
+                    frame = AudioRawFrame(
+                        audio=chunk,
+                        sample_rate=self._sample_rate,
+                        num_channels=1
+                    )
+                    await self.push_frame(frame, direction)
+                    await asyncio.sleep(0.1)
+                
                 print("All audio chunks sent, waiting for transcription...")
-                # Wait for transcription to complete after all audio is sent
-                await asyncio.sleep(5.0)
+                # Wait for final transcription processing
+                await asyncio.sleep(3.0)
         else:
             await self.push_frame(frame, direction)
 
