@@ -318,7 +318,7 @@ class VoiceAssistantRunner:
         """Run bot on all audio files in dataset"""
         results = []
         
-        for question in self.dataset['questions']:
+        for i, question in enumerate(self.dataset['questions']):
             question_id = question['id']
             audio_file = question['audio_file']
             audio_path = os.path.join(self.audio_dir, audio_file)
@@ -348,7 +348,9 @@ class VoiceAssistantRunner:
                 # Save results even on error
                 if output_path:
                     self.save_results(results, output_path)
-        
+            if i < len(self.dataset['questions']) - 1:  # Don't pause after last item
+                logger.info("Pausing 2 seconds to avoid rate limiting...")
+                await asyncio.sleep(2)
         return results
     
     def save_results(self, results: List[Dict], output_path: str):
