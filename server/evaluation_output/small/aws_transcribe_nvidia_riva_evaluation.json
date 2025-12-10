@@ -1,0 +1,99 @@
+{
+  "timestamp": "2025-12-10T02:49:45.669780",
+  "dataset": "evaluation_data/voiceassistant_eval_small/voiceassistant_eval_dataset.json",
+  "total_questions": 4,
+  "evaluations": [
+    {
+      "question_id": "speaking_instruction_following_0",
+      "category": "instruction_following",
+      "ground_truth": "",
+      "stt_output": "",
+      "wer": 1.0,
+      "llm_response": "",
+      "judge_scores": {
+        "correctness": 0,
+        "relevance": 0,
+        "completeness": 0,
+        "clarity": 0,
+        "overall": 0,
+        "reasoning": "Evaluation failed: Expecting value: line 1 column 1 (char 0)"
+      },
+      "stt_latency_ms": null,
+      "tts_latency_ms": null,
+      "total_latency_ms": null
+    },
+    {
+      "question_id": "speaking_instruction_following_1",
+      "category": "instruction_following",
+      "ground_truth": "",
+      "stt_output": "",
+      "wer": 1.0,
+      "llm_response": "",
+      "judge_scores": {
+        "correctness": 0,
+        "relevance": 0,
+        "completeness": 0,
+        "clarity": 0,
+        "overall": 0,
+        "reasoning": "Evaluation failed: An error occurred (serviceUnavailableException) when calling the ConverseStream operation: Bedrock is unable to process your request."
+      },
+      "stt_latency_ms": null,
+      "tts_latency_ms": null,
+      "total_latency_ms": null
+    },
+    {
+      "question_id": "speaking_reasoning_2",
+      "category": "reasoning",
+      "ground_truth": "",
+      "stt_output": "",
+      "wer": 1.0,
+      "llm_response": "",
+      "judge_scores": {
+        "correctness": 0,
+        "relevance": 0,
+        "completeness": 0,
+        "clarity": 0,
+        "overall": 0,
+        "reasoning": "Evaluation failed: An error occurred (serviceUnavailableException) when calling the ConverseStream operation: Bedrock is unable to process your request."
+      },
+      "stt_latency_ms": null,
+      "tts_latency_ms": null,
+      "total_latency_ms": null
+    },
+    {
+      "question_id": "speaking_reasoning_3",
+      "category": "reasoning",
+      "ground_truth": "",
+      "stt_output": "",
+      "wer": 1.0,
+      "llm_response": "",
+      "judge_scores": {
+        "correctness": 0,
+        "relevance": 0,
+        "completeness": 0,
+        "clarity": 0,
+        "overall": 0,
+        "reasoning": "Evaluation failed: An error occurred (serviceUnavailableException) when calling the ConverseStream operation: Bedrock is unable to process your request."
+      },
+      "stt_latency_ms": null,
+      "tts_latency_ms": null,
+      "total_latency_ms": null
+    }
+  ],
+  "summary": {
+    "average_wer": 1.0,
+    "average_overall_score": 0.0,
+    "by_category": {
+      "instruction_following": {
+        "count": 2,
+        "avg_wer": 1.0,
+        "avg_score": 0.0
+      },
+      "reasoning": {
+        "count": 2,
+        "avg_wer": 1.0,
+        "avg_score": 0.0
+      }
+    }
+  }
+}

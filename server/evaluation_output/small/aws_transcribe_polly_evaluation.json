@@ -1,6 +1,6 @@
 {
-  "timestamp": "2025-12-09T23:53:44.571989",
-  "dataset": "evaluation_data/voiceassistant_eval/voiceassistant_eval_dataset.json",
+  "timestamp": "2025-12-10T03:09:44.216698",
+  "dataset": "evaluation_data/voiceassistant_eval_small/voiceassistant_eval_dataset.json",
   "total_questions": 4,
   "evaluations": [
     {
@@ -9,18 +9,46 @@
       "ground_truth": "Tell me a funny joke. Oh, change it to a heartwarming short story.",
       "stt_output": "Tell me a funny joke.",
       "wer": 61.53846153846154,
-      "llm_response": "Here's one  for you: Why don't scientists trust atoms? Because  they make up everything! It's a classic, but I still  think it gets a chuckle. The wor dplay with \"make up\" works on two levels,  which is what makes it stick in people's heads even  though it's been around forever.",
+      "llm_response": "Here's one  for you: Why don't scientists trust atoms? Because  they make up everything! It's a  classic, but it always gets a groan,  which is basically the highest compliment a dad joke  can receive.",
       "judge_scores": {
         "correctness": 9,
         "relevance": 10,
         "completeness": 9,
-        "clarity": 7,
-        "overall": 8,
-        "reasoning": "The response successfully delivers a well-known, appropriate joke that is genuinely funny due to its wordplay. It directly addresses the request and even explains the humor mechanism, showing good understanding. The main weakness is presentation quality - there are awkward spacing issues and typos ('wor dplay' instead of 'wordplay') that detract from clarity. The explanation of why the joke works is insightful and adds value. The joke itself is correct and appropriately chosen for a general audience."
+        "clarity": 9,
+        "overall": 9,
+        "reasoning": "The response directly addresses the request for a funny joke by providing a well-known, appropriate pun. The joke is correct and the punchline setup is clear. The assistant adds helpful context about it being a 'dad joke' and explains why it works humorously. Minor deductions only for the extra spacing in the text (formatting artifact) and that humor is subjective, so 'funny' varies by person. Overall, this is a solid, complete response that fully satisfies the user's request."
       },
-      "stt_latency_ms": 2271.62,
-      "tts_latency_ms": 158.95,
-      "total_latency_ms": 8198.79
+      "stt_latency_ms": 2166.19,
+      "tts_latency_ms": 159.28,
+      "total_latency_ms": 6667.48,
+      "voice_quality": {
+        "fluency": {
+          "score": 9.15,
+          "speaking_rate_sps": 3.91,
+          "silence_ratio": 0.201,
+          "energy_consistency": 0.9700000286102295
+        },
+        "naturalness": {
+          "score": 9.29,
+          "pitch_mean_hz": 154.6,
+          "pitch_std_hz": 31.7,
+          "pitch_range_hz": 230.7,
+          "pitch_variation": 0.205,
+          "spectral_centroid_hz": 2054.9
+        },
+        "tone": {
+          "score": 3.53,
+          "clarity": 25.67,
+          "smoothness": 0.051,
+          "hnr_db": 3.069999933242798
+        },
+        "overall_quality": 7.323333333333333,
+        "llm_fluency": 6,
+        "llm_naturalness": 5,
+        "llm_tone": 7,
+        "llm_overall": 6,
+        "llm_reasoning": "The speech shows moderate fluency with a reasonable pace of 3.9 syllables/second, though some awkward pauses are indicated by double spaces in transcript. Naturalness is limited by very low energy variation (0.031), suggesting minimal prosodic expression typical of synthetic speech. The tone is decent with appropriate pitch for conversational delivery, and the speaker maintains engagement throughout the joke structure. Overall quality is acceptable but lacks the dynamic expression needed for truly natural-sounding speech."
+      }
     },
     {
       "question_id": "speaking_instruction_following_1",
@@ -28,18 +56,46 @@
       "ground_truth": "Which of the following is not a fish: salmon or sweetsop? In your response, the word \"clearly\" must appear at least once, and your answer should be exactly two sentences long. ",
       "stt_output": "Which of the following is not a fish. Salmon or sweets so.",
       "wer": 74.19354838709677,
-      "llm_response": "I'd be happy to help you figure  out which one isn't a fish,  but I don't see a list of  options in your question. Could you go ahead and tell  me which items you're choosing from?  Once you do, I'll let you know which one  doesn't belong with the others. I'm  having a bit of trouble understanding your question. It  looks like there might be some unclear text there. Could you clar ify what options you're asking about? Are you asking whether  a salmon is a fish, or is  there a specific list of animals or items you' d like me to compare? If you can rephrase that  second part more clearly, I'll be able  to give you a straight answer about which one isn't a fish.",
+      "llm_response": "I'd be happy to help you  figure out which one isn't a fish,  but I don't see a list of options  in your question. Could you go ahead and tell  me which items you're choosing from? Once  you give me those options, I'll let you know which  one doesn't belong in the fish category. Okay , so between salmon and sweets, salmon is the  fish and sweets is not a fish. Salmon is a type  of fish that lives in both ocean  and freshwater environments, while sweets are can dies or desserts that people eat. So  sweets would be the answer to what is  not a fish.",
       "judge_scores": {
-        "correctness": 0,
-        "relevance": 0,
-        "completeness": 0,
-        "clarity": 0,
-        "overall": 0,
-        "reasoning": "Evaluation failed: An error occurred (serviceUnavailableException) when calling the ConverseStream operation: Bedrock is unable to process your request."
+        "correctness": 8,
+        "relevance": 9,
+        "completeness": 8,
+        "clarity": 6,
+        "overall": 8,
+        "reasoning": "The response correctly identifies that 'sweets' is not a fish and 'salmon' is a fish, which answers the user's question accurately. It's relevant and provides some helpful explanation about salmon's habitat and that sweets are candies/desserts. However, the response has notable issues: (1) it initially asks for clarification when the options were already provided, creating redundancy; (2) there are formatting/spacing artifacts throughout; (3) there's an awkward phrase ('sweets are can dies') with apparent typos or speech-to-text errors; (4) the structure is somewhat disorganized, asking for clarification then providing the answer anyway. Despite these presentation issues, the core answer is correct and ultimately addresses the question."
       },
-      "stt_latency_ms": 3114.25,
-      "tts_latency_ms": 386.88,
-      "total_latency_ms": 17905.54
+      "stt_latency_ms": 3096.71,
+      "tts_latency_ms": 370.92,
+      "total_latency_ms": 8426.55,
+      "voice_quality": {
+        "fluency": {
+          "score": 9.11,
+          "speaking_rate_sps": 4.17,
+          "silence_ratio": 0.2,
+          "energy_consistency": 0.9739999771118164
+        },
+        "naturalness": {
+          "score": 9.28,
+          "pitch_mean_hz": 158.4,
+          "pitch_std_hz": 38.2,
+          "pitch_range_hz": 350.0,
+          "pitch_variation": 0.241,
+          "spectral_centroid_hz": 2147.4
+        },
+        "tone": {
+          "score": 3.36,
+          "clarity": 25.5,
+          "smoothness": 0.049,
+          "hnr_db": 2.190000057220459
+        },
+        "overall_quality": 7.25,
+        "llm_fluency": 5,
+        "llm_naturalness": 4,
+        "llm_tone": 6,
+        "llm_overall": 5,
+        "llm_reasoning": "The speech shows moderate fluency issues with multiple awkward pauses indicated by double spaces throughout the transcript, and a slightly rushed pace at 4.2 syllables/second. Naturalness is significantly impacted by very low energy variation (0.027), creating a monotone delivery that lacks human-like prosodic expression. The tone is reasonably pleasant with appropriate conversational pitch, maintaining helpfulness throughout the explanation. Overall quality is below average due to robotic delivery patterns and lack of natural rhythm, though the content remains intelligible and the voice maintains a friendly demeanor."
+      }
     },
     {
       "question_id": "speaking_reasoning_2",
@@ -49,16 +105,16 @@
       "wer": 1.0,
       "llm_response": "",
       "judge_scores": {
-        "correctness": 6,
-        "relevance": 5,
-        "completeness": 4,
-        "clarity": 5,
-        "overall": 5,
-        "reasoning": "The assistant struggles to interpret a somewhat garbled question. While the response attempts to be helpful by asking for clarification, it misses what appears to be the intended comparison: 'Salmon' (a fish) vs 'sweets' (not a fish). The question, though poorly written, seems answerable - sweets are clearly not a fish. The assistant's request for clarification is somewhat reasonable given the unclear phrasing, but a more competent response would have recognized the apparent intended options and provided the answer (sweets) while noting the unclear wording. The response is repetitive, contains formatting issues ('clar ify' instead of 'clarify'), and doesn't attempt to answer despite sufficient context clues. The assistant prioritizes asking for clarification over attempting to help, which is overly cautious."
+        "correctness": 0,
+        "relevance": 0,
+        "completeness": 0,
+        "clarity": 0,
+        "overall": 0,
+        "reasoning": "There is no question provided and no response to evaluate. Both the question and response fields are empty, making it impossible to assess correctness, relevance, completeness, or clarity. A valid evaluation requires actual content to analyze."
       },
       "stt_latency_ms": null,
       "tts_latency_ms": null,
-      "total_latency_ms": 5406.68
+      "total_latency_ms": 5414.32
     },
     {
       "question_id": "speaking_reasoning_3",
@@ -73,32 +129,36 @@
         "completeness": 0,
         "clarity": 0,
         "overall": 0,
-        "reasoning": "No question or response was provided to evaluate. Both fields are empty, making it impossible to assess correctness, relevance, completeness, or clarity. Please provide an actual question and response for evaluation."
+        "reasoning": "Cannot evaluate: Both the question and response are empty. There is no content to assess for correctness, relevance, completeness, or clarity. A proper evaluation requires actual question and response text."
       },
       "stt_latency_ms": null,
       "tts_latency_ms": null,
-      "total_latency_ms": 15117.54
+      "total_latency_ms": 15117.82
     }
   ],
   "summary": {
     "average_wer": 34.43300248138958,
-    "average_overall_score": 3.25,
-    "average_stt_latency_ms": 2692.935,
-    "average_tts_latency_ms": 272.91499999999996,
-    "average_total_latency_ms": 11657.1375,
+    "average_overall_score": 4.25,
+    "average_stt_latency_ms": 2631.45,
+    "average_tts_latency_ms": 265.1,
+    "average_total_latency_ms": 8906.5425,
     "by_category": {
       "instruction_following": {
         "count": 2,
         "avg_wer": 67.86600496277916,
-        "avg_score": 4.0,
-        "avg_stt_latency_ms": 2692.935,
-        "avg_tts_latency_ms": 272.91499999999996
+        "avg_score": 8.5,
+        "avg_stt_latency_ms": 2631.45,
+        "avg_tts_latency_ms": 265.1
       },
       "reasoning": {
         "count": 2,
         "avg_wer": 1.0,
-        "avg_score": 2.5
+        "avg_score": 0.0
       }
     }
-  }
+  },
+  "stt_model": "AWS Transcribe",
+  "stt_service_id": "aws_transcribe",
+  "tts_model": "AWS Polly",
+  "tts_service_id": "aws_polly"
 }

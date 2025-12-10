@@ -1,25 +1,24 @@
 #!/bin/bash
 
-# Run evaluation for AWS Transcribe (STT) + AWS Polly (TTS)
+# Run evaluation for AssemblyAI (STT) + ElevenLabs (TTS)
 
 set -e
 
 echo "=================================="
-echo "AWS Transcribe + Polly Evaluation"
+echo "AssemblyAI + ElevenLabs Evaluation"
 echo "=================================="
 
 DATASET="evaluation_data/voiceassistant_eval_small/voiceassistant_eval_dataset.json"
 AUDIO_DIR="evaluation_data/voiceassistant_eval_small/audio_input"
-STT_CONFIG="evaluation_data/stt_bot_configs/aws_transcribe_config.json"
-TTS_CONFIG="evaluation_data/tts_bot_configs/aws_polly_config.json"
-OUTPUT="evaluation_output/small/aws_transcribe_polly_results.json"
-EVAL_OUTPUT="evaluation_output/small/aws_transcribe_polly_evaluation.json"
+STT_CONFIG="evaluation_data/stt_bot_configs/assemblyai_config.json"
+TTS_CONFIG="evaluation_data/tts_bot_configs/elevenlabs_config.json"
+OUTPUT="evaluation_output/small/assemblyai_elevenlabs_results.json"
+EVAL_OUTPUT="evaluation_output/small/assemblyai_elevenlabs_evaluation.json"
 
-echo "STT: AWS Transcribe"
-echo "TTS: AWS Polly"
+echo "STT: AssemblyAI"
+echo "TTS: ElevenLabs"
 echo ""
 
-# Step 1: Run bot evaluation
 echo "Step 1: Running bot on dataset..."
 python src/evaluation/voice_pipeline_evaluator.py \
     --dataset "$DATASET" \
@@ -36,9 +35,10 @@ fi
 echo "✓ Bot evaluation complete"
 echo ""
 
-# Step 2: Evaluate results
 echo "Step 2: Evaluating results (WER + LLM judge)..."
 python src/evaluation/metrics_calculator.py \
+    --dataset "$DATASET" \
+    --audio-dir "$AUDIO_DIR" \
     --results "$OUTPUT" \
     --output "$EVAL_OUTPUT"
 
