@@ -70,11 +70,14 @@ class VoiceAssistantRunner:
     
     def _load_config(self, config_path: str) -> Dict:
         """Load service config from JSON file"""
-        with open(config_path, 'r') as f:
-            return json.load(f)
+        with open(config_path, 'r', encoding='utf-8') as f:
+            logger.info(f'Loading in config {config_path}')
+            json_file = json.load(f)
+            return json_file
     
     def _create_stt_service(self):
         """Create STT service from config"""
+        logger.info("Creating STT service...")
         if not self.stt_config:
             # Default
             return DeepgramSTTService(
@@ -108,23 +111,23 @@ class VoiceAssistantRunner:
     
     def _create_tts_service(self):
         """Create TTS service from config"""
+        logger.info("Creating TTS service...")
         if not self.tts_config:
             # Default
             return DeepgramTTSService(
                 api_key=os.getenv("DEEPGRAM_API_KEY"),
                 voice="aura-2-delia-en"
             )
-        
+
         # Import the service class dynamically
         module_name = self.tts_config["module"]
         class_name = self.tts_config["class"]
         
         module = __import__(module_name, fromlist=[class_name])
         service_class = getattr(module, class_name)
-        
         # Get config params
         config = self.tts_config.get("config", {})
-        
+        logger.info(f'Setting service class for {module_name}')
         # Create service with appropriate API key
         if "deepgram" in module_name:
             return service_class(api_key=os.getenv("DEEPGRAM_API_KEY"), **config)
@@ -134,8 +137,8 @@ class VoiceAssistantRunner:
             return service_class(api_key=os.getenv("ELEVENLABS_API_KEY"), **config)
         elif "cartesia" in module_name:
             return service_class(api_key=os.getenv("CARTESIA_API_KEY"), **config)
-        elif "riva" in module_name:
-            return service_class(api_key=os.getenv("RIVA_API_KEY"), **config)
+        elif "nvidia" in module_name:
+            return service_class(api_key=os.getenv("NVIDIA_API_KEY"), **config)
         elif "fish" in module_name:
             return service_class(api_key=os.getenv("FISH_AUDIO_API_KEY"), **config)
         elif "lmnt" in module_name:
@@ -167,17 +170,18 @@ class VoiceAssistantRunner:
             raise ValueError(f"Question {question_id} not found in dataset")
         
         ground_truth = question_data['text']
-        
         # Read audio file
         with wave.open(audio_path, 'rb') as wf:
             sample_rate = wf.getframerate()
             audio_data = wf.readframes(wf.getnframes())
+            logger.info(f"File {audio_path} loaded with sample rate {sample_rate}")
         
         transport = EvaluationTransport(audio_data, sample_rate)
         
         # Create services
         stt = self._create_stt_service()
         tts = self._create_tts_service()
+        logger.info('Successfully created STT and TTS Service')
         agent = build_conversation_agent(model_id="us.anthropic.claude-haiku-4-5-20251001-v1:0", tts_service=tts)
         llm = StrandsAgentsProcessor(agent=agent)
         
@@ -197,6 +201,7 @@ class VoiceAssistantRunner:
         tts_timing_end = TTSTimingProcessor(timing_collector)
         stt_collector = STTCollector(timing_collector, stt_texts)
         llm_collector = LLMCollector(timing_collector, llm_texts)
+        logger.info('Successfully completed video frame processing')
         
         # Build pipeline: STT -> context -> LLM -> context -> TTS
         pipeline = Pipeline([
@@ -212,6 +217,7 @@ class VoiceAssistantRunner:
             tts_timing_end,
             transport.output()
         ])
+        logger.info('Pipeline build complete')
         
         task = PipelineTask(pipeline, params=PipelineParams())
         

@@ -1,8 +1,8 @@
 {
   "tts_service_id": "nvidia_riva",
   "tts_service_name": "NVIDIA Riva",
-  "module": "pipecat.services.riva.tts",
-  "class": "RivaTTSService",
+  "module": "pipecat.services.nvidia.tts",
+  "class": "NvidiaTTSService",
   "config": {},
   "available_voices": [],
   "instructions": "\n# Configuration for NVIDIA Riva\n\nTo use this TTS service in bot.py, replace the TTS initialization with:\n\nfrom pipecat.services.riva.tts import RivaTTSService\n\ntts = RivaTTSService(\n    api_key=os.getenv(\"API_KEY\"),  # Use appropriate env var\n    **{}\n)\n\n# Available voices: Check service documentation\n"
