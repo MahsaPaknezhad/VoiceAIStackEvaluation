@@ -277,7 +277,11 @@ class VoiceAssistantRunner:
         output_audio = transport.get_output_audio()
         print(f"DEBUG: Output audio length: {len(output_audio) if output_audio else 0}")
         if output_audio:
-            output_dir = "evaluation_output/tts_audio"
+            # Create experiment-specific directory
+            stt_id = self.stt_config.get("stt_service_id") if self.stt_config else "default_stt"
+            tts_id = self.tts_config.get("tts_service_id") if self.tts_config else "default_tts"
+            experiment_name = f"{stt_id}_{tts_id}"
+            output_dir = os.path.join("evaluation_output", "tts_audio", experiment_name)
             os.makedirs(output_dir, exist_ok=True)
             tts_audio_path = os.path.join(output_dir, f"{question_id}_response.wav")
             
