@@ -16,6 +16,7 @@ import json
 from loguru import logger
 import os
 import boto3
+import re
 
 
 class VoiceQualityEvaluator:
@@ -38,7 +39,7 @@ class VoiceQualityEvaluator:
         return Agent(
             name="VoiceQualityJudge",
             model=model,
-            instruction="""You are an expert speech quality evaluator. Listen to the audio and evaluate:
+            system_prompt="""You are an expert speech quality evaluator. Listen to the audio and evaluate:
 
 1. **Fluency** (0-10): How smooth and natural is the speech flow? Are there awkward pauses or robotic rhythm?
 2. **Naturalness** (0-10): Does it sound like a real human? Is the prosody and intonation natural?
@@ -149,7 +150,7 @@ Return ONLY valid JSON:
                 "nova_sonic_reasoning": f"Error: {str(e)}"
             }
     
-    async def evaluate_with_llm(self, audio_path: str, transcript: str = "") -> Dict:
+    def evaluate_with_llm(self, audio_path: str, transcript: str = "") -> Dict:
         """
         Evaluate voice quality using LLM judge.
         
@@ -201,8 +202,14 @@ Return ONLY valid JSON:
             
             full_prompt = f"{prompt}\n\n{audio_description}\n\nBased on these characteristics, evaluate the voice quality."
             
-            response = await self.llm_judge.run(full_prompt)
-            result = json.loads(response)
+            response = self.llm_judge(full_prompt)
+            print(f'LLM JUDGE RESPONSE:, {response}')
+            response_text = response.output.text if hasattr(response, 'output') else str(response)
+            if not response_text or not response_text.strip():
+                logger.error(f"Empty response from LLM judge")
+                raise ValueError("Empty response from LLM")
+            cleaned = re.sub(r'^```json\s*|\s*```$', '', response_text.strip(), flags=re.MULTILINE)
+            result = json.loads(cleaned)
             
             return {
                 "llm_fluency": result.get("fluency", 0),
@@ -265,7 +272,7 @@ Return ONLY valid JSON:
         
         # Add LLM evaluation if enabled
         if self.use_llm_judge:
-            llm_scores = await self.evaluate_with_llm(audio_path, transcript)
+            llm_scores = self.evaluate_with_llm(audio_path, transcript)
             results.update(llm_scores)
         
         return results

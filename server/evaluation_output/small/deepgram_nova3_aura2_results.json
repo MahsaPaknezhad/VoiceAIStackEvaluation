@@ -1,0 +1,52 @@
+{
+  "stt_model": "Deepgram Nova 3",
+  "stt_service_id": "deepgram_nova3",
+  "tts_model": "Deepgram Aura",
+  "tts_service_id": "deepgram_aura",
+  "results": [
+    {
+      "question_id": "speaking_instruction_following_0",
+      "audio_file": "evaluation_data/voiceassistant_eval_small/audio_input/speaking_instruction_following_0.wav",
+      "stt_output": "Tell me a funny joke.",
+      "ground_truth": "Tell me a funny joke. Oh, change it to a heartwarming short story.",
+      "llm_response": "Here's one  for you: Why don't scientists trust atoms? Because  they make up everything! It's a classic , but it always gets a groan,  which honestly is half the fun of telling it.",
+      "tts_audio_path": "evaluation_output/tts_audio/speaking_instruction_following_0_response.wav",
+      "stt_latency_ms": 2054.8,
+      "tts_latency_ms": 249.88,
+      "total_latency_ms": 16087.89
+    },
+    {
+      "question_id": "speaking_instruction_following_1",
+      "audio_file": "evaluation_data/voiceassistant_eval_small/audio_input/speaking_instruction_following_1.wav",
+      "stt_output": "Which of the following is not a fish? Salmon, or sweet salt. In your response, the word clearly must appear at least once. And your answer should be exactly",
+      "ground_truth": "Which of the following is not a fish: salmon or sweetsop? In your response, the word \"clearly\" must appear at least once, and your answer should be exactly two sentences long. ",
+      "llm_response": "I 'd be happy to help, but I don 't see a list of options in your question . Could you please tell me which items you're choosing  from? Once you give me the options, I can  tell you which one is not a fish.",
+      "tts_audio_path": null,
+      "stt_latency_ms": 3680.98,
+      "tts_latency_ms": null,
+      "total_latency_ms": 16148.64
+    },
+    {
+      "question_id": "speaking_reasoning_2",
+      "audio_file": "evaluation_data/voiceassistant_eval_small/audio_input/speaking_reasoning_2.wav",
+      "stt_output": "Why is it hard for a young child to read a long book due to a lack of knowledge? Because of the cover due to no pictures.",
+      "ground_truth": "Why is it hard for a young child to read a long book due to a lack of knowledge, because of the cover, due to no pictures, or because of many words?",
+      "llm_response": "Reading  long books is challenging for young children for a  few key reasons. First, their attention span  is still developing, so sitting still  and focusing on a single activity for extended periods is genu inely difficult for their brains. They also  have limited reading stamina because dec oding words still requires a lot of mental effort,  which gets tiring quickly.\n\nYoung  children also tend to think more concretely,  so they struggle with complex plots that have multiple storyl ines or require remembering details from earlier chapters. The  vocabulary in longer books is often more advance d than what they're used to, which can make reading  feel frustrating rather than fun. Plus, they may not have develope d strong comprehension skills yet, so following a story over  many pages is harder than following a short story they  can finish in one sitting.\n\nThat's why books  for young children are typically shorter with more pictures , simpler language, and straightforward plots . As kids grow and read more, their  brains develop better focus, their reading becomes  more automatic, and they can handle more complex stories.",
+      "tts_audio_path": "evaluation_output/tts_audio/speaking_reasoning_2_response.wav",
+      "stt_latency_ms": 4366.44,
+      "tts_latency_ms": 744.6,
+      "total_latency_ms": 20484.26
+    },
+    {
+      "question_id": "speaking_reasoning_3",
+      "audio_file": "evaluation_data/voiceassistant_eval_small/audio_input/speaking_reasoning_3.wav",
+      "stt_output": "Answering multiple choice questions is often easier than answering fill in or completion because multiple choice questions?",
+      "ground_truth": "Answering multiple-choice questions is often easier than answering fill-in or completion questions, because multiple choice questions\nA. require less time to answer\nB. provide more retrieval cues\nC. check memorization rather than critical thinking\nD. are definitional rather than conceptual\n\nWhat is the answer to the above multiple choice question? Select one of the following: A, B, C, or D.",
+      "llm_response": "That",
+      "tts_audio_path": null,
+      "stt_latency_ms": 4319.81,
+      "tts_latency_ms": null,
+      "total_latency_ms": 7479.73
+    }
+  ]
+}

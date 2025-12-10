@@ -124,6 +124,16 @@ class VoiceAssistantRunner:
             return service_class(api_key=os.getenv("ELEVENLABS_API_KEY"), **config)
         elif "cartesia" in module_name:
             return service_class(api_key=os.getenv("CARTESIA_API_KEY"), **config)
+        elif "riva" in module_name:
+            return service_class(api_key=os.getenv("RIVA_API_KEY"), **config)
+        elif "fish" in module_name:
+            return service_class(api_key=os.getenv("FISH_AUDIO_API_KEY"), **config)
+        elif "lmnt" in module_name:
+            return service_class(api_key=os.getenv("LMNT_API_KEY"), **config)
+        elif "playht" in module_name:
+            return service_class(api_key=os.getenv("PLAYHT_API_KEY"), **config)
+        elif "rime" in module_name:
+            return service_class(api_key=os.getenv("RIME_API_KEY"), **config)
         else:
             return service_class(**config)
         
@@ -162,7 +172,8 @@ class VoiceAssistantRunner:
         llm = StrandsAgentsProcessor(agent=agent)
         
         # Setup context
-        context = AWSBedrockLLMContext()
+        #context = AWSBedrockLLMContext()
+        context = OpenAILLMContext()
         tma_in = LLMUserContextAggregator(context=context)
         tma_out = LLMAssistantContextAggregator(context=context)
         
@@ -374,8 +385,18 @@ class VoiceAssistantRunner:
     def save_results(self, results: List[Dict], output_path: str):
         """Save results to JSON"""
         os.makedirs(os.path.dirname(output_path), exist_ok=True)
+        
+        # Add metadata about STT and TTS models
+        output_data = {
+            "stt_model": self.stt_config.get("stt_service_name") if self.stt_config else None,
+            "stt_service_id": self.stt_config.get("stt_service_id") if self.stt_config else None,
+            "tts_model": self.tts_config.get("tts_service_name") if self.tts_config else None,
+            "tts_service_id": self.tts_config.get("tts_service_id") if self.tts_config else None,
+            "results": results
+        }
+        
         with open(output_path, 'w') as f:
-            json.dump(results, f, indent=2)
+            json.dump(output_data, f, indent=2)
         logger.info(f"Results saved to {output_path}")
 
 

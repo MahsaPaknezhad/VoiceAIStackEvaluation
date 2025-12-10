@@ -1,0 +1,166 @@
+{
+  "timestamp": "2025-12-10T03:12:46.914682",
+  "dataset": "evaluation_data/voiceassistant_eval_small/voiceassistant_eval_dataset.json",
+  "total_questions": 4,
+  "evaluations": [
+    {
+      "question_id": "speaking_instruction_following_0",
+      "category": "instruction_following",
+      "ground_truth": "Tell me a funny joke. Oh, change it to a heartwarming short story.",
+      "stt_output": "Tell me a funny joke.",
+      "wer": 61.53846153846154,
+      "llm_response": "Here's one  for you: Why don't scientists trust atoms? Because  they make up everything! It's a classic , but it always gets a groan,  which honestly is half the fun of telling it.",
+      "judge_scores": {
+        "correctness": 9,
+        "relevance": 10,
+        "completeness": 9,
+        "clarity": 9,
+        "overall": 9,
+        "reasoning": "The response directly answers the request with a well-known, genuinely humorous joke that works through a pun ('make up' = fabricate/compose). The assistant adds appropriate context by acknowledging it's a classic and noting it typically gets groans, which shows self-awareness and humor. The delivery is clear and accessible. Minor deductions only for the formatting inconsistencies (extra spaces before some words like 'for' and 'classic') which are likely typos. The joke itself is appropriate, harmless, and suitable for broad audiences."
+      },
+      "stt_latency_ms": 2054.8,
+      "tts_latency_ms": 249.88,
+      "total_latency_ms": 16087.89,
+      "voice_quality": {
+        "fluency": {
+          "score": 8.76,
+          "speaking_rate_sps": 4.46,
+          "silence_ratio": 0.202,
+          "energy_consistency": 0.9470000267028809
+        },
+        "naturalness": {
+          "score": 8.73,
+          "pitch_mean_hz": 189.5,
+          "pitch_std_hz": 89.8,
+          "pitch_range_hz": 350.0,
+          "pitch_variation": 0.474,
+          "spectral_centroid_hz": 1629.4
+        },
+        "tone": {
+          "score": 3.06,
+          "clarity": 22.71,
+          "smoothness": 0.073,
+          "hnr_db": 1.7699999809265137
+        },
+        "overall_quality": 6.8500000000000005,
+        "llm_fluency": 6,
+        "llm_naturalness": 5,
+        "llm_tone": 7,
+        "llm_overall": 6,
+        "llm_reasoning": "The speech has a very fast rate (4.5 syllables/second) which may sound rushed and affect fluency. The pitch (189.5 Hz) is appropriate for conversational speech. Low energy variation (0.056) suggests limited prosodic expression, making it sound somewhat monotone and less natural. However, the tone is pleasant and clear. The joke content allows for some natural inflection, but the delivery appears mechanically paced rather than conversational."
+      }
+    },
+    {
+      "question_id": "speaking_instruction_following_1",
+      "category": "instruction_following",
+      "ground_truth": "Which of the following is not a fish: salmon or sweetsop? In your response, the word \"clearly\" must appear at least once, and your answer should be exactly two sentences long. ",
+      "stt_output": "Which of the following is not a fish? Salmon, or sweet salt. In your response, the word clearly must appear at least once. And your answer should be exactly",
+      "wer": 32.25806451612903,
+      "llm_response": "I 'd be happy to help, but I don 't see a list of options in your question . Could you please tell me which items you're choosing  from? Once you give me the options, I can  tell you which one is not a fish.",
+      "judge_scores": {
+        "correctness": 0,
+        "relevance": 0,
+        "completeness": 0,
+        "clarity": 0,
+        "overall": 0,
+        "reasoning": "Evaluation failed: An error occurred (serviceUnavailableException) when calling the ConverseStream operation: Bedrock is unable to process your request."
+      },
+      "stt_latency_ms": 3680.98,
+      "tts_latency_ms": null,
+      "total_latency_ms": 16148.64
+    },
+    {
+      "question_id": "speaking_reasoning_2",
+      "category": "reasoning",
+      "ground_truth": "Why is it hard for a young child to read a long book due to a lack of knowledge, because of the cover, due to no pictures, or because of many words?",
+      "stt_output": "Why is it hard for a young child to read a long book due to a lack of knowledge? Because of the cover due to no pictures.",
+      "wer": 28.125,
+      "llm_response": "Reading  long books is challenging for young children for a  few key reasons. First, their attention span  is still developing, so sitting still  and focusing on a single activity for extended periods is genu inely difficult for their brains. They also  have limited reading stamina because dec oding words still requires a lot of mental effort,  which gets tiring quickly.\n\nYoung  children also tend to think more concretely,  so they struggle with complex plots that have multiple storyl ines or require remembering details from earlier chapters. The  vocabulary in longer books is often more advance d than what they're used to, which can make reading  feel frustrating rather than fun. Plus, they may not have develope d strong comprehension skills yet, so following a story over  many pages is harder than following a short story they  can finish in one sitting.\n\nThat's why books  for young children are typically shorter with more pictures , simpler language, and straightforward plots . As kids grow and read more, their  brains develop better focus, their reading becomes  more automatic, and they can handle more complex stories.",
+      "judge_scores": {
+        "correctness": 4,
+        "relevance": 3,
+        "completeness": 6,
+        "clarity": 7,
+        "overall": 4,
+        "reasoning": "The response fails to address the actual question asked. The user provided a specific premise ('Because of the cover due to no pictures') and seemed to be asking for evaluation or discussion of that explanation, but the assistant instead provides a comprehensive general explanation of why children struggle with long books. While the assistant's explanation is accurate, well-structured, and clearly written, it misses the mark entirely by not engaging with the specific claim presented. The response ignores the user's apparent setup about covers and pictures being the reason. Additionally, the assistant doesn't acknowledge the somewhat garbled or unclear nature of the original question/statement, which would have been helpful. The formatting issues with split words ('genu inely', 'dec oding', 'advance d', 'develope d') also detract from clarity."
+      },
+      "stt_latency_ms": 4366.44,
+      "tts_latency_ms": 744.6,
+      "total_latency_ms": 20484.26,
+      "voice_quality": {
+        "fluency": {
+          "score": 8.48,
+          "speaking_rate_sps": 4.81,
+          "silence_ratio": 0.202,
+          "energy_consistency": 0.9470000267028809
+        },
+        "naturalness": {
+          "score": 8.68,
+          "pitch_mean_hz": 193.8,
+          "pitch_std_hz": 75.0,
+          "pitch_range_hz": 350.0,
+          "pitch_variation": 0.387,
+          "spectral_centroid_hz": 1472.7
+        },
+        "tone": {
+          "score": 3.37,
+          "clarity": 24.08,
+          "smoothness": 0.087,
+          "hnr_db": 2.4000000953674316
+        },
+        "overall_quality": 6.843333333333334,
+        "llm_fluency": 4,
+        "llm_naturalness": 4,
+        "llm_tone": 6,
+        "llm_overall": 4,
+        "llm_reasoning": "The speech has significant fluency issues with an extremely fast rate (4.8 syllables/second) that sounds rushed and unnatural. The transcript shows fragmented words ('genu inely', 'dec oding', 'storyl ines', 'advance d', 'develope d') indicating choppy delivery. Very low energy variation (0.056) creates a monotone, robotic quality that lacks natural prosodic patterns. While the pitch is appropriate and tone is reasonably clear, the overall delivery feels mechanical and difficult to follow due to the rapid pace and lack of natural rhythm."
+      }
+    },
+    {
+      "question_id": "speaking_reasoning_3",
+      "category": "reasoning",
+      "ground_truth": "Answering multiple-choice questions is often easier than answering fill-in or completion questions, because multiple choice questions\nA. require less time to answer\nB. provide more retrieval cues\nC. check memorization rather than critical thinking\nD. are definitional rather than conceptual\n\nWhat is the answer to the above multiple choice question? Select one of the following: A, B, C, or D.",
+      "stt_output": "Answering multiple choice questions is often easier than answering fill in or completion because multiple choice questions?",
+      "wer": 82.14285714285714,
+      "llm_response": "That",
+      "judge_scores": {
+        "correctness": 0,
+        "relevance": 1,
+        "completeness": 0,
+        "clarity": 1,
+        "overall": 0,
+        "reasoning": "The response is essentially non-existent. The assistant only provided the word 'That' with no continuation, explanation, or attempt to answer the question. The question asks for a reason why multiple choice questions are easier than fill-in-the-blank questions, and a complete response would explain concepts like reduced cognitive load, recognition vs. recall, or process of elimination. This response fails on all evaluation criteria - it's incomplete, doesn't address the question, contains no meaningful information, and provides no useful clarity to the user."
+      },
+      "stt_latency_ms": 4319.81,
+      "tts_latency_ms": null,
+      "total_latency_ms": 7479.73
+    }
+  ],
+  "summary": {
+    "average_wer": 51.01609579936193,
+    "average_overall_score": 3.25,
+    "average_stt_latency_ms": 3605.5075,
+    "average_tts_latency_ms": 497.24,
+    "average_total_latency_ms": 15050.13,
+    "by_category": {
+      "instruction_following": {
+        "count": 2,
+        "avg_wer": 46.898263027295286,
+        "avg_score": 4.5,
+        "avg_stt_latency_ms": 2867.8900000000003,
+        "avg_tts_latency_ms": 249.88
+      },
+      "reasoning": {
+        "count": 2,
+        "avg_wer": 55.13392857142857,
+        "avg_score": 2.0,
+        "avg_stt_latency_ms": 4343.125,
+        "avg_tts_latency_ms": 744.6
+      }
+    }
+  },
+  "stt_model": "Deepgram Nova 3",
+  "stt_service_id": "deepgram_nova3",
+  "tts_model": "Deepgram Aura",
+  "tts_service_id": "deepgram_aura"
+}

@@ -13,14 +13,19 @@ from strands import Agent
 from strands.models import BedrockModel
 from loguru import logger
 import argparse
+from audio_quality_analyzer import VoiceQualityEvaluator
 
 
 class VoiceAssistantEvaluator:
-    def __init__(self, dataset_path: str, audio_dir: str):
+    def __init__(self, dataset_path: str, audio_dir: str, evaluate_voice_quality: bool = True):
         self.dataset_path = dataset_path
         self.audio_dir = audio_dir
         self.dataset = self._load_dataset()
         self.judge_agent = self._create_judge_agent()
+        self.evaluate_voice_quality = evaluate_voice_quality
+        
+        if evaluate_voice_quality:
+            self.voice_evaluator = VoiceQualityEvaluator(use_llm_judge=True, use_nova_sonic=False)
         
     def _load_dataset(self) -> Dict:
         """Load the evaluation dataset"""
@@ -97,7 +102,7 @@ Evaluate the actual response."""
     
     async def evaluate_single(self, question_id: str, category: str, stt_output: str, ground_truth: str, llm_response: str, 
                              stt_latency: float = None, tts_latency: float = None, 
-                             total_latency: float = None) -> Dict:
+                             total_latency: float = None, tts_audio_path: str = None) -> Dict:
 
         """Evaluate a single question"""
         question = stt_output
@@ -123,6 +128,14 @@ Evaluate the actual response."""
         result["stt_latency_ms"] = stt_latency
         result["tts_latency_ms"] = tts_latency
         result["total_latency_ms"] = total_latency
+        
+        # Add voice quality metrics if enabled and TTS audio available
+        if self.evaluate_voice_quality and tts_audio_path:
+            try:
+                voice_metrics = await self.voice_evaluator.evaluate_async(tts_audio_path, llm_response)
+                result["voice_quality"] = voice_metrics
+            except Exception as e:
+                logger.error(f"Voice quality evaluation failed for {question_id}: {e}")
             
         return result
     
@@ -135,7 +148,22 @@ Evaluate the actual response."""
         """
         # Load results
         with open(results_file, 'r') as f:
-            results = json.load(f)
+            results_data = json.load(f)
+        
+        # Extract model metadata if present
+        if isinstance(results_data, dict) and 'results' in results_data:
+            stt_model = results_data.get('stt_model')
+            stt_service_id = results_data.get('stt_service_id')
+            tts_model = results_data.get('tts_model')
+            tts_service_id = results_data.get('tts_service_id')
+            results = results_data['results']
+        else:
+            # Old format - just a list
+            stt_model = None
+            stt_service_id = None
+            tts_model = None
+            tts_service_id = None
+            results = results_data
         
         evaluations = []
         
@@ -158,7 +186,8 @@ Evaluate the actual response."""
                 result.get('llm_response', ''),
                 result.get('stt_latency_ms'),
                 result.get('tts_latency_ms'),
-                result.get('total_latency_ms')
+                result.get('total_latency_ms'),
+                result.get('tts_audio_path')
             )
             
             evaluations.append(eval_result)
@@ -170,13 +199,25 @@ Evaluate the actual response."""
         # Calculate summary statistics
         summary = self._calculate_summary(evaluations)
         
-        return {
+        output = {
             "timestamp": datetime.now().isoformat(),
             "dataset": self.dataset_path,
             "total_questions": len(evaluations),
             "evaluations": evaluations,
             "summary": summary
         }
+        
+        # Add model metadata if available
+        if stt_model:
+            output["stt_model"] = stt_model
+        if stt_service_id:
+            output["stt_service_id"] = stt_service_id
+        if tts_model:
+            output["tts_model"] = tts_model
+        if tts_service_id:
+            output["tts_service_id"] = tts_service_id
+        
+        return output
     
     def _calculate_summary(self, evaluations: List[Dict]) -> Dict:
         """Calculate summary statistics"""
@@ -236,7 +277,7 @@ Evaluate the actual response."""
         """Save evaluation results"""
         os.makedirs(os.path.dirname(output_path), exist_ok=True)
         with open(output_path, 'w') as f:
-            json.dump(results, f, indent=2)
+            json.dump(results, f, indent=2, default=float)
         logger.info(f"Results saved to {output_path}")
 
 
@@ -250,10 +291,12 @@ async def main():
                        help='Path to results JSON file with STT outputs and bot responses')
     parser.add_argument('--output', default='evaluation_data/voiceassistant_eval/evaluation_results.json',
                        help='Output path for evaluation results')
+    parser.add_argument('--voice-quality', action='store_true', default=True,
+                       help='Enable voice quality evaluation')
     
     args = parser.parse_args()
     
-    evaluator = VoiceAssistantEvaluator(args.dataset, args.audio_dir)
+    evaluator = VoiceAssistantEvaluator(args.dataset, args.audio_dir, args.voice_quality)
     
     logger.info("Starting evaluation...")
     results = await evaluator.run_evaluation(args.results)
