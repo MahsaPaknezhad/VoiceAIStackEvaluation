@@ -357,7 +357,7 @@ class VoiceAssistantRunner:
                     is_bedrock_error = "serviceUnavailableException" in error_str or "Bedrock is unable to process" in error_str
                     
                     if is_bedrock_error and attempt < max_retries - 1:
-                        wait_time = 2 ** (attempt + 1)  # 2, 4, 8 seconds
+                        wait_time = (2 ** (attempt + 1)) + random.uniform(0, 1)  # Add jitter
                         logger.warning(f"Bedrock error on {question_id} (attempt {attempt + 1}), retrying in {wait_time}s: {error_str}")
                         await asyncio.sleep(wait_time)
                     else:

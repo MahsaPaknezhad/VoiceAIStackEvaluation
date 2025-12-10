@@ -194,7 +194,7 @@ Evaluate the actual response."""
             # Add pause between evaluations to avoid rate limiting
             if i < len(self.dataset['questions']) - 1:  # Don't pause after last item
                 logger.info("Pausing 2 seconds to avoid rate limiting...")
-                await asyncio.sleep(2)      
+                await asyncio.sleep(2)
   
         # Calculate summary statistics
         summary = self._calculate_summary(evaluations)
