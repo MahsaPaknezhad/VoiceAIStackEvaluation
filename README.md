@@ -50,7 +50,7 @@ cp server/.env.example server/.env
 ```bash
 cd server/
 pip install -r requirements.txt
-python src/core/main_server.py
+python main_server.py
 ```
 
 ### Start the Frontend Client

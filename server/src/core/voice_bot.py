@@ -27,15 +27,15 @@ from pipecat.processors.frameworks.rtvi import RTVIConfig, RTVIProcessor
 from pipecat.processors.user_idle_processor import UserIdleProcessor
 from pipecat.runner.types import RunnerArguments
 from pipecat.services.deepgram.stt import DeepgramSTTService, LiveOptions
-from tts import DeepgramTTSService
 from pipecat.transcriptions.language import Language
 from pipecat.utils.text.pattern_pair_aggregator import PatternPairAggregator
 from pipecat.utils.text.markdown_text_filter import MarkdownTextFilter
-
 from pipecat_whisker import WhiskerObserver
 
-from conversation_agent import build_conversation_agent
-from strands_agents_processor import StrandsAgentsProcessor
+
+from tts import DeepgramTTSService
+from src.core.agent_builder import build_conversation_agent
+from src.core.llm_processor import StrandsAgentsProcessor
 from custom_rtvi_observer import CustomRTVIObserver
 
 load_dotenv(override=True)
