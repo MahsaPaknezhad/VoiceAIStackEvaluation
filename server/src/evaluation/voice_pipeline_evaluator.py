@@ -327,30 +327,48 @@ class VoiceAssistantRunner:
                 logger.error(f"Audio file not found: {audio_path}")
                 continue
             
-            try:
-                result = await self.process_audio_file(audio_path, question_id)
-                results.append(result)
-                
-                # Save results after each sample
-                if output_path:
-                    self.save_results(results, output_path)
+            # Retry logic for Bedrock failures
+            max_retries = 3
+            result = None
+            
+            for attempt in range(max_retries):
+                try:
+                    result = await self.process_audio_file(audio_path, question_id)
+                    results.append(result)
                     
-            except Exception as e:
-                logger.error(f"Error processing {question_id}: {e}")
-                results.append({
-                    "question_id": question_id,
-                    "audio_file": audio_path,
-                    "stt_output": "",
-                    "bot_response": "",
-                    "error": str(e)
-                })
-                
-                # Save results even on error
-                if output_path:
-                    self.save_results(results, output_path)
+                    # Save results after each sample
+                    if output_path:
+                        self.save_results(results, output_path)
+                    break  # Success, exit retry loop
+                        
+                except Exception as e:
+                    error_str = str(e)
+                    is_bedrock_error = "serviceUnavailableException" in error_str or "Bedrock is unable to process" in error_str
+                    
+                    if is_bedrock_error and attempt < max_retries - 1:
+                        wait_time = 2 ** (attempt + 1)  # 2, 4, 8 seconds
+                        logger.warning(f"Bedrock error on {question_id} (attempt {attempt + 1}), retrying in {wait_time}s: {error_str}")
+                        await asyncio.sleep(wait_time)
+                    else:
+                        logger.error(f"Error processing {question_id} (final attempt): {e}")
+                        results.append({
+                            "question_id": question_id,
+                            "audio_file": audio_path,
+                            "stt_output": "",
+                            "bot_response": "",
+                            "error": str(e)
+                        })
+                        
+                        # Save results even on error
+                        if output_path:
+                            self.save_results(results, output_path)
+                        break
+            
+            # Pause between items (regardless of success/failure)
             if i < len(self.dataset['questions']) - 1:  # Don't pause after last item
                 logger.info("Pausing 2 seconds to avoid rate limiting...")
                 await asyncio.sleep(2)
+        
         return results
     
     def save_results(self, results: List[Dict], output_path: str):
