@@ -6,7 +6,6 @@ Measures STT accuracy (WER) and response quality using LLM-as-judge.
 import json
 import os
 import asyncio
-import random
 from typing import Dict, List
 from jiwer import wer
 from datetime import datetime
@@ -61,60 +60,39 @@ Return ONLY valid JSON with this structure:
         )
     
     async def evaluate_response(self, question: str, llm_response: str) -> Dict:
-        """Use LLM to judge response quality with retry logic"""
+        """Use LLM to judge response quality"""
         prompt = f"""Question: {question}
 
 Response: {llm_response}
 
 Evaluate the actual response."""
 
-        max_retries = 3
-        for attempt in range(max_retries):
-            try:
-                result = await self.judge_agent.invoke_async(prompt)
-                response = result.output if hasattr(result, 'output') else str(result)
-                
-                # Remove markdown code blocks if present
-                response = response.strip()
-                if response.startswith('```'):
-                    # Remove opening ```json or ```
-                    response = response.split('\n', 1)[1] if '\n' in response else response[3:]
-                    # Remove closing ```
-                    if response.endswith('```'):
-                        response = response.rsplit('```', 1)[0]
-                
-                # Parse JSON from response
-                result_json = json.loads(response.strip())
-                return result_json
-            except Exception as e:
-                error_str = str(e).lower()
-                is_bedrock_error = any([
-                    "serviceunavailableexception" in error_str,
-                    "bedrock is unable to process" in error_str,
-                    "throttlingexception" in error_str,
-                    "rate limit" in error_str,
-                    "too many requests" in error_str,
-                    "service temporarily unavailable" in error_str,
-                    "eventstreamError" in error_str,
-                    "conversestream operation" in error_str,
-                    "botocore.exceptions.eventstreamerror" in error_str
-                ])
-                
-                if attempt < max_retries - 1:
-                    wait_time = (3 ** (attempt + 1)) + random.uniform(0, 1)
-                    error_type = "Bedrock" if is_bedrock_error else "General"
-                    logger.warning(f"{error_type} error in judge evaluation (attempt {attempt + 1}), retrying in {wait_time}s: {str(e)}")
-                    await asyncio.sleep(wait_time)
-                else:
-                    logger.error(f"Judge evaluation failed after {max_retries} attempts: {e}")
-                    return {
-                        "correctness": 0,
-                        "relevance": 0,
-                        "completeness": 0,
-                        "clarity": 0,
-                        "overall": 0,
-                        "reasoning": f"Evaluation failed: {str(e)}"
-                    }
+        try:
+            result = await self.judge_agent.invoke_async(prompt)
+            response = result.output if hasattr(result, 'output') else str(result)
+            
+            # Remove markdown code blocks if present
+            response = response.strip()
+            if response.startswith('```'):
+                # Remove opening ```json or ```
+                response = response.split('\n', 1)[1] if '\n' in response else response[3:]
+                # Remove closing ```
+                if response.endswith('```'):
+                    response = response.rsplit('```', 1)[0]
+            
+            # Parse JSON from response
+            result_json = json.loads(response.strip())
+            return result_json
+        except Exception as e:
+            logger.error(f"Judge evaluation failed: {e}")
+            return {
+                "correctness": 0,
+                "relevance": 0,
+                "completeness": 0,
+                "clarity": 0,
+                "overall": 0,
+                "reasoning": f"Evaluation failed: {str(e)}"
+            }
     
     def calculate_wer(self, reference: str, hypothesis: str) -> float:
         """Calculate Word Error Rate"""
@@ -189,7 +167,7 @@ Evaluate the actual response."""
         
         evaluations = []
         
-        for i, question in enumerate(self.dataset['questions']):
+        for question in self.dataset['questions']:
             question_id = question['id']
             
             # Find corresponding result
@@ -200,75 +178,20 @@ Evaluate the actual response."""
             
             logger.info(f"Evaluating {question_id}...")
             
-            # Retry logic for Bedrock failures
-            max_retries = 3
-            eval_result = None
+            eval_result = await self.evaluate_single(
+                question_id,
+                question.get('category',''),
+                result.get('stt_output', ''),
+                result.get('ground_truth', ''),
+                result.get('llm_response', ''),
+                result.get('stt_latency_ms'),
+                result.get('tts_latency_ms'),
+                result.get('total_latency_ms'),
+                result.get('tts_audio_path')
+            )
             
-            for attempt in range(max_retries):
-                try:
-                    if attempt > 0:
-                        logger.info(f"Retry attempt {attempt + 1}/{max_retries} for {question_id}")
-                    eval_result = await self.evaluate_single(
-                        question_id,
-                        question.get('category',''),
-                        result.get('stt_output', ''),
-                        result.get('ground_truth', ''),
-                        result.get('llm_response', ''),
-                        result.get('stt_latency_ms'),
-                        result.get('tts_latency_ms'),
-                        result.get('total_latency_ms'),
-                        result.get('tts_audio_path')
-                    )
-                    evaluations.append(eval_result)
-                    if attempt > 0:
-                        logger.info(f"Retry successful for {question_id}")
-                    break  # Success, exit retry loop
-                        
-                except Exception as e:
-                    error_str = str(e).lower()
-                    is_bedrock_error = any([
-                        "serviceunavailableexception" in error_str,
-                        "bedrock is unable to process" in error_str,
-                        "throttlingexception" in error_str,
-                        "rate limit" in error_str,
-                        "too many requests" in error_str,
-                        "service temporarily unavailable" in error_str,
-                        "eventstreamError" in error_str,
-                        "conversestream operation" in error_str
-                    ])
-                    
-                    if is_bedrock_error and attempt < max_retries - 1:
-                        wait_time = (3 ** (attempt + 1)) + random.uniform(0, 1)  # Add jitter
-                        logger.warning(f"Bedrock error on {question_id} (attempt {attempt + 1}), retrying in {wait_time}s: {error_str}")
-                        await asyncio.sleep(wait_time)
-                    else:
-                        logger.error(f"Error evaluating {question_id} (final attempt): {e}")
-                        # Add failed evaluation with error info
-                        eval_result = {
-                            "question_id": question_id,
-                            "category": question.get('category',''),
-                            "ground_truth": result.get('ground_truth', ''),
-                            "stt_output": result.get('stt_output', ''),
-                            "wer": 100.0,  # Max error for failed evaluation
-                            "llm_response": result.get('llm_response', ''),
-                            "judge_scores": {
-                                "correctness": 0,
-                                "relevance": 0,
-                                "completeness": 0,
-                                "clarity": 0,
-                                "overall": 0,
-                                "reasoning": f"Evaluation failed: {str(e)}"
-                            },
-                            "error": str(e)
-                        }
-                        evaluations.append(eval_result)
-                        break
-            
-            # Add pause between evaluations to avoid rate limiting
-            if i < len(self.dataset['questions']) - 1:  # Don't pause after last item
-                logger.info("Pausing 3 seconds to avoid rate limiting...")
-                await asyncio.sleep(3)
-  
+            evaluations.append(eval_result)
+        
         # Calculate summary statistics
         summary = self._calculate_summary(evaluations)
         

@@ -1,0 +1,19 @@
+{
+  "stt_model": "AWS Transcribe",
+  "stt_service_id": "aws_transcribe",
+  "tts_model": "Cartesia",
+  "tts_service_id": "cartesia",
+  "results": [
+    {
+      "question_id": "speaking_instruction_following_0",
+      "audio_file": "evaluation_data/voiceassistant_eval_small/audio_input/speaking_instruction_following_0.wav",
+      "stt_output": "",
+      "ground_truth": "Tell me a funny joke. Oh, change it to a heartwarming short story.",
+      "llm_response": "",
+      "tts_audio_path": null,
+      "stt_latency_ms": null,
+      "tts_latency_ms": null,
+      "total_latency_ms": 301789.04
+    }
+  ]
+}

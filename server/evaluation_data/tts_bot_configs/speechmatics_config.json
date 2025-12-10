@@ -1,9 +1,0 @@
-{
-  "tts_service_id": "speechmatics",
-  "tts_service_name": "Speechmatics TTS",
-  "module": "pipecat.services.speechmatics.tts",
-  "class": "SpeechmaticsTTSService",
-  "config": {},
-  "available_voices": [],
-  "instructions": "\n# Configuration for Speechmatics TTS\n\nTo use this TTS service in bot.py, replace the TTS initialization with:\n\nfrom pipecat.services.speechmatics.tts import SpeechmaticsTTSService\n\ntts = SpeechmaticsTTSService(\n    api_key=os.getenv(\"API_KEY\"),  # Use appropriate env var\n    **{}\n)\n\n# Available voices: Check service documentation\n"
-}

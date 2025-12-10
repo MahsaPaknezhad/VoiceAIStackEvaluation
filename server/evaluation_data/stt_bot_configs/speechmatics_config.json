@@ -1,8 +1,0 @@
-{
-  "stt_service_id": "speechmatics",
-  "stt_service_name": "Speechmatics",
-  "module": "pipecat.services.speechmatics.stt",
-  "class": "SpeechmaticsSTTService",
-  "config": {},
-  "instructions": "\n# Configuration for Speechmatics\n\nTo use this STT service in bot.py, replace the STT initialization with:\n\nfrom pipecat.services.speechmatics.stt import SpeechmaticsSTTService\n\nstt = SpeechmaticsSTTService(\n    api_key=os.getenv(\"API_KEY\"),  # Use appropriate env var\n    **{}\n)\n"
-}

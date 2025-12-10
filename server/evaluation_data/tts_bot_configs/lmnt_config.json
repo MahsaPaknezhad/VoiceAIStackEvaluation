@@ -2,7 +2,7 @@
   "tts_service_id": "lmnt",
   "tts_service_name": "LMNT",
   "module": "pipecat.services.lmnt.tts",
-  "class": "LMNTTTSService",
+  "class": "LmntTTSService",
   "config": {
     "voice": "lily"
   },

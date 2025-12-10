@@ -135,8 +135,6 @@ class StrandsAgentsProcessor(FrameProcessor):
             logger.warning(f"{self} generator was closed prematurely")
         except Exception as e:
             logger.exception(f"{self} an unknown error occurred: {e}")
-            # Re-raise the error so it can be caught by retry logic
-            raise e
         finally:
             await self.stop_processing_metrics()
             await self.push_frame(LLMFullResponseEndFrame())

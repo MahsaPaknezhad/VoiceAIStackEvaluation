@@ -4,7 +4,7 @@ Evaluation transport for batch processing audio files.
 
 import asyncio
 from pipecat.transports.base_transport import BaseTransport
-from pipecat.frames.frames import AudioRawFrame, Frame, StartFrame, TextFrame, TTSAudioRawFrame
+from pipecat.frames.frames import AudioRawFrame, Frame, StartFrame, EndFrame, TextFrame, TTSAudioRawFrame
 from pipecat.processors.frame_processor import FrameDirection, FrameProcessor
 
 

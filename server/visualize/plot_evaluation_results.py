@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 """
-Visualization script for STT/TTS evaluation results.
-Plots STT latency vs WER and TTS latency vs quality scores.
+Scientific visualization of STT/TTS evaluation results.
 """
 
 import json
@@ -11,21 +10,22 @@ import matplotlib.pyplot as plt
 import numpy as np
 from pathlib import Path
 from typing import Dict, List, Tuple
+from matplotlib.patches import Ellipse
+import matplotlib.transforms as transforms
 
-# Set professional style
+# Professional scientific style
 plt.style.use('seaborn-v0_8-whitegrid')
-plt.rcParams['figure.figsize'] = (12, 8)
-plt.rcParams['font.size'] = 14
-plt.rcParams['font.family'] = 'sans-serif'
-plt.rcParams['axes.labelsize'] = 16
-plt.rcParams['axes.titlesize'] = 18
-plt.rcParams['axes.labelweight'] = 'bold'
-plt.rcParams['axes.titleweight'] = 'bold'
-plt.rcParams['xtick.labelsize'] = 14
-plt.rcParams['ytick.labelsize'] = 14
-plt.rcParams['legend.fontsize'] = 13
-plt.rcParams['legend.framealpha'] = 0.9
-plt.rcParams['grid.alpha'] = 0.3
+plt.rcParams['figure.figsize'] = (10, 7)
+plt.rcParams['font.size'] = 11
+plt.rcParams['font.family'] = 'serif'
+plt.rcParams['axes.labelsize'] = 12
+plt.rcParams['axes.titlesize'] = 13
+plt.rcParams['xtick.labelsize'] = 10
+plt.rcParams['ytick.labelsize'] = 10
+plt.rcParams['legend.fontsize'] = 10
+plt.rcParams['legend.framealpha'] = 1.0
+plt.rcParams['grid.alpha'] = 0.25
+plt.rcParams['grid.linestyle'] = '--'
 
 def load_evaluation_results(results_dir: str) -> List[Dict]:
     """Load all evaluation result files."""
@@ -38,18 +38,16 @@ def load_evaluation_results(results_dir: str) -> List[Dict]:
                 data = json.load(f)
                 filename = os.path.basename(filepath)
                 
-                # Use service IDs from the data if available, otherwise parse filename
                 if 'stt_service_id' in data and 'tts_service_id' in data:
                     data['stt_model'] = data['stt_service_id']
                     data['tts_model'] = data['tts_service_id']
                 else:
-                    # Fallback: parse from filename
                     parts = filename.replace('_evaluation.json', '').split('_')
                     stt_parts = []
                     tts_parts = []
                     found_tts = False
                     
-                    for i, part in enumerate(parts):
+                    for part in parts:
                         if part in ['deepgram', 'openai', 'groq', 'elevenlabs', 'speechmatics', 
                                     'assemblyai', 'gladia', 'cartesia', 'fish', 'lmnt', 'playht', 
                                     'rime', 'nvidia', 'riva', 'aura', 'tts', 'polly', 'audio', 'aws', 'transcribe']:
@@ -76,201 +74,238 @@ def load_evaluation_results(results_dir: str) -> List[Dict]:
     return results
 
 def extract_metrics(results: List[Dict]) -> Tuple[Dict, Dict]:
-    """Extract STT and TTS metrics from results."""
+    """Extract STT and TTS metrics with statistics."""
     stt_metrics = {}
     tts_metrics = {}
     
     for result in results:
         stt_model = result['stt_model']
         tts_model = result['tts_model']
-        summary = result.get('summary', {})
         
-        # STT metrics
-        avg_wer = summary.get('average_wer', None)
-        avg_latency = summary.get('average_total_latency_ms', None)
-        
-        # Calculate average STT latency from individual evaluations
         stt_latencies = []
         tts_latencies = []
         scores = []
+        wers = []
         
         for eval_item in result.get('evaluations', []):
             if eval_item.get('stt_latency_ms') is not None:
                 stt_latencies.append(eval_item['stt_latency_ms'])
             if eval_item.get('tts_latency_ms') is not None:
                 tts_latencies.append(eval_item['tts_latency_ms'])
+            if eval_item.get('wer') is not None:
+                wers.append(eval_item['wer'])
             judge_scores = eval_item.get('judge_scores', {})
             if judge_scores.get('overall') is not None:
                 scores.append(judge_scores['overall'])
         
-        avg_stt_latency = np.mean(stt_latencies) if stt_latencies else None
-        avg_tts_latency = np.mean(tts_latencies) if tts_latencies else None
-        avg_score = np.mean(scores) if scores else summary.get('average_overall_score', None)
-        
-        # Store STT metrics
+        # STT metrics
         if stt_model not in stt_metrics:
-            stt_metrics[stt_model] = {'wer': [], 'latency': []}
-        if avg_wer is not None and avg_stt_latency is not None:
-            stt_metrics[stt_model]['wer'].append(avg_wer)
-            stt_metrics[stt_model]['latency'].append(avg_stt_latency)
+            stt_metrics[stt_model] = {
+                'latency': [], 'wer': [],
+                'latency_std': [], 'wer_std': []
+            }
         
-        # Store TTS metrics
+        if stt_latencies and wers:
+            stt_metrics[stt_model]['latency'].append(np.mean(stt_latencies))
+            stt_metrics[stt_model]['wer'].append(np.mean(wers))
+            stt_metrics[stt_model]['latency_std'].append(np.std(stt_latencies))
+            stt_metrics[stt_model]['wer_std'].append(np.std(wers))
+        
+        # TTS metrics
         if tts_model not in tts_metrics:
-            tts_metrics[tts_model] = {'score': [], 'latency': []}
-        if avg_score is not None and avg_tts_latency is not None:
-            tts_metrics[tts_model]['score'].append(avg_score)
-            tts_metrics[tts_model]['latency'].append(avg_tts_latency)
+            tts_metrics[tts_model] = {
+                'latency': [], 'score': [],
+                'latency_std': [], 'score_std': []
+            }
+        
+        if tts_latencies and scores:
+            tts_metrics[tts_model]['latency'].append(np.mean(tts_latencies))
+            tts_metrics[tts_model]['score'].append(np.mean(scores))
+            tts_metrics[tts_model]['latency_std'].append(np.std(tts_latencies))
+            tts_metrics[tts_model]['score_std'].append(np.std(scores))
     
-    # Average across multiple runs
+    # Aggregate
     for model in stt_metrics:
-        stt_metrics[model]['wer'] = np.mean(stt_metrics[model]['wer'])
-        stt_metrics[model]['latency'] = np.mean(stt_metrics[model]['latency'])
+        stt_metrics[model] = {
+            'latency': np.mean(stt_metrics[model]['latency']),
+            'wer': np.mean(stt_metrics[model]['wer']),
+            'latency_std': np.mean(stt_metrics[model]['latency_std']),
+            'wer_std': np.mean(stt_metrics[model]['wer_std'])
+        }
     
     for model in tts_metrics:
-        tts_metrics[model]['score'] = np.mean(tts_metrics[model]['score'])
-        tts_metrics[model]['latency'] = np.mean(tts_metrics[model]['latency'])
+        tts_metrics[model] = {
+            'latency': np.mean(tts_metrics[model]['latency']),
+            'score': np.mean(tts_metrics[model]['score']),
+            'latency_std': np.mean(tts_metrics[model]['latency_std']),
+            'score_std': np.mean(tts_metrics[model]['score_std'])
+        }
     
     return stt_metrics, tts_metrics
 
-def plot_stt_metrics(stt_metrics: Dict, output_path: str):
-    """Plot STT latency vs WER."""
-    # Filter for AWS and Deepgram models
-    filtered_metrics = {k: v for k, v in stt_metrics.items() 
-                       if 'aws' in k.lower() or 'deepgram' in k.lower()}
+def confidence_ellipse(x, y, ax, n_std=1.0, facecolor='none', **kwargs):
+    """Draw confidence ellipse."""
+    cov = np.array([[x**2, 0], [0, y**2]])
+    pearson = cov[0, 1]/np.sqrt(cov[0, 0] * cov[1, 1])
     
-    if not filtered_metrics:
-        print("No AWS or Deepgram STT metrics found")
+    ell_radius_x = np.sqrt(1 + pearson)
+    ell_radius_y = np.sqrt(1 - pearson)
+    ellipse = Ellipse((0, 0), width=ell_radius_x * 2, height=ell_radius_y * 2,
+                      facecolor=facecolor, **kwargs)
+    
+    scale_x = np.sqrt(cov[0, 0]) * n_std
+    scale_y = np.sqrt(cov[1, 1]) * n_std
+    
+    transf = transforms.Affine2D() \
+        .scale(scale_x, scale_y) \
+        .translate(0, 0)
+    
+    ellipse.set_transform(transf + ax.transData)
+    return ax.add_patch(ellipse)
+
+def plot_stt_metrics(stt_metrics: Dict, output_path: str):
+    """Scientific plot of STT performance."""
+    filtered = {k: v for k, v in stt_metrics.items() 
+                if 'aws' in k.lower() or 'deepgram' in k.lower()}
+    
+    if not filtered:
         return
     
-    fig, ax = plt.subplots(figsize=(12, 8))
+    fig, ax = plt.subplots(figsize=(10, 7))
     
-    # Separate AWS and Deepgram
-    aws_models = {k: v for k, v in filtered_metrics.items() if 'aws' in k.lower()}
-    deepgram_models = {k: v for k, v in filtered_metrics.items() if 'deepgram' in k.lower()}
+    # Define colors and markers
+    provider_styles = {
+        'aws': {'color': '#232F3E', 'marker': 'o', 'label': 'AWS Transcribe'},
+        'deepgram': {'color': '#00A67E', 'marker': 's', 'label': 'Deepgram'}
+    }
     
-    # Plot AWS models
-    if aws_models:
-        latencies = [v['latency'] for v in aws_models.values()]
-        wers = [v['wer'] for v in aws_models.values()]
-        labels = [k.replace('_', ' ').title() for k in aws_models.keys()]
-        ax.scatter(latencies, wers, s=250, alpha=0.8, marker='o', 
-                  label='AWS Transcribe', color='#FF9900', edgecolors='black', linewidth=2)
-        for i, label in enumerate(labels):
-            ax.annotate(label, (latencies[i], wers[i]), 
-                       xytext=(10, 10), textcoords='offset points',
-                       fontsize=13, fontweight='bold', alpha=0.9,
-                       bbox=dict(boxstyle='round,pad=0.5', facecolor='white', alpha=0.7, edgecolor='gray'))
+    plotted_providers = set()
     
-    # Plot Deepgram models
-    if deepgram_models:
-        latencies = [v['latency'] for v in deepgram_models.values()]
-        wers = [v['wer'] for v in deepgram_models.values()]
-        labels = [k.replace('_', ' ').title() for k in deepgram_models.keys()]
-        ax.scatter(latencies, wers, s=250, alpha=0.8, marker='s', 
-                  label='Deepgram', color='#13EF93', edgecolors='black', linewidth=2)
-        for i, label in enumerate(labels):
-            ax.annotate(label, (latencies[i], wers[i]), 
-                       xytext=(10, -15), textcoords='offset points',
-                       fontsize=13, fontweight='bold', alpha=0.9,
-                       bbox=dict(boxstyle='round,pad=0.5', facecolor='white', alpha=0.7, edgecolor='gray'))
+    for model, metrics in filtered.items():
+        provider = 'aws' if 'aws' in model.lower() else 'deepgram'
+        style = provider_styles[provider]
+        
+        x = metrics['latency']
+        y = metrics['wer']
+        x_std = metrics['latency_std']
+        y_std = metrics['wer_std']
+        
+        # Error ellipse
+        ellipse = Ellipse((x, y), width=x_std*2, height=y_std*2,
+                         facecolor=style['color'], alpha=0.15, 
+                         edgecolor=style['color'], linewidth=1, linestyle='--')
+        ax.add_patch(ellipse)
+        
+        # Data point
+        label = style['label'] if provider not in plotted_providers else None
+        ax.scatter(x, y, s=120, marker=style['marker'], 
+                  color=style['color'], edgecolors='white', linewidth=1.5,
+                  label=label, zorder=3, alpha=0.9)
+        
+        plotted_providers.add(provider)
+        
+        # Model label - use service ID directly
+        ax.annotate(model, (x, y), xytext=(8, 8), 
+                   textcoords='offset points', fontsize=9,
+                   bbox=dict(boxstyle='round,pad=0.3', facecolor='white', 
+                            edgecolor='gray', alpha=0.8, linewidth=0.5))
     
-    ax.set_xlabel('Average STT Latency (ms)', fontweight='bold', fontsize=16)
-    ax.set_ylabel('Average Word Error Rate (WER)', fontweight='bold', fontsize=16)
-    ax.set_title('STT Performance: Latency vs Accuracy', fontweight='bold', fontsize=18, pad=20)
-    ax.grid(True, alpha=0.3, linestyle='--', linewidth=1)
-    ax.legend(frameon=True, shadow=True, loc='best', fontsize=14, markerscale=1.2)
+    ax.set_xlabel('Latency (ms)', fontweight='normal')
+    ax.set_ylabel('Word Error Rate', fontweight='normal')
+    ax.set_title('Speech-to-Text Performance Analysis', fontweight='bold', pad=15)
     
-    # Add optimal region annotation
-    ax.axhline(y=0.1, color='green', linestyle='--', alpha=0.4, linewidth=2)
-    ax.text(ax.get_xlim()[1] * 0.95, 0.1, 'Target WER', 
-           verticalalignment='bottom', horizontalalignment='right',
-           fontsize=12, alpha=0.7, style='italic', fontweight='bold')
+    # Add note about error ellipses
+    ax.text(0.02, 0.98, 'Ellipses show ±1 standard deviation', 
+           transform=ax.transAxes, fontsize=9, verticalalignment='top',
+           bbox=dict(boxstyle='round,pad=0.4', facecolor='white', 
+                    edgecolor='gray', alpha=0.9, linewidth=0.5))
+    
+    ax.legend(loc='best', frameon=True, edgecolor='gray')
+    ax.grid(True, alpha=0.25, linestyle='--', linewidth=0.5)
     
     plt.tight_layout()
     plt.savefig(output_path, dpi=300, bbox_inches='tight', facecolor='white')
-    print(f"Saved STT plot to {output_path}")
+    print(f"Saved: {output_path}")
     plt.close()
 
 def plot_tts_metrics(tts_metrics: Dict, output_path: str):
-    """Plot TTS latency vs quality score."""
+    """Scientific plot of TTS performance."""
     if not tts_metrics:
-        print("No TTS metrics found")
         return
     
-    fig, ax = plt.subplots(figsize=(12, 8))
+    fig, ax = plt.subplots(figsize=(10, 7))
     
-    # Color map for different TTS providers
-    colors = plt.cm.tab20(np.linspace(0, 1, len(tts_metrics)))
+    # Color palette
+    colors = plt.cm.tab10(np.linspace(0, 1, len(tts_metrics)))
+    markers = ['o', 's', '^', 'D', 'v', '<', '>', 'p', '*', 'h']
     
     for i, (model, metrics) in enumerate(sorted(tts_metrics.items())):
-        latency = metrics['latency']
-        score = metrics['score']
-        label = model.replace('_', ' ').title()
+        x = metrics['latency']
+        y = metrics['score']
+        x_std = metrics['latency_std']
+        y_std = metrics['score_std']
         
-        ax.scatter(latency, score, s=250, alpha=0.8, 
-                  color=colors[i], edgecolors='black', linewidth=2,
-                  label=label)
-        ax.annotate(label, (latency, score), 
-                   xytext=(10, 10), textcoords='offset points',
-                   fontsize=13, fontweight='bold', alpha=0.9,
-                   bbox=dict(boxstyle='round,pad=0.5', facecolor='white', alpha=0.7, edgecolor='gray'))
+        # Error ellipse
+        ellipse = Ellipse((x, y), width=x_std*2, height=y_std*2,
+                         facecolor=colors[i], alpha=0.15,
+                         edgecolor=colors[i], linewidth=1, linestyle='--')
+        ax.add_patch(ellipse)
+        
+        # Data point
+        marker = markers[i % len(markers)]
+        ax.scatter(x, y, s=120, marker=marker, color=colors[i],
+                  edgecolors='white', linewidth=1.5, label=model,
+                  zorder=3, alpha=0.9)
+        
+        # Model label - use service ID directly
+        ax.annotate(model, (x, y), xytext=(8, 8),
+                   textcoords='offset points', fontsize=9,
+                   bbox=dict(boxstyle='round,pad=0.3', facecolor='white',
+                            edgecolor='gray', alpha=0.8, linewidth=0.5))
     
-    ax.set_xlabel('Average TTS Latency (ms)', fontweight='bold', fontsize=16)
-    ax.set_ylabel('Average Quality Score (0-10)', fontweight='bold', fontsize=16)
-    ax.set_title('TTS Performance: Latency vs Quality', fontweight='bold', fontsize=18, pad=20)
-    ax.grid(True, alpha=0.3, linestyle='--', linewidth=1)
-    ax.set_ylim(bottom=0, top=10.5)
+    # Add note about error ellipses
+    ax.text(0.02, 0.98, 'Ellipses show ±1 standard deviation', 
+           transform=ax.transAxes, fontsize=9, verticalalignment='top',
+           bbox=dict(boxstyle='round,pad=0.4', facecolor='white', 
+                    edgecolor='gray', alpha=0.9, linewidth=0.5))
     
-    # Add quality threshold
-    ax.axhline(y=7.0, color='green', linestyle='--', alpha=0.4, linewidth=2)
-    ax.text(ax.get_xlim()[1] * 0.95, 7.0, 'Good Quality', 
-           verticalalignment='bottom', horizontalalignment='right',
-           fontsize=12, alpha=0.7, style='italic', fontweight='bold')
-    
-    # Legend outside plot if too many models
-    if len(tts_metrics) > 8:
-        ax.legend(frameon=True, shadow=True, loc='center left', bbox_to_anchor=(1, 0.5), 
-                 fontsize=13, markerscale=1.2)
-    else:
-        ax.legend(frameon=True, shadow=True, loc='best', fontsize=14, markerscale=1.2)
+    ax.set_xlabel('Latency (ms)', fontweight='normal')
+    ax.set_ylabel('Quality Score (0-10)', fontweight='normal')
+    ax.set_title('Text-to-Speech Performance Analysis', fontweight='bold', pad=15)
+    ax.set_ylim(0, 10.5)
+    ax.legend(loc='best', frameon=True, edgecolor='gray', ncol=1)
+    ax.grid(True, alpha=0.25, linestyle='--', linewidth=0.5)
     
     plt.tight_layout()
     plt.savefig(output_path, dpi=300, bbox_inches='tight', facecolor='white')
-    print(f"Saved TTS plot to {output_path}")
+    print(f"Saved: {output_path}")
     plt.close()
 
 def main():
-    # Paths
     script_dir = Path(__file__).parent
     server_dir = script_dir.parent
     results_dir = server_dir / "evaluation_output" / "small"
     output_dir = script_dir
     
-    # Create output directory
     output_dir.mkdir(exist_ok=True)
     
-    # Load results
-    print(f"Loading evaluation results from {results_dir}...")
+    print(f"Loading results from {results_dir}...")
     results = load_evaluation_results(str(results_dir))
     print(f"Loaded {len(results)} evaluation results")
     
     if not results:
-        print("No evaluation results found!")
+        print("No results found")
         return
     
-    # Extract metrics
     print("Extracting metrics...")
     stt_metrics, tts_metrics = extract_metrics(results)
+    print(f"STT models: {len(stt_metrics)}, TTS models: {len(tts_metrics)}")
     
-    print(f"Found {len(stt_metrics)} STT models and {len(tts_metrics)} TTS models")
-    
-    # Generate plots
     print("Generating plots...")
     plot_stt_metrics(stt_metrics, str(output_dir / "stt_latency_vs_wer.png"))
     plot_tts_metrics(tts_metrics, str(output_dir / "tts_latency_vs_quality.png"))
     
-    print("\nVisualization complete!")
-    print(f"Plots saved to {output_dir}")
+    print(f"\nComplete. Plots saved to {output_dir}")
 
 if __name__ == "__main__":
     main()
