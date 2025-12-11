@@ -15,15 +15,11 @@ from pathlib import Path
 
 # Import Pipecat components
 from pipecat.services.deepgram.stt import DeepgramSTTService, LiveOptions
-from pipecat.audio.vad.silero import SileroVADAnalyzer
-from pipecat.frames.frames import AudioRawFrame, EndFrame, StartFrame, TranscriptionFrame, TextFrame, LLMFullResponseStartFrame, TTSAudioRawFrame
+from pipecat.frames.frames import EndFrame, StartFrame
 from pipecat.pipeline.pipeline import Pipeline
 from pipecat.pipeline.runner import PipelineRunner
 from pipecat.pipeline.task import PipelineTask, PipelineParams
-from pipecat.transports.base_transport import TransportParams
-from pipecat.processors.frame_processor import FrameProcessor
 from pipecat.processors.aggregators.openai_llm_context import OpenAILLMContext
-from pipecat.services.aws.llm import AWSBedrockLLMContext
 from pipecat.processors.aggregators.llm_response import LLMUserContextAggregator, LLMAssistantContextAggregator
 from dotenv import load_dotenv
 import wave
@@ -45,7 +41,8 @@ from src.evaluation.frame_processor import (
     STTTimingProcessor,
     TTSTimingProcessor,
     STTCollector,
-    LLMCollector
+    LLMCollector,
+    FrameIDEnsurer
 )
 
 load_dotenv(override=True)
@@ -123,32 +120,49 @@ class VoiceAssistantRunner:
         module_name = self.tts_config["module"]
         class_name = self.tts_config["class"]
         
-        module = __import__(module_name, fromlist=[class_name])
-        service_class = getattr(module, class_name)
+        logger.info(f"Importing {class_name} from {module_name}")
+        
+        try:
+            module = __import__(module_name, fromlist=[class_name])
+            service_class = getattr(module, class_name)
+        except Exception as e:
+            logger.error(f"Failed to import {class_name} from {module_name}: {e}")
+            raise
+        
         # Get config params
         config = self.tts_config.get("config", {})
-        logger.info(f'Setting service class for {module_name}')
-        # Create service with appropriate API key
+        
+        # Determine API key based on service
+        api_key = None
         if "deepgram" in module_name:
-            return service_class(api_key=os.getenv("DEEPGRAM_API_KEY"), **config)
+            api_key = os.getenv("DEEPGRAM_API_KEY")
         elif "openai" in module_name:
-            return service_class(api_key=os.getenv("OPENAI_API_KEY"), **config)
+            api_key = os.getenv("OPENAI_API_KEY")
         elif "elevenlabs" in module_name:
-            return service_class(api_key=os.getenv("ELEVENLABS_API_KEY"), **config)
+            api_key = os.getenv("ELEVENLABS_API_KEY")
         elif "cartesia" in module_name:
-            return service_class(api_key=os.getenv("CARTESIA_API_KEY"), **config)
-        elif "nvidia" in module_name:
-            return service_class(api_key=os.getenv("NVIDIA_API_KEY"), **config)
+            api_key = os.getenv("CARTESIA_API_KEY")
+        elif "nvidia" in module_name or "riva" in module_name:
+            api_key = os.getenv("NVIDIA_API_KEY")
         elif "fish" in module_name:
-            return service_class(api_key=os.getenv("FISH_AUDIO_API_KEY"), **config)
+            api_key = os.getenv("FISH_AUDIO_API_KEY")
         elif "lmnt" in module_name:
-            return service_class(api_key=os.getenv("LMNT_API_KEY"), **config)
+            api_key = os.getenv("LMNT_API_KEY")
         elif "playht" in module_name:
-            return service_class(api_key=os.getenv("PLAYHT_API_KEY"), **config)
+            api_key = os.getenv("PLAYHT_API_KEY")
         elif "rime" in module_name:
-            return service_class(api_key=os.getenv("RIME_API_KEY"), **config)
-        else:
-            return service_class(**config)
+            api_key = os.getenv("RIME_API_KEY")
+        
+        logger.info(f"Using API key: {'***' + api_key[-4:] if api_key else 'None'}")
+        
+        try:
+            if api_key:
+                return service_class(api_key=api_key, **config)
+            else:
+                return service_class(**config)
+        except Exception as e:
+            logger.error(f"Failed to create {class_name} with config {config}: {e}")
+            raise
         
     def _load_dataset(self) -> Dict:
         """Load the evaluation dataset"""
@@ -206,6 +220,7 @@ class VoiceAssistantRunner:
         # Build pipeline: STT -> context -> LLM -> context -> TTS
         pipeline = Pipeline([
             transport.input(),
+            FrameIDEnsurer(),
             stt_timing_start,
             stt,
             stt_collector,
