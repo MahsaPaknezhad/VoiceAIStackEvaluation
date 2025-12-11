@@ -4,7 +4,7 @@ Evaluation transport for batch processing audio files.
 
 import asyncio
 from pipecat.transports.base_transport import BaseTransport
-from pipecat.frames.frames import AudioRawFrame, Frame, StartFrame, TextFrame, TTSAudioRawFrame
+from pipecat.frames.frames import AudioRawFrame, Frame, StartFrame, TextFrame, TTSAudioRawFrame, EndFrame
 from pipecat.processors.frame_processor import FrameDirection, FrameProcessor
 
 
@@ -76,6 +76,7 @@ class EvaluationInput(FrameProcessor):
                 silence_duration = 2.0
                 silence_bytes = int(self._sample_rate * silence_duration * 2)
                 silence_chunk = b'\x00' * silence_bytes
+                silence_chunk_count = 0
                 for i in range(0, len(silence_chunk), chunk_size):
                     chunk = silence_chunk[i:i+chunk_size]
                     frame = AudioRawFrame(
@@ -83,9 +84,13 @@ class EvaluationInput(FrameProcessor):
                         sample_rate=self._sample_rate,
                         num_channels=1
                     )
+                    frame.id = f"silence_chunk_{silence_chunk_count}"
+                    silence_chunk_count += 1
                     await self.push_frame(frame, direction)
                     await asyncio.sleep(0.1)
-                
+                print("Sending EndFrame to signal completion...")
+                end_frame = EndFrame()
+                await self.push_frame(end_frame, direction)
                 print("All audio chunks sent, waiting for transcription...")
                 # Wait for final transcription processing
                 await asyncio.sleep(3.0)
@@ -114,5 +119,9 @@ class EvaluationOutput(FrameProcessor):
             # TextFrame indicates TTS is about to start
             print(f"DEBUG: TextFrame detected, starting TTS collection: {frame.text[:50]}...")
             self._collecting_tts = True
+        elif isinstance(frame, EndFrame):
+            # EndFrame signals completion
+            print("DEBUG: EndFrame detected, stopping TTS collection")
+            self._collecting_tts = False
             
         await self.push_frame(frame, direction)

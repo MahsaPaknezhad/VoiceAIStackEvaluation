@@ -103,8 +103,7 @@ class VoiceAssistantRunner:
                 api_key=os.getenv("OPENAI_API_KEY"),
                 **config
             )
-        else:
-            return service_class(**config)
+        return service_class(**config)
     
     def _create_tts_service(self):
         """Create TTS service from config"""
@@ -128,25 +127,24 @@ class VoiceAssistantRunner:
         # Create service with appropriate API key
         if "deepgram" in module_name:
             return service_class(api_key=os.getenv("DEEPGRAM_API_KEY"), **config)
-        elif "openai" in module_name:
+        if "openai" in module_name:
             return service_class(api_key=os.getenv("OPENAI_API_KEY"), **config)
-        elif "elevenlabs" in module_name:
+        if "elevenlabs" in module_name:
             return service_class(api_key=os.getenv("ELEVENLABS_API_KEY"), **config)
-        elif "cartesia" in module_name:
+        if "cartesia" in module_name:
             return service_class(api_key=os.getenv("CARTESIA_API_KEY"), **config)
-        elif "riva" in module_name:
+        if "riva" in module_name:
             return service_class(api_key=os.getenv("RIVA_API_KEY"), **config)
-        elif "fish" in module_name:
+        if "fish" in module_name:
             return service_class(api_key=os.getenv("FISH_AUDIO_API_KEY"), **config)
-        elif "lmnt" in module_name:
+        if "lmnt" in module_name:
             return service_class(api_key=os.getenv("LMNT_API_KEY"), **config)
-        elif "playht" in module_name:
+        if "playht" in module_name:
             return service_class(api_key=os.getenv("PLAYHT_API_KEY"), **config)
-        elif "rime" in module_name:
+        if "rime" in module_name:
             return service_class(api_key=os.getenv("RIME_API_KEY"), **config)
-        else:
-            return service_class(**config)
-        
+        return service_class(**config)
+
     def _load_dataset(self) -> Dict:
         """Load the evaluation dataset"""
         with open(self.dataset_path, 'r') as f:
@@ -159,6 +157,11 @@ class VoiceAssistantRunner:
         Returns:
             Dict with stt_output, bot_response, and latencies
         """
+        print("=== PROCESSING FILE ===")
+        print(f"Question ID: {question_id}")
+        print(f"Audio file path: {audio_path}")
+        print(f"File exists: {os.path.exists(audio_path)}")
+        
         logger.info(f"Processing {question_id}: {audio_path}")
         
         # Get the ground truth transcript from dataset (for WER comparison)
@@ -172,6 +175,10 @@ class VoiceAssistantRunner:
         with wave.open(audio_path, 'rb') as wf:
             sample_rate = wf.getframerate()
             audio_data = wf.readframes(wf.getnframes())
+            duration_seconds = len(audio_data) / (sample_rate * 2)  # 2 bytes per sample
+            print(f"Audio sample rate: {sample_rate}Hz")
+            print(f"Audio data size: {len(audio_data)} bytes")
+            print(f"Audio duration: {duration_seconds:.2f} seconds")
         
         transport = EvaluationTransport(audio_data, sample_rate)
         

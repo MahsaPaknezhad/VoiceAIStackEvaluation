@@ -4,11 +4,7 @@
     "source": "MathLLMs/VoiceAssistant-Eval",
     "total_questions": 6,
     "splits_used": [
-      "listening_general",
-      "listening_speech",
-      "speaking_assistant",
-      "speaking_instruction_following",
-      "speaking_reasoning"
+      "speaking_instruction_following"
     ],
     "max_samples_per_split": 10,
     "description": "Evaluation dataset generated from VoiceAssistant-Eval",

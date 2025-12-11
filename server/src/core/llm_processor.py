@@ -91,12 +91,12 @@ class StrandsAgentsProcessor(FrameProcessor):
         Args:
             text: The user input text to process through the agent or graph.
         """
-        logger.debug(f"Invoking Strands agent with: {text}")
         try:
+            
             await self.push_frame(LLMFullResponseStartFrame())
             await self.start_processing_metrics()
             await self.start_ttfb_metrics()
-
+            logger.debug(f"Invoking Strands agent with: {text}")
             if self.graph:
                 # Graph does not stream; await full result then emit assistant text
                 graph_result = await self.graph.invoke_async(text)

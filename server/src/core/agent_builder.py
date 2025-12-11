@@ -9,7 +9,8 @@ def build_conversation_agent(model_id, tts_service=None):
         model=BedrockModel(
             model_id=model_id,
             temperature=0.7,
-            cache_prompt="default"
+            cache_prompt="default",
+            timeout=30
         ),
         system_prompt="""You are a helpful AI assistant that answers questions clearly and concisely.
 
