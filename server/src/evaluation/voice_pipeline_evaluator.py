@@ -41,8 +41,7 @@ from src.evaluation.frame_processor import (
     STTTimingProcessor,
     TTSTimingProcessor,
     STTCollector,
-    LLMCollector,
-    FrameIDEnsurer
+    LLMCollector
 )
 
 load_dotenv(override=True)
@@ -220,7 +219,6 @@ class VoiceAssistantRunner:
         # Build pipeline: STT -> context -> LLM -> context -> TTS
         pipeline = Pipeline([
             transport.input(),
-            FrameIDEnsurer(),
             stt_timing_start,
             stt,
             stt_collector,
