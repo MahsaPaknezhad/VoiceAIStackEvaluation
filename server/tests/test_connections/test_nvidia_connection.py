@@ -9,7 +9,7 @@ import grpc
 import sys
 
 # Configuration
-RIVA_SERVER = "172.31.17.11"
+RIVA_SERVER = "[IP ADDRESS]"
 
 def test_basic_grpc_connection():
     """Test basic insecure gRPC connection to Riva server"""
