@@ -9,7 +9,7 @@ import grpc
 import sys
 
 # Configuration
-RIVA_SERVER = "[IP ADDRESS]"
+RIVA_SERVER = os.getenv("NVIDIA_RIVA_SERVER", "[IP ADDRESS]")
 
 def test_basic_grpc_connection():
     """Test basic insecure gRPC connection to Riva server"""

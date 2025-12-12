@@ -4,7 +4,7 @@
   "module": "livekit.plugins.nvidia",
   "class": "TTS",
   "config": {
-    "server": "[IP ADDRESS]:50051",
+    "server": "${NVIDIA_RIVA_SERVER}:50051",
     "use_ssl": false,
     "voice": "Magpie-Multilingual.EN-US.Aria"
   },

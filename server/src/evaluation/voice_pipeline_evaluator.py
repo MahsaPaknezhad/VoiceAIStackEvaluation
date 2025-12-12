@@ -154,7 +154,7 @@ class VoiceAssistantRunner:
         elif "rime" in module_name:
             api_key = os.getenv("RIME_API_KEY")
         
-        logger.info(f"Using API key: {'***' + api_key[-4:] if api_key else 'None'}")
+        logger.info(f"Using API key: {'***' if api_key else 'None'}")
         
         try:
             if "livekit" in module_name:

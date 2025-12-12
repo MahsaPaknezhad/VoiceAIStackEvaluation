@@ -2,7 +2,7 @@ import asyncio
 from typing import Optional
 from pipecat.processors.frame_processor import FrameProcessor
 from pipecat.frames.frames import TextFrame, TTSAudioRawFrame
-from livekit.plugins import nvidia
+from loguru import logger
 
 class LiveKitTTSAdapter(FrameProcessor):
     def __init__(self, server: str, voice: str, use_ssl: bool = False):
@@ -33,7 +33,7 @@ class LiveKitTTSAdapter(FrameProcessor):
                 await audio_stream.aclose()
                 
                 # Convert to Pipecat audio frame
-                import uuid
+import uuid
                 tts_frame = TTSAudioRawFrame(
                     audio=audio_data,
                     sample_rate=self.tts.sample_rate,
@@ -43,6 +43,6 @@ class LiveKitTTSAdapter(FrameProcessor):
                 tts_frame.id = str(uuid.uuid4())
                 await self.push_frame(tts_frame, direction)
             except Exception as e:
-                print(f"TTS error: {e}")
+                logger.error(f"TTS error: {e}")
         else:
             await self.push_frame(frame, direction)
