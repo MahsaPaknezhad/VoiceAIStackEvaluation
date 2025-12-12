@@ -17,6 +17,8 @@ class LiveKitTTSAdapter(FrameProcessor):
         await super().process_frame(frame, direction)
         
         if isinstance(frame, TextFrame):
+            # Let TextFrame pass through first to trigger collection
+            await self.push_frame(frame, direction)
             try:
                 # Generate audio using LiveKit NVIDIA TTS streaming
                 audio_stream = self.tts.stream()
@@ -31,11 +33,14 @@ class LiveKitTTSAdapter(FrameProcessor):
                 await audio_stream.aclose()
                 
                 # Convert to Pipecat audio frame
+                import uuid
                 tts_frame = TTSAudioRawFrame(
                     audio=audio_data,
                     sample_rate=self.tts.sample_rate,
                     num_channels=self.tts.num_channels
                 )
+                # Add frame ID for Pipecat observers
+                tts_frame.id = str(uuid.uuid4())
                 await self.push_frame(tts_frame, direction)
             except Exception as e:
                 print(f"TTS error: {e}")

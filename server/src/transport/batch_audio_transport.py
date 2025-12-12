@@ -76,6 +76,7 @@ class EvaluationInput(FrameProcessor):
                 silence_duration = 2.0
                 silence_bytes = int(self._sample_rate * silence_duration * 2)
                 silence_chunk = b'\x00' * silence_bytes
+                silence_chunk_count = 0
                 for i in range(0, len(silence_chunk), chunk_size):
                     chunk = silence_chunk[i:i+chunk_size]
                     frame = AudioRawFrame(
@@ -83,6 +84,8 @@ class EvaluationInput(FrameProcessor):
                         sample_rate=self._sample_rate,
                         num_channels=1
                     )
+                    frame.id = f"silence_chunk_{silence_chunk_count}"
+                    silence_chunk_count += 1
                     await self.push_frame(frame, direction)
                     await asyncio.sleep(0.1)
                 
@@ -107,12 +110,10 @@ class EvaluationOutput(FrameProcessor):
         
         # Start collecting when we see TTS audio (after TextFrame processing)
         if isinstance(frame, TTSAudioRawFrame) and self._collecting_tts:
-            print(f"DEBUG: Collecting TTS audio chunk: {len(frame.audio)} bytes")
             self.sample_rate = frame.sample_rate  # Get actual sample rate
             self._output_list.append(frame.audio)
         elif isinstance(frame, TextFrame):
             # TextFrame indicates TTS is about to start
-            print(f"DEBUG: TextFrame detected, starting TTS collection: {frame.text[:50]}...")
             self._collecting_tts = True
             
         await self.push_frame(frame, direction)
