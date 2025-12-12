@@ -13,3 +13,4 @@ librosa
 matplotlib
 pytest
 pytest-asyncio
+livekit-plugins-nvidia

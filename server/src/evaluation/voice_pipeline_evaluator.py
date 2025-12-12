@@ -102,6 +102,8 @@ class VoiceAssistantRunner:
                 api_key=os.getenv("OPENAI_API_KEY"),
                 **config
             )
+        elif "aws" in module_name:
+            return service_class(**config)
         else:
             return service_class(**config)
     
@@ -155,7 +157,10 @@ class VoiceAssistantRunner:
         logger.info(f"Using API key: {'***' + api_key[-4:] if api_key else 'None'}")
         
         try:
-            if api_key:
+            if "livekit" in module_name:
+                from src.core.livekit_tts_adapter import LiveKitTTSAdapter
+                return LiveKitTTSAdapter(**config)
+            elif api_key:
                 return service_class(api_key=api_key, **config)
             else:
                 return service_class(**config)
