@@ -12,6 +12,7 @@ from typing import Dict, List
 from loguru import logger
 import argparse
 from pathlib import Path
+import re
 
 # Import Pipecat components
 from pipecat.services.deepgram.stt import DeepgramSTTService, LiveOptions
@@ -130,8 +131,22 @@ class VoiceAssistantRunner:
             logger.error(f"Failed to import {class_name} from {module_name}: {e}")
             raise
         
-        # Get config params
+        # Get config params and substitute environment variables
         config = self.tts_config.get("config", {})
+        
+        # Substitute environment variables in config values
+        for key, value in config.items():
+            if isinstance(value, str) and value.startswith('${') and value.endswith('}'):
+                env_var = value[2:-1]  # Remove ${ and }
+                if ':' in env_var:  # Handle ${VAR}:port format
+                    env_var, suffix = env_var.split(':', 1)
+                    env_value = os.getenv(env_var)
+                    if env_value:
+                        config[key] = f"{env_value}:{suffix}"
+                else:
+                    env_value = os.getenv(env_var)
+                    if env_value:
+                        config[key] = env_value
         
         # Determine API key based on service
         api_key = None
@@ -155,11 +170,23 @@ class VoiceAssistantRunner:
             api_key = os.getenv("RIME_API_KEY")
         
         logger.info(f"Using API key: {'***' if api_key else 'None'}")
+        logger.info(f"Final config after env substitution: {config}")
         
         try:
             if "livekit" in module_name:
-                from src.core.livekit_tts_adapter import LiveKitTTSAdapter
-                return LiveKitTTSAdapter(**config)
+                if "nvidia" in module_name:
+                    from src.core.livekit_tts_adapter import LiveKitTTSAdapter
+                    return LiveKitTTSAdapter(**config)
+                elif "patakeet" in module_name:
+                    from src.core.livekit_patakeet_adapter import LiveKitPatakeetAdapter
+                    return LiveKitPatakeetAdapter(**config)
+                else:
+                    # Generic LiveKit adapter fallback
+                    from src.core.livekit_tts_adapter import LiveKitTTSAdapter
+                    return LiveKitTTSAdapter(**config)
+            elif "nvidia" in module_name or "riva" in module_name:
+                # NVIDIA services don't use api_key parameter
+                return service_class(**config)
             elif api_key:
                 return service_class(api_key=api_key, **config)
             else:
@@ -321,6 +348,12 @@ class VoiceAssistantRunner:
     async def run_all(self, output_path: str = None) -> List[Dict]:
         """Run bot on all audio files in dataset"""
         results = []
+        total_files = len(self.dataset['questions'])
+        processed_count = 0
+        error_count = 0
+        skipped_count = 0
+        
+        logger.info(f"Starting evaluation of {total_files} audio files")
         
         for i, question in enumerate(self.dataset['questions']):
             question_id = question['id']
@@ -329,6 +362,7 @@ class VoiceAssistantRunner:
             
             if not os.path.exists(audio_path):
                 logger.error(f"Audio file not found: {audio_path}")
+                skipped_count += 1
                 continue
             
             # Retry logic for Bedrock failures
@@ -340,6 +374,17 @@ class VoiceAssistantRunner:
                     if attempt > 0:
                         logger.info(f"Retry attempt {attempt + 1}/{max_retries} for {question_id}")
                     result = await self.process_audio_file(audio_path, question_id)
+                    
+                    # Check if TTS actually worked (if TTS config is provided)
+                    if self.tts_config and result.get("tts_audio_path") is None:
+                        # TTS was expected but failed
+                        result["status"] = "failed"
+                        result["error"] = "TTS failed - no audio generated"
+                        error_count += 1
+                    else:
+                        result["status"] = "success"
+                        processed_count += 1
+                    
                     results.append(result)
                     
                     # Save results after each sample
@@ -370,12 +415,14 @@ class VoiceAssistantRunner:
                         await asyncio.sleep(wait_time)
                     else:
                         logger.error(f"Error processing {question_id} (final attempt): {e}")
+                        error_count += 1
                         results.append({
                             "question_id": question_id,
                             "audio_file": audio_path,
                             "stt_output": "",
-                            "bot_response": "",
-                            "error": str(e)
+                            "llm_response": "",
+                            "error": str(e),
+                            "status": "failed"
                         })
                         
                         # Save results even on error
@@ -388,11 +435,27 @@ class VoiceAssistantRunner:
                 logger.info("Pausing 3 seconds to avoid rate limiting...")
                 await asyncio.sleep(3)
         
+        # Log final summary
+        logger.info(f"\n{'='*60}")
+        logger.info(f"EVALUATION SUMMARY")
+        logger.info(f"{'='*60}")
+        logger.info(f"Total files in dataset: {total_files}")
+        logger.info(f"Successfully processed: {processed_count}")
+        logger.info(f"Failed with errors: {error_count}")
+        logger.info(f"Skipped (file not found): {skipped_count}")
+        success_rate = (processed_count/(processed_count + error_count))*100 if (processed_count + error_count) > 0 else 0
+        logger.info(f"Success rate: {success_rate:.1f}%")
+        logger.info(f"{'='*60}")
+        
         return results
     
     def save_results(self, results: List[Dict], output_path: str):
         """Save results to JSON"""
         os.makedirs(os.path.dirname(output_path), exist_ok=True)
+        
+        # Calculate summary statistics
+        successful = len([r for r in results if r.get('status') == 'success'])
+        failed = len([r for r in results if r.get('status') == 'failed'])
         
         # Add metadata about STT and TTS models
         output_data = {
@@ -400,6 +463,13 @@ class VoiceAssistantRunner:
             "stt_service_id": self.stt_config.get("stt_service_id") if self.stt_config else None,
             "tts_model": self.tts_config.get("tts_service_name") if self.tts_config else None,
             "tts_service_id": self.tts_config.get("tts_service_id") if self.tts_config else None,
+            "summary": {
+                "total_files": len(results),
+                "successful": successful,
+                "failed": failed,
+                "skipped": len(results) - successful - failed,
+                "success_rate": round((successful/len(results))*100, 1) if results else 0
+            },
             "results": results
         }
         
@@ -439,8 +509,19 @@ async def main():
     
     runner.save_results(results, args.output)
     
-    print(f"\nProcessed {len(results)} audio files")
+    # Count successful vs failed results
+    successful = len([r for r in results if r.get('status') == 'success'])
+    failed = len([r for r in results if r.get('status') == 'failed'])
+    
+    print(f"\n{'='*60}")
+    print(f"FINAL RESULTS SUMMARY")
+    print(f"{'='*60}")
+    print(f"Total files processed: {len(results)}")
+    print(f"Successful: {successful}")
+    print(f"Failed: {failed}")
+    print(f"Success rate: {(successful/len(results))*100:.1f}%" if results else "No results")
     print(f"Results saved to: {args.output}")
+    print(f"{'='*60}")
     print("\nNext step: Run evaluation with:")
     print(f"  python evaluate_voiceassistant.py --results {args.output}")
 
