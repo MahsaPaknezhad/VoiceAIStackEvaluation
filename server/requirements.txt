@@ -9,6 +9,9 @@ librosa
 matplotlib
 pytest
 pytest-asyncio
+livekit-plugins-nvidia
+openai-whisper
+faster-whisper
 huggingface_hub
 
 # PyTorch FIRST (before NeMo)

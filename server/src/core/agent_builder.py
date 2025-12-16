@@ -9,15 +9,17 @@ def build_conversation_agent(model_id, tts_service=None):
     agent = Agent(
         model=BedrockModel(
             model_id=model_id,
+            region_name="ap-southeast-2",
             temperature=0.7,
-            cache_prompt="default"
+            cache_prompt="default",
+            max_tokens=200
         ),
         system_prompt="""You are a helpful AI assistant that answers questions clearly and concisely.
 
 Your responses will be converted to speech, so:
 - Speak naturally and conversationally
 - Avoid using lists, bullet points, or special characters
-- Keep responses concise but informative
+- Keep responses concise but informative (2-3 sentences maximum)
 - Use complete sentences in a flowing paragraph format
 - If you don't know something, say so honestly
 

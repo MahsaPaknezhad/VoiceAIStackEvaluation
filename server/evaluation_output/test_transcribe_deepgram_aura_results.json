@@ -1,0 +1,30 @@
+{
+  "stt_model": "AWS Transcribe",
+  "stt_service_id": "aws_transcribe",
+  "tts_model": "Deepgram Aura",
+  "tts_service_id": "deepgram_aura",
+  "results": [
+    {
+      "question_id": "listening_general_0",
+      "audio_file": "evaluation_data/voiceassistant_eval_new/audio_input/listening_general_0.wav",
+      "stt_output": "Does the music sound more like something from today. or does it sound like it is from the past.",
+      "ground_truth": "Does the music sound more like something from today, or does it sound like it is from the past?",
+      "llm_response": "It  looks like your question got cut off!  You were asking if the music sounds more... something ? Could you finish that thought for me? For  example, are you asking if it sounds more upbeat, lou der, professional, or something else? I'd be  happy to help once I know what you're comparing  it to! I 'd be happy to help, but I don't actually have any  music to listen to right now. If  you'd like me to comment on whether  a particular song or piece of music sounds modern  or contemporary, you'd need to either describe  it to me or tell me the artist and song title. What music  are you asking about? I appreciate  the full question now, but I still don't have access  to any audio or music to listen to. To give  you a good answer about whether something sounds modern or vintage , could you tell me the name of the song or artist  you're asking about, or describe what you're hearing ? Then I can let you know whether it has  a contemporary vibe or sounds more retro or  classic.",
+      "tts_audio_path": "evaluation_output/tts_audio/aws_transcribe_deepgram_aura/listening_general_0_response.wav",
+      "stt_latency_ms": 4412.97,
+      "tts_latency_ms": 415.59,
+      "total_latency_ms": 15001.56
+    },
+    {
+      "question_id": "listening_general_1",
+      "audio_file": "evaluation_data/voiceassistant_eval_new/audio_input/listening_general_1.wav",
+      "stt_output": "Which bowing technique is the fiddler probably using to create create the rhythmic melody in the music.",
+      "ground_truth": "Which bowing technique is the fiddler probably using to create the rhythmic melody in the music?",
+      "llm_response": "I'd be happy to help  you with bowing techniques! However, I nee d a bit more information. Are you asking about b owing for a stringed instrument like a violin or c ello, or are you interested in bowing as  a form of respect or greeting? Once  you let me know which context you're asking about, I can give  you more specific information. I notice  your question got cut off! You started asking \" Which bowing technique is...\" but I 'm not sure what you're asking about. Coul d you complete your question? For example, are you wondering  which bowing technique is best for a  certain style of music, or which one is eas iest to learn, or something else entirely? I'm  still not quite catching the complete question! It sounds  like you're asking something about a bowing technique relate d to fiddling, but the question seems  incomplete. Are you asking which bowing technique the fiddler uses,  or which technique is best for fiddling?  If you can finish your thought, I'll be able  to give you a much better answer! I'm  getting closer to understanding! It sounds like you're asking which  bowing technique a fiddler is probably  using to create a certain sound or effect, but I'm still missing the  end of your question. What sound or effect are you asking about? For  instance, are you wondering about techniques for creating a fast  sound, a smooth sound, or something  else? F iddlers typically use a technique called sawing or  shuffle bowing to create rhythmic melodies, where  they move the bow back and forth quickly across the strings with  short, choppy strokes that emphasize the rhythm an d drive of the music. This creates that characteristic energ",
+      "tts_audio_path": "evaluation_output/tts_audio/aws_transcribe_deepgram_aura/listening_general_1_response.wav",
+      "stt_latency_ms": 2910.52,
+      "tts_latency_ms": 410.18,
+      "total_latency_ms": 15000.97
+    }
+  ]
+}

@@ -1,0 +1,30 @@
+{
+  "stt_model": "Whisper Small (Local)",
+  "stt_service_id": "whisper_small",
+  "tts_model": "AWS Polly",
+  "tts_service_id": "aws_polly",
+  "results": [
+    {
+      "question_id": "listening_general_0",
+      "audio_file": "evaluation_data/voiceassistant_eval_new/audio_input/listening_general_0.wav",
+      "stt_output": " Does the music sound more like something from today?  Or does it sound like it is from the past? ",
+      "ground_truth": "Does the music sound more like something from today, or does it sound like it is from the past?",
+      "llm_response": "I don 't actually have any music to listen to, so  I can't compare it for you. If you'd like me  to help you figure out whether a song sounds modern or vintage , feel free to tell me about it\u2014describe the instruments , production style, or any other details you notice,  and I'd be happy to give you my thoughts!",
+      "tts_audio_path": "evaluation_output/tts_audio/whisper_small_aws_polly/listening_general_0_response.wav",
+      "stt_latency_ms": 15341.15,
+      "tts_latency_ms": 492.82,
+      "total_latency_ms": 45018.43
+    },
+    {
+      "question_id": "listening_general_1",
+      "audio_file": "evaluation_data/voiceassistant_eval_new/audio_input/listening_general_1.wav",
+      "stt_output": " Which bowing technique is the fiddler probably using to create the rhythmic melody in the music? ",
+      "ground_truth": "Which bowing technique is the fiddler probably using to create the rhythmic melody in the music?",
+      "llm_response": "I 'd be happy to help, but I don 't have any audio or context about the specific music you're referring to. Could you describe  the sound you're hearing or provide more details about the melody ? That said, fiddlers commonly use techniques like long  bows for smooth sustained notes, short quick  bows for rhythmic patterns, or saw ing motions for that characteristic fiddle drive. If you can tell  me more about what the music sounds like, I can give you  a better answer about which technique is likely being used.",
+      "tts_audio_path": "evaluation_output/tts_audio/whisper_small_aws_polly/listening_general_1_response.wav",
+      "stt_latency_ms": 16471.54,
+      "tts_latency_ms": 467.63,
+      "total_latency_ms": 45017.15
+    }
+  ]
+}
