@@ -35,7 +35,10 @@ class VoiceQualityEvaluator:
     
     def _create_llm_judge(self) -> Agent:
         """Create LLM agent for voice quality evaluation"""
-        model = BedrockModel(model="anthropic.claude-haiku-4-5-20251001-v1:0")
+        model = BedrockModel(
+            model_id="au.anthropic.claude-haiku-4-5-20251001-v1:0",
+            region_name="ap-southeast-2"
+        )
         return Agent(
             name="VoiceQualityJudge",
             model=model,

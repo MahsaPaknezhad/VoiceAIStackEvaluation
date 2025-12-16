@@ -1,0 +1,121 @@
+{
+  "timestamp": "2025-12-16T20:28:39.444467",
+  "dataset": "evaluation_data/voiceassistant_eval_new/test_2samples.json",
+  "total_questions": 2,
+  "evaluations": [
+    {
+      "question_id": "listening_general_0",
+      "category": "general",
+      "ground_truth": "Does the music sound more like something from today, or does it sound like it is from the past?",
+      "stt_output": " Does the music sound more like something from today, or does it sound like it is from the past? ",
+      "wer": 0.0,
+      "llm_response": "I don 't hear any music playing right now, so I'm  not able to compare it to modern or  past styles. If you'd like me to help  you identify the era or style of a particular song, feel  free to describe it to me\u2014like the instruments  used, the vocal style, or any lyrics you remember\u2014 and I'd be happy to give you my  thoughts!",
+      "judge_scores": {
+        "correctness": 10,
+        "relevance": 10,
+        "completeness": 9,
+        "clarity": 10,
+        "overall": 9.75,
+        "reasoning": "The assistant correctly identifies that no music is present in the conversation context and cannot perform the requested analysis. The response is highly relevant as it directly addresses why the question cannot be answered. It's clear and well-articulated. The assistant helpfully offers an alternative solution by inviting the user to describe the music instead. The only minor gap is that it could have briefly mentioned common characteristics of modern vs. past music styles (e.g., production quality, instrumentation) as additional context for what information would be helpful. Overall, this is an appropriate and helpful response to an unanswerable question."
+      },
+      "stt_latency_ms": 22711.57,
+      "tts_latency_ms": 1226.89,
+      "total_latency_ms": 45017.14,
+      "voice_quality": {
+        "fluency": {
+          "score": 8.85,
+          "speaking_rate_sps": 4.46,
+          "silence_ratio": 0.201,
+          "energy_consistency": 0.9710000157356262
+        },
+        "naturalness": {
+          "score": 8.99,
+          "pitch_mean_hz": 158.5,
+          "pitch_std_hz": 42.2,
+          "pitch_range_hz": 350.0,
+          "pitch_variation": 0.266,
+          "spectral_centroid_hz": 1856.4
+        },
+        "tone": {
+          "score": 3.7,
+          "clarity": 25.64,
+          "smoothness": 0.059,
+          "hnr_db": 3.9200000762939453
+        },
+        "overall_quality": 7.18,
+        "llm_fluency": 6,
+        "llm_naturalness": 5,
+        "llm_tone": 6,
+        "llm_overall": 6,
+        "llm_reasoning": "The speech demonstrates moderate fluency with a speaking rate of 4.5 syllables/second, which is slightly slow and measured. Naturalness is hindered by noticeable pauses and breaks (indicated by spacing in transcript), creating a somewhat robotic quality typical of synthesized speech. The pitch at 158.5 Hz is reasonable, but the very low energy variation (0.030) indicates minimal prosodic expressiveness and emotional engagement, resulting in a relatively flat, monotone delivery. The tone is clear and intelligible but lacks warmth and natural intonation variations. Overall listenability is acceptable but noticeably artificial\u2014characteristic of text-to-speech or AI-generated audio rather than authentic human speech."
+      }
+    },
+    {
+      "question_id": "listening_general_1",
+      "category": "general",
+      "ground_truth": "Which bowing technique is the fiddler probably using to create the rhythmic melody in the music?",
+      "stt_output": " Which bowing technique is the fiddler probably using to create the  rhythmic melody in the music. ",
+      "wer": 6.25,
+      "llm_response": "I 'd be happy to help, but I don 't have any audio or music to listen to, so I can't identify  the specific bowing technique being used. However, if you're  hearing a rhythmic, driving melody on  fiddle, the fiddler is likely using either  a shuffle bow with quick, bouncy strokes, or possibly  a sawing technique where the bow moves back and forth rapidly  to create that percussive, rhythmic feel.  If you could describe the sound more or  share what style of music it is, I could give you a  more specific answer.",
+      "judge_scores": {
+        "correctness": 8,
+        "relevance": 8,
+        "completeness": 7,
+        "clarity": 9,
+        "overall": 8,
+        "reasoning": "The assistant appropriately acknowledges the constraint that no audio is available to analyze. It then provides helpful context by suggesting common bowing techniques (shuffle bow and sawing technique) that typically create rhythmic, driving fiddle melodies. The suggestions are generally accurate and relevant to the question. However, there are some limitations: (1) the response could mention other common techniques like chopping, double-stops, or triplet rhythms; (2) it doesn't clearly distinguish between when each technique is typically used; (3) 'sawing technique' isn't standard terminology and could be confusing. The response is clear and invites further information, but the speculative nature of the answer without actual audio makes it somewhat limited in precision. The assistant balances honesty about constraints with helpful general guidance."
+      },
+      "stt_latency_ms": 23219.06,
+      "tts_latency_ms": 761.48,
+      "total_latency_ms": 45016.19,
+      "voice_quality": {
+        "fluency": {
+          "score": 9.16,
+          "speaking_rate_sps": 3.91,
+          "silence_ratio": 0.2,
+          "energy_consistency": 0.9710000157356262
+        },
+        "naturalness": {
+          "score": 9.19,
+          "pitch_mean_hz": 157.2,
+          "pitch_std_hz": 37.0,
+          "pitch_range_hz": 350.0,
+          "pitch_variation": 0.236,
+          "spectral_centroid_hz": 1883.4
+        },
+        "tone": {
+          "score": 3.56,
+          "clarity": 25.68,
+          "smoothness": 0.057,
+          "hnr_db": 3.109999895095825
+        },
+        "overall_quality": 7.303333333333334,
+        "llm_fluency": 5,
+        "llm_naturalness": 4,
+        "llm_tone": 5,
+        "llm_overall": 5,
+        "llm_reasoning": "The speech exhibits poor fluency with a slow speaking rate of 3.9 syllables/second and frequent pauses evident in the transcript spacing, creating a disjointed delivery. Naturalness is significantly compromised by the mechanical pacing and lack of conversational flow\u2014this is characteristic of TTS/AI audio. The pitch at 157.2 Hz is appropriate, but the critically low energy variation (0.029) reveals almost no prosodic variation, resulting in an extremely flat, emotionless monotone. Tone quality is neutral and clear but lacks personality, warmth, and natural intonation patterns that would convey engagement with the content. The longer duration (27 seconds) amplifies the artificial, robotic nature of the delivery. Overall, this is clearly synthetic speech with minimal naturalness and poor listenability compared to authentic human speech."
+      }
+    }
+  ],
+  "summary": {
+    "average_wer": 3.125,
+    "average_overall_score": 8.875,
+    "average_stt_latency_ms": 22965.315000000002,
+    "average_tts_latency_ms": 994.1850000000001,
+    "average_total_latency_ms": 45016.665,
+    "by_category": {
+      "general": {
+        "count": 2,
+        "avg_wer": 3.125,
+        "avg_score": 8.875,
+        "avg_stt_latency_ms": 22965.315000000002,
+        "avg_tts_latency_ms": 994.1850000000001
+      }
+    }
+  },
+  "stt_model": "Whisper Turbo (Local)",
+  "stt_service_id": "whisper_turbo",
+  "tts_model": "AWS Polly",
+  "tts_service_id": "aws_polly"
+}

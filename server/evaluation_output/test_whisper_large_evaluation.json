@@ -1,0 +1,121 @@
+{
+  "timestamp": "2025-12-16T20:37:55.611714",
+  "dataset": "evaluation_data/voiceassistant_eval_new/test_2samples.json",
+  "total_questions": 2,
+  "evaluations": [
+    {
+      "question_id": "listening_general_0",
+      "category": "general",
+      "ground_truth": "Does the music sound more like something from today, or does it sound like it is from the past?",
+      "stt_output": " Does the music sound more like something from today?  Or does it sound like it is from the past? ",
+      "wer": 10.526315789473683,
+      "llm_response": "I don 't actually hear any music right now, so  I'm not able to compare it to modern or older styles . If you'd like me to help  you figure out whether a song sounds contemporary or from an  earlier era, feel free to describe it to me\u2014 tell me about the instruments, the production quality, the  vocals, or any other details you notice, and I' d be happy to give you my thoughts!",
+      "judge_scores": {
+        "correctness": 10,
+        "relevance": 10,
+        "completeness": 9,
+        "clarity": 10,
+        "overall": 9.75,
+        "reasoning": "The assistant correctly identifies that no music is present in the conversation and therefore cannot evaluate it. The response is highly relevant, directly addressing why the question cannot be answered. The assistant is clear and helpful by offering an alternative path forward (describing the music instead). Completeness is near-perfect, though it could have briefly mentioned general sonic markers of modern vs. past music styles as a reference framework. The tone is appropriately helpful and professional."
+      },
+      "stt_latency_ms": 25532.61,
+      "tts_latency_ms": 562.9,
+      "total_latency_ms": 60018.58,
+      "voice_quality": {
+        "fluency": {
+          "score": 8.57,
+          "speaking_rate_sps": 4.81,
+          "silence_ratio": 0.2,
+          "energy_consistency": 0.972000002861023
+        },
+        "naturalness": {
+          "score": 9.05,
+          "pitch_mean_hz": 158.0,
+          "pitch_std_hz": 36.8,
+          "pitch_range_hz": 349.3,
+          "pitch_variation": 0.233,
+          "spectral_centroid_hz": 1859.8
+        },
+        "tone": {
+          "score": 3.65,
+          "clarity": 25.73,
+          "smoothness": 0.06,
+          "hnr_db": 3.5299999713897705
+        },
+        "overall_quality": 7.09,
+        "llm_fluency": 6,
+        "llm_naturalness": 5,
+        "llm_tone": 6,
+        "llm_overall": 5,
+        "llm_reasoning": "The speech shows moderate technical quality but exhibits several limitations. The speaking rate of 4.8 syllables/second is quite slow, creating awkward pacing and unnatural rhythm. Very low energy variation (0.029) indicates flat, monotonous delivery with minimal emotional expression or prosodic variation. The transcript contains irregular spacing and pauses ('I don 't', 'I' d'), suggesting robotic or synthesized speech characteristics. Pitch of 158 Hz is within normal range but combined with minimal tonal variation results in mechanical delivery. The voice lacks natural warmth and conversational feel, sounding more like text-to-speech than authentic human speech. While the content is clear and understandable, the overall listening experience is somewhat tedious."
+      }
+    },
+    {
+      "question_id": "listening_general_1",
+      "category": "general",
+      "ground_truth": "Which bowing technique is the fiddler probably using to create the rhythmic melody in the music?",
+      "stt_output": " Which bowing technique is the fiddler probably using to create the rhythmic melody in the  music? ",
+      "wer": 0.0,
+      "llm_response": "I 'd be happy to help, but I don 't have any audio or music to listen to, so I can't hear  what specific bowing technique is being used. If you could describe what  you're hearing\u2014like whether it sounds choppy an d percussive, smooth and flowing, or  has a bouncy quality\u2014I coul d give you a better answer about techniques like det ach\u00e9, spiccato, or shuffle  bowing that fiddlers commonly use for  rhythmic melodies.",
+      "judge_scores": {
+        "correctness": 10,
+        "relevance": 10,
+        "completeness": 9,
+        "clarity": 9,
+        "overall": 9.5,
+        "reasoning": "The assistant correctly acknowledges the absence of audio and cannot identify specific bowing techniques without hearing the music. The response is directly relevant to the question asked. It's helpful by offering concrete alternatives (requesting description of the sound) and provides specific examples of relevant bowing techniques (d\u00e9tach\u00e9, spiccato, shuffle bowing). Clarity is very good, though there are minor formatting issues with spacing/line breaks. Completeness is strong\u2014it explains why the question cannot be answered and provides a viable workaround. The response demonstrates knowledge of fiddle techniques while appropriately managing the constraint of no audio access."
+      },
+      "stt_latency_ms": 25951.31,
+      "tts_latency_ms": 585.69,
+      "total_latency_ms": 60003.07,
+      "voice_quality": {
+        "fluency": {
+          "score": 8.85,
+          "speaking_rate_sps": 4.46,
+          "silence_ratio": 0.201,
+          "energy_consistency": 0.9710000157356262
+        },
+        "naturalness": {
+          "score": 9.17,
+          "pitch_mean_hz": 157.4,
+          "pitch_std_hz": 36.5,
+          "pitch_range_hz": 350.0,
+          "pitch_variation": 0.232,
+          "spectral_centroid_hz": 1933.9
+        },
+        "tone": {
+          "score": 3.55,
+          "clarity": 25.83,
+          "smoothness": 0.056,
+          "hnr_db": 2.9600000381469727
+        },
+        "overall_quality": 7.19,
+        "llm_fluency": 5,
+        "llm_naturalness": 4,
+        "llm_tone": 5,
+        "llm_overall": 4,
+        "llm_reasoning": "This speech demonstrates poor quality across most dimensions. The speaking rate of 4.5 syllables/second is significantly slow, creating unnatural, labored pacing and awkward rhythm breaks. Energy variation of 0.030 is extremely low, indicating nearly flat, monotonous delivery with virtually no emotional modulation or natural prosody. The transcript shows multiple irregularities with spacing issues ('bowing an d percussive', 'coul d give', 'det ach\u00e9'), suggesting synthetic or heavily processed speech. Pitch of 157.4 Hz is adequate but rendered ineffective by the lack of tonal variation. The voice sounds robotic and mechanical rather than human-like, lacking warmth, engagement, and natural conversational flow. While content remains intelligible, the delivery is tedious and disconnected, significantly impacting overall listenability and engagement."
+      }
+    }
+  ],
+  "summary": {
+    "average_wer": 5.263157894736842,
+    "average_overall_score": 9.625,
+    "average_stt_latency_ms": 25741.96,
+    "average_tts_latency_ms": 574.2950000000001,
+    "average_total_latency_ms": 60010.825,
+    "by_category": {
+      "general": {
+        "count": 2,
+        "avg_wer": 5.263157894736842,
+        "avg_score": 9.625,
+        "avg_stt_latency_ms": 25741.96,
+        "avg_tts_latency_ms": 574.2950000000001
+      }
+    }
+  },
+  "stt_model": "Whisper Large-v2 (Local)",
+  "stt_service_id": "whisper_large_v2",
+  "tts_model": "AWS Polly",
+  "tts_service_id": "aws_polly"
+}

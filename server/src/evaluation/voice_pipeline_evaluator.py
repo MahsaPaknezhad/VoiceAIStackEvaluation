@@ -20,6 +20,7 @@ from pipecat.pipeline.pipeline import Pipeline
 from pipecat.pipeline.runner import PipelineRunner
 from pipecat.pipeline.task import PipelineTask, PipelineParams
 from pipecat.processors.aggregators.openai_llm_context import OpenAILLMContext
+from pipecat.services.aws.llm import AWSBedrockLLMContext
 from pipecat.processors.aggregators.llm_response import LLMUserContextAggregator, LLMAssistantContextAggregator
 from dotenv import load_dotenv
 import wave
@@ -194,19 +195,53 @@ class VoiceAssistantRunner:
             audio_data = wf.readframes(wf.getnframes())
             logger.info(f"File {audio_path} loaded with sample rate {sample_rate}")
         
-        transport = EvaluationTransport(audio_data, sample_rate)
+        # Handle audio resampling if required by STT config
+        if self.stt_config and self.stt_config.get("audio_requirements"):
+            audio_reqs = self.stt_config["audio_requirements"]
+            required_rates = audio_reqs.get("sample_rates", [])
+            target_rate = audio_reqs.get("resample_to")
+            
+            if required_rates and sample_rate not in required_rates and target_rate:
+                import librosa
+                import numpy as np
+                audio_array = np.frombuffer(audio_data, dtype=np.int16).astype(np.float32) / 32768.0
+                audio_array = librosa.resample(audio_array, orig_sr=sample_rate, target_sr=target_rate)
+                audio_data = (audio_array * 32768.0).astype(np.int16).tobytes()
+                sample_rate = target_rate
+        
+        # Create transport params with VAD if required by STT config
+        params = None
+        if self.stt_config and self.stt_config.get("requires_vad"):
+            vad_config = self.stt_config.get("vad_config", {})
+            vad_module = vad_config.get("module", "pipecat.audio.vad.silero")
+            vad_class = vad_config.get("class", "SileroVADAnalyzer")
+            
+            module = __import__(vad_module, fromlist=[vad_class])
+            vad_analyzer_class = getattr(module, vad_class)
+            vad_analyzer = vad_analyzer_class(**vad_config.get("config", {}))
+            
+            from pipecat.transports.base_transport import TransportParams
+            params = TransportParams(audio_in_enabled=True, vad_analyzer=vad_analyzer)
+        
+        transport = EvaluationTransport(
+            audio_data, 
+            sample_rate, 
+            params=params,
+            stt_model=self.stt_config.get("config", {}).get("model", "default") if self.stt_config else "default"
+        )
         
         # Create services
         stt = self._create_stt_service()
         tts = self._create_tts_service()
-        logger.info('Successfully created STT and TTS Service')
-        agent = build_conversation_agent(model_id="us.anthropic.claude-haiku-4-5-20251001-v1:0", tts_service=tts)
+        agent = build_conversation_agent(model_id="au.anthropic.claude-haiku-4-5-20251001-v1:0", tts_service=tts)
         llm = StrandsAgentsProcessor(agent=agent)
         
-        # Setup context
-        #context = AWSBedrockLLMContext()
-        context = OpenAILLMContext()
-        tma_in = LLMUserContextAggregator(context=context)
+        # Setup context with timeout from config if specified
+        context = AWSBedrockLLMContext()
+        aggregation_timeout = self.stt_config.get("aggregation_timeout", 3.0) if self.stt_config else 3.0
+        from pipecat.processors.aggregators.llm_response import LLMUserAggregatorParams
+        user_params = LLMUserAggregatorParams(aggregation_timeout=aggregation_timeout)
+        tma_in = LLMUserContextAggregator(context=context, params=user_params)
         tma_out = LLMAssistantContextAggregator(context=context)
         
         # Collectors
@@ -237,23 +272,49 @@ class VoiceAssistantRunner:
         ])
         logger.info('Pipeline build complete')
         
-        task = PipelineTask(pipeline, params=PipelineParams())
+        # Get pipeline params from config (with defaults)
+        pipeline_params_config = self.stt_config.get("pipeline_params", {}) if self.stt_config else {}
+        pipeline_params = PipelineParams(
+            allow_interruptions=pipeline_params_config.get("allow_interruptions", True),
+            enable_metrics=pipeline_params_config.get("enable_metrics", True),
+            enable_usage_metrics=pipeline_params_config.get("enable_usage_metrics", True),
+            report_only_initial_ttfb=pipeline_params_config.get("report_only_initial_ttfb", True)
+        )
+        
+        task = PipelineTask(pipeline, params=pipeline_params)
         
         # Process audio
         start_time = time.time()
         
-        await task.queue_frames([
-            StartFrame(),
-            EndFrame()
-        ])
+        await task.queue_frames([StartFrame(), EndFrame()])
         
-        # Run pipeline with error handling
+        # Run pipeline in background
         runner = PipelineRunner()
-        try:
-            await runner.run(task)
-        except Exception as pipeline_error:
-            # Re-raise the error to be caught by outer retry logic
-            raise pipeline_error
+        run_task = asyncio.create_task(runner.run(task))
+        
+        # Wait for processing - use config-driven timeout (default 15s)
+        pipeline_timeout = self.stt_config.get("pipeline_timeout", 15.0) if self.stt_config else 15.0
+        await asyncio.sleep(pipeline_timeout)
+        
+        # Force TTS disconnect if configured
+        force_tts_stop = self.tts_config.get("force_stop_on_cancel", False) if self.tts_config else False
+        if force_tts_stop:
+            try:
+                await tts.stop(EndFrame())
+            except:
+                pass
+        
+        # Cancel task
+        await task.cancel()
+        
+        # Wait for run_task to complete cancellation with config-driven timeout
+        # cleanup_timeout = self.stt_config.get("cleanup_timeout", 2.0) if self.stt_config else 2.0
+        # try:
+        #     await asyncio.wait_for(run_task, timeout=cleanup_timeout)
+        # except (asyncio.TimeoutError, asyncio.CancelledError):
+        #     pass
+        
+        logger.info("Pipeline processing complete, continuing...")
         
         total_latency = (time.time() - start_time) * 1000
         
@@ -443,6 +504,17 @@ async def main():
     print(f"Results saved to: {args.output}")
     print("\nNext step: Run evaluation with:")
     print(f"  python evaluate_voiceassistant.py --results {args.output}")
+    
+    # Cancel background tasks but not the main task
+    try:
+        loop = asyncio.get_running_loop()
+        current_task = asyncio.current_task()
+        pending = asyncio.all_tasks(loop)
+        for task in pending:
+            if task != current_task and not task.done():
+                task.cancel()
+    except:
+        pass
 
 
 if __name__ == "__main__":

@@ -1,0 +1,30 @@
+{
+  "stt_model": "Deepgram Nova 2",
+  "stt_service_id": "deepgram_nova2",
+  "tts_model": "AWS Polly",
+  "tts_service_id": "aws_polly",
+  "results": [
+    {
+      "question_id": "listening_general_0",
+      "audio_file": "evaluation_data/voiceassistant_eval_new/audio_input/listening_general_0.wav",
+      "stt_output": "Does the music sound more like something from today? Or does it sound like it is from the past?",
+      "ground_truth": "Does the music sound more like something from today, or does it sound like it is from the past?",
+      "llm_response": "I  notice your question got cut off! You started asking \" Does the music sound more...\" but didn't finish. Coul d you complete your question? For example,  are you asking if music sounds more something  like \"more clear,\" \"more energ etic,\" or \"more like something else\"? Once  you let me know what you're comparing , I'll be happy to help! I' d be happy to help, but I don't have  any music to listen to right now. Could you tell me what song  or artist you're asking about, or describe the music you're hearing ? Once you give me those details, I can let you know whether  it sounds like something contemporary or from another era! I still  don't have access to any music or audio to  listen to, so I can't tell you whether it  sounds modern or from the past. If you could describe the music to  me\u2014like what instruments are being use d, the style, the production quality, or the  artist's name\u2014I'd be able to give you a goo d sense of whether it sounds contemporary or more vintage!",
+      "tts_audio_path": "evaluation_output/tts_audio/deepgram_nova2_aws_polly/listening_general_0_response.wav",
+      "stt_latency_ms": 5126.01,
+      "tts_latency_ms": 316.07,
+      "total_latency_ms": 15000.7
+    },
+    {
+      "question_id": "listening_general_1",
+      "audio_file": "evaluation_data/voiceassistant_eval_new/audio_input/listening_general_1.wav",
+      "stt_output": "Which bowing technique is the fiddler probably using to create create the rhythmic melody in the music.",
+      "ground_truth": "Which bowing technique is the fiddler probably using to create the rhythmic melody in the music?",
+      "llm_response": "I'd be happy to help  with your question about bowing technique,  but it looks like your question got cut off!  Could you finish asking me which bowing technique you're curious  about? Are you asking about violin,  cello, or perhaps archery bowing? I can see your  question is still incomplete. It looks like you're asking which  bowing technique a fiddler is probably using to create something , but I'm missing the end of your question. Could you tell  me what sound or effect the fiddler is creating ? That way I can give you a helpful answer about  the specific bowing technique they're likely using. Without",
+      "tts_audio_path": "evaluation_output/tts_audio/deepgram_nova2_aws_polly/listening_general_1_response.wav",
+      "stt_latency_ms": 5270.57,
+      "tts_latency_ms": 561.38,
+      "total_latency_ms": 15000.94
+    }
+  ]
+}
