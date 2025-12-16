@@ -1,0 +1,30 @@
+{
+  "stt_model": "AWS Transcribe",
+  "stt_service_id": "aws_transcribe",
+  "tts_model": "Cartesia",
+  "tts_service_id": "cartesia",
+  "results": [
+    {
+      "question_id": "listening_general_0",
+      "audio_file": "evaluation_data/voiceassistant_eval_new/audio_input/listening_general_0.wav",
+      "stt_output": "Does the music sound more like something from today. or does it sound like it is from the past.",
+      "ground_truth": "Does the music sound more like something from today, or does it sound like it is from the past?",
+      "llm_response": "It  looks like your question got cut off!  You started asking \"Does the music sound more...\" but I  didn't catch the rest. Could you finish  that thought? I'd be happy to help once I know  what you're comparing or what quality you're asking  about. I 'd be happy to help, but I need a bit more context!  Are you asking me to listen to a piece of music an d tell you whether it sounds modern or contemporary ? If you can share the song title,  artist, or describe the music to  me, I can give you my thoughts on whether it has  a more current sound or if it feels like it 's from an earlier era. I 'd love to help you figure that out, but I'm  not able to hear audio or music right now. If  you could tell me the song title, artist name, or describe what  the music sounds like\u2014such as the instruments used, the style,  or any lyrics you remember\u2014I can definitely  give you my thoughts on whether it sounds contemporary or like it's from an  earlier time period.",
+      "tts_audio_path": "evaluation_output/tts_audio/aws_transcribe_cartesia/listening_general_0_response.wav",
+      "stt_latency_ms": 4402.59,
+      "tts_latency_ms": 661.73,
+      "total_latency_ms": 15190.91
+    },
+    {
+      "question_id": "listening_general_1",
+      "audio_file": "evaluation_data/voiceassistant_eval_new/audio_input/listening_general_1.wav",
+      "stt_output": "Which bowing technique is the fiddler probably using to create create the rhythmic melody in the music.",
+      "ground_truth": "Which bowing technique is the fiddler probably using to create the rhythmic melody in the music?",
+      "llm_response": "I'd be happy to help  with bowing techniques! However, I nee d a bit more information. Are you asking about b owing for a stringed instrument like violin or  cello, or are you interested in bowing as  a form of respect or greeting in a particular culture? I appreciate  you sharing that, but I'm  not quite sure what you're asking.  It looks like your question might have gotten cut off. Coul d you complete your question about bowing technique? For example, are you asking which  bowing technique is best for a  particular instrument, or which one  is easiest to learn, or something  else entirely? I'm  still not quite getting the full question  here. It seems like the text might be coming  through in fragments. Are you asking which bowing technique the  fiddler uses, or which bowing technique is best  for fiddle playing? If you could give me the  complete question, I'd be happy to  help you out! I can  see your question is building up piece by piece!  It looks like you're asking which  bowing technique the fiddler is  probably using to create something,  but I'm still missing the end of your question. Could you finish  it so I know what sound or effect  you're asking about? Without  hearing the specific music or seeing the fiddler play , it's hard to say for  certain, but fiddlers commonly use techniques  like sawing, which is a quick back-and-forth motion across the strings , or shuffling, where they rapidly change  bow direction to create that driving rhythmic pulse",
+      "tts_audio_path": "evaluation_output/tts_audio/aws_transcribe_cartesia/listening_general_1_response.wav",
+      "stt_latency_ms": 2905.75,
+      "tts_latency_ms": 373.7,
+      "total_latency_ms": 15193.42
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "stt_service_id": "whisper_large_v2",
+  "stt_service_name": "Whisper Large-v2 (Local)",
+  "module": "pipecat.services.whisper.stt",
+  "class": "WhisperSTTService",
+  "config": {
+    "model": "large-v2",
+    "device": "auto",
+    "compute_type": "int8",
+    "language": "en",
+    "no_speech_prob": 0.2
+  },
+  "requires_vad": true,
+  "vad_config": {
+    "module": "pipecat.audio.vad.silero",
+    "class": "SileroVADAnalyzer",
+    "config": {}
+  },
+  "audio_requirements": {
+    "sample_rates": [8000, 16000],
+    "resample_to": 16000
+  },
+  "aggregation_timeout": 3.0,
+  "pipeline_timeout": 60.0
+}

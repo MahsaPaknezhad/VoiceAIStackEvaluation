@@ -1,0 +1,26 @@
+{
+  "metadata": {
+    "created_date": "2025-12-15",
+    "source": "Test subset",
+    "total_questions": 2,
+    "description": "2-sample test dataset"
+  },
+  "questions": [
+    {
+      "id": "listening_general_0",
+      "text": "Does the music sound more like something from today, or does it sound like it is from the past?",
+      "expected_answer": "Vintage",
+      "category": "general",
+      "split": "listening_general",
+      "audio_file": "listening_general_0.wav"
+    },
+    {
+      "id": "listening_general_1",
+      "text": "Which bowing technique is the fiddler probably using to create the rhythmic melody in the music?",
+      "expected_answer": "The fiddler is likely using a combination of slurs and staccato bowing techniques.",
+      "category": "general",
+      "split": "listening_general",
+      "audio_file": "listening_general_1.wav"
+    }
+  ]
+}

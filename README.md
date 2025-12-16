@@ -84,6 +84,9 @@ source .nab_venv/bin/activate  # On Windows: .nab_venv\Scripts\activate
 # Install dependencies
 pip install -r requirements.txt
 
+# Download Whisper models (required for local STT)
+python -c "import whisper; whisper.load_model('turbo'); whisper.load_model('large'); whisper.load_model('small')"
+
 # Start the server
 python main_server.py
 ```

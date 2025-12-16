@@ -1,0 +1,121 @@
+{
+  "timestamp": "2025-12-16T20:41:18.590412",
+  "dataset": "evaluation_data/voiceassistant_eval_new/test_2samples.json",
+  "total_questions": 2,
+  "evaluations": [
+    {
+      "question_id": "listening_general_0",
+      "category": "general",
+      "ground_truth": "Does the music sound more like something from today, or does it sound like it is from the past?",
+      "stt_output": "Does the music sound more like something from today. or does it sound like it is from the past.",
+      "wer": 10.526315789473683,
+      "llm_response": "It  looks like your question got cut off!  You were asking if the music sounds more... something ? Could you finish that thought for me? For  example, are you asking if it sounds more upbeat, lou der, professional, or something else? I'd be  happy to help once I know what you're comparing  it to! I 'd be happy to help, but I don't actually have any  music to listen to right now. If  you'd like me to comment on whether  a particular song or piece of music sounds modern  or contemporary, you'd need to either describe  it to me or tell me the artist and song title. What music  are you asking about? I appreciate  the full question now, but I still don't have access  to any audio or music to listen to. To give  you a good answer about whether something sounds modern or vintage , could you tell me the name of the song or artist  you're asking about, or describe what you're hearing ? Then I can let you know whether it has  a contemporary vibe or sounds more retro or  classic.",
+      "judge_scores": {
+        "correctness": 7,
+        "relevance": 6,
+        "completeness": 5,
+        "clarity": 4,
+        "overall": 5,
+        "reasoning": "The assistant correctly identifies that it cannot hear audio and requests more information (accurate). However, the response is confusing and poorly structured with multiple repetitive explanations, awkward formatting, and typos ('lou der' instead of 'louder', unnecessary spacing). While relevant in asking for clarification, the assistant misinterprets the original question - the user did provide a complete question about whether music sounds modern or vintage. The response should have simply acknowledged it lacks audio access rather than implying the question was incomplete. The excessive repetition and disorganized presentation significantly harm clarity despite the core message being reasonable."
+      },
+      "stt_latency_ms": 4412.97,
+      "tts_latency_ms": 415.59,
+      "total_latency_ms": 15001.56,
+      "voice_quality": {
+        "fluency": {
+          "score": 8.91,
+          "speaking_rate_sps": 3.68,
+          "silence_ratio": 0.2,
+          "energy_consistency": 0.953000009059906
+        },
+        "naturalness": {
+          "score": 8.55,
+          "pitch_mean_hz": 226.3,
+          "pitch_std_hz": 83.1,
+          "pitch_range_hz": 350.0,
+          "pitch_variation": 0.367,
+          "spectral_centroid_hz": 1341.2
+        },
+        "tone": {
+          "score": 3.35,
+          "clarity": 23.25,
+          "smoothness": 0.105,
+          "hnr_db": 2.5199999809265137
+        },
+        "overall_quality": 6.936666666666667,
+        "llm_fluency": 5,
+        "llm_naturalness": 4,
+        "llm_tone": 5,
+        "llm_overall": 4,
+        "llm_reasoning": "This is a text-to-speech generated voice with significant quality issues. The speech contains obvious processing artifacts, including unnatural pauses within words ('lou der' instead of 'louder'), irregular pacing, and monotonous delivery. The very low energy variation (0.050) indicates minimal prosodic expression and emotional engagement. The speaking rate of 3.7 syl/sec is slightly slow and robotic. While the content is coherent, the synthetic nature is immediately apparent\u2014the voice lacks the natural rhythm, intonation peaks, and emotional warmth of human speech. The pitch is notably high for natural male/female speech, reinforcing the artificial quality. This is clearly AI-generated audio with limited naturalness."
+      }
+    },
+    {
+      "question_id": "listening_general_1",
+      "category": "general",
+      "ground_truth": "Which bowing technique is the fiddler probably using to create the rhythmic melody in the music?",
+      "stt_output": "Which bowing technique is the fiddler probably using to create create the rhythmic melody in the music.",
+      "wer": 12.5,
+      "llm_response": "I'd be happy to help  you with bowing techniques! However, I nee d a bit more information. Are you asking about b owing for a stringed instrument like a violin or c ello, or are you interested in bowing as  a form of respect or greeting? Once  you let me know which context you're asking about, I can give  you more specific information. I notice  your question got cut off! You started asking \" Which bowing technique is...\" but I 'm not sure what you're asking about. Coul d you complete your question? For example, are you wondering  which bowing technique is best for a  certain style of music, or which one is eas iest to learn, or something else entirely? I'm  still not quite catching the complete question! It sounds  like you're asking something about a bowing technique relate d to fiddling, but the question seems  incomplete. Are you asking which bowing technique the fiddler uses,  or which technique is best for fiddling?  If you can finish your thought, I'll be able  to give you a much better answer! I'm  getting closer to understanding! It sounds like you're asking which  bowing technique a fiddler is probably  using to create a certain sound or effect, but I'm still missing the  end of your question. What sound or effect are you asking about? For  instance, are you wondering about techniques for creating a fast  sound, a smooth sound, or something  else? F iddlers typically use a technique called sawing or  shuffle bowing to create rhythmic melodies, where  they move the bow back and forth quickly across the strings with  short, choppy strokes that emphasize the rhythm an d drive of the music. This creates that characteristic energ",
+      "judge_scores": {
+        "correctness": 6,
+        "relevance": 4,
+        "completeness": 3,
+        "clarity": 2,
+        "overall": 3,
+        "reasoning": "The assistant struggles significantly with this response. Correctness is partial - it eventually mentions 'sawing or shuffle bowing' which are relevant techniques, though the response is cut off mid-sentence. Relevance is poor because the user's question was complete and clear, yet the assistant repeatedly claims it's incomplete or cut off (it isn't). The response is severely disorganized with multiple false starts, unnecessary repetition, and poor formatting with awkward spacing and line breaks. Completeness suffers from the abrupt ending and the distraction of multiple clarification attempts. Clarity is severely hampered by the confusing structure, redundant questioning, and typos. The core issue is the assistant's failure to recognize that the original question ('Which bowing technique is the fiddler probably using to create create the rhythmic melody in the music') is actually complete and answerable, making most of this response irrelevant noise."
+      },
+      "stt_latency_ms": 2910.52,
+      "tts_latency_ms": 410.18,
+      "total_latency_ms": 15000.97,
+      "voice_quality": {
+        "fluency": {
+          "score": 8.71,
+          "speaking_rate_sps": 3.47,
+          "silence_ratio": 0.2,
+          "energy_consistency": 0.9459999799728394
+        },
+        "naturalness": {
+          "score": 8.33,
+          "pitch_mean_hz": 208.1,
+          "pitch_std_hz": 75.0,
+          "pitch_range_hz": 350.0,
+          "pitch_variation": 0.36,
+          "spectral_centroid_hz": 1317.7
+        },
+        "tone": {
+          "score": 3.54,
+          "clarity": 24.07,
+          "smoothness": 0.106,
+          "hnr_db": 3.0899999141693115
+        },
+        "overall_quality": 6.859999999999999,
+        "llm_fluency": 4,
+        "llm_naturalness": 3,
+        "llm_tone": 4,
+        "llm_overall": 4,
+        "llm_reasoning": "This is synthetic text-to-speech audio with noticeable quality limitations. The speech exhibits clear artifacts including unnatural word breaks ('nee d', 'b owing', 'c ello', 'Coul d', 'relate d', 'eas iest', 'F iddlers', 'an d'), indicating processing errors or poor transcription integration. The very low energy variation (0.057) reveals minimal prosodic dynamics and emotional expression. The slow speaking rate (3.5 syl/sec) combined with the stilted delivery creates a robotic, mechanical quality. The pitch (208.1 Hz) and overall tonal characteristics lack warmth and naturalness. While the content is organized and informative, the delivery fails to engage listeners. The synthetic nature is immediately apparent\u2014there are no natural pauses for breath or emphasis, and the intonation remains relatively flat throughout. This represents below-average TTS quality with significant room for improvement in naturalness and fluency."
+      }
+    }
+  ],
+  "summary": {
+    "average_wer": 11.513157894736842,
+    "average_overall_score": 4.0,
+    "average_stt_latency_ms": 3661.745,
+    "average_tts_latency_ms": 412.885,
+    "average_total_latency_ms": 15001.265,
+    "by_category": {
+      "general": {
+        "count": 2,
+        "avg_wer": 11.513157894736842,
+        "avg_score": 4.0,
+        "avg_stt_latency_ms": 3661.745,
+        "avg_tts_latency_ms": 412.885
+      }
+    }
+  },
+  "stt_model": "AWS Transcribe",
+  "stt_service_id": "aws_transcribe",
+  "tts_model": "Deepgram Aura",
+  "tts_service_id": "deepgram_aura"
+}

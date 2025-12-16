@@ -1,0 +1,30 @@
+{
+  "stt_model": "Whisper Large-v2 (Local)",
+  "stt_service_id": "whisper_large_v2",
+  "tts_model": "AWS Polly",
+  "tts_service_id": "aws_polly",
+  "results": [
+    {
+      "question_id": "listening_general_0",
+      "audio_file": "evaluation_data/voiceassistant_eval_new/audio_input/listening_general_0.wav",
+      "stt_output": " Does the music sound more like something from today?  Or does it sound like it is from the past? ",
+      "ground_truth": "Does the music sound more like something from today, or does it sound like it is from the past?",
+      "llm_response": "I don 't actually hear any music right now, so  I'm not able to compare it to modern or older styles . If you'd like me to help  you figure out whether a song sounds contemporary or from an  earlier era, feel free to describe it to me\u2014 tell me about the instruments, the production quality, the  vocals, or any other details you notice, and I' d be happy to give you my thoughts!",
+      "tts_audio_path": "evaluation_output/tts_audio/whisper_large_v2_aws_polly/listening_general_0_response.wav",
+      "stt_latency_ms": 25532.61,
+      "tts_latency_ms": 562.9,
+      "total_latency_ms": 60018.58
+    },
+    {
+      "question_id": "listening_general_1",
+      "audio_file": "evaluation_data/voiceassistant_eval_new/audio_input/listening_general_1.wav",
+      "stt_output": " Which bowing technique is the fiddler probably using to create the rhythmic melody in the  music? ",
+      "ground_truth": "Which bowing technique is the fiddler probably using to create the rhythmic melody in the music?",
+      "llm_response": "I 'd be happy to help, but I don 't have any audio or music to listen to, so I can't hear  what specific bowing technique is being used. If you could describe what  you're hearing\u2014like whether it sounds choppy an d percussive, smooth and flowing, or  has a bouncy quality\u2014I coul d give you a better answer about techniques like det ach\u00e9, spiccato, or shuffle  bowing that fiddlers commonly use for  rhythmic melodies.",
+      "tts_audio_path": "evaluation_output/tts_audio/whisper_large_v2_aws_polly/listening_general_1_response.wav",
+      "stt_latency_ms": 25951.31,
+      "tts_latency_ms": 585.69,
+      "total_latency_ms": 60003.07
+    }
+  ]
+}
