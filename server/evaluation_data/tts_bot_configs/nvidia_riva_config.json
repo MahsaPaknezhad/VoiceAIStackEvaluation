@@ -1,12 +1,12 @@
 {
   "tts_service_id": "nvidia_riva",
   "tts_service_name": "NVIDIA Riva",
-  "module": "livekit.plugins.nvidia",
-  "class": "TTS",
+  "module": "src.core.livekit_tts_adapter",
+  "class": "LiveKitTTSAdapter",
   "config": {
-    "server": "${NVIDIA_RIVA_SERVER}:50051",
+    "server": "${NVIDIA_RIVA_TTS_SERVER}:50051",
     "use_ssl": false,
-    "voice": "Magpie-Multilingual.EN-US.Aria"
+    "voice": "Magpie-Multilingual.EN-US.Nova"
   },
   "available_voices": [],
   "instructions": "\n# Configuration for NVIDIA Riva\n\nTo use this TTS service in bot.py, replace the TTS initialization with:\n\nfrom pipecat.services.riva.tts import RivaTTSService\n\ntts = RivaTTSService(\n    api_key=os.getenv(\"API_KEY\"),  # Use appropriate env var\n    **{}\n)\n\n# Available voices: Check service documentation\n"
