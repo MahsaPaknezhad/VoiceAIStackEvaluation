@@ -1,16 +1,40 @@
+# Core dependencies
 fastapi
 uvicorn
 python-dotenv
-pipecat-ai[aws,webrtc,deepgram,local-smart-turn-v3,nvidia,cartesia]
-pipecat-ai-small-webrtc-prebuilt
-pipecat-ai-whisker
-strands-agents
 soundfile
 jiwer
 datasets
-torchaudio
 librosa
 matplotlib
 pytest
 pytest-asyncio
+huggingface_hub
+
+# PyTorch FIRST (before NeMo)
+--extra-index-url https://download.pytorch.org/whl/cu118
+torch
+torchvision
+torchaudio
+
+# Pipecat and plugins (after PyTorch)
+pipecat-ai[aws,webrtc,deepgram,local-smart-turn-v3,nvidia,cartesia]
+pipecat-ai-small-webrtc-prebuilt
+pipecat-ai-whisker
+strands-agents
 livekit-plugins-nvidia
+
+# NeMo core only (without [all] to avoid mamba-ssm)
+nemo_toolkit
+
+# NeMo dependencies
+omegaconf>=2.2.0
+hydra-core
+lightning
+lhotse
+einops
+sentencepiece
+pyannote.audio
+webdataset
+editdistance
+IPython
