@@ -86,6 +86,12 @@ class VoiceAssistantRunner:
         module_name = self.stt_config["module"]
         class_name = self.stt_config["class"]
         
+        # Special handling for NVIDIA/LiveKit STT services
+        if "livekit" in module_name and "nvidia" in module_name:
+            from src.core.livekit_stt_adapter import LiveKitSTTAdapter
+            config = self.stt_config.get("config", {})
+            return LiveKitSTTAdapter(**config)
+        
         module = __import__(module_name, fromlist=[class_name])
         service_class = getattr(module, class_name)
         
@@ -225,14 +231,23 @@ class VoiceAssistantRunner:
         
         # Create services
         stt = self._create_stt_service()
+        
+        # For batch STT, transcribe the file first
+        if hasattr(stt, 'transcribe_file'):
+            transcription = stt.transcribe_file(audio_path)
+            stt.set_transcription(transcription)
+        
         tts = self._create_tts_service()
         logger.info('Successfully created STT and TTS Service')
         agent = build_conversation_agent(model_id="us.anthropic.claude-haiku-4-5-20251001-v1:0", tts_service=tts)
         llm = StrandsAgentsProcessor(agent=agent)
         
-        # Setup context
-        #context = AWSBedrockLLMContext()
+        # Setup context with system prompt from agent
         context = OpenAILLMContext()
+        # Initialize context with system prompt
+        context.set_messages([
+            {"role": "system", "content": agent.system_prompt}
+        ])
         tma_in = LLMUserContextAggregator(context=context)
         tma_out = LLMAssistantContextAggregator(context=context)
         
@@ -248,16 +263,18 @@ class VoiceAssistantRunner:
         llm_collector = LLMCollector(timing_collector, llm_texts)
         logger.info('Successfully completed video frame processing')
         
-        # Build pipeline: STT -> context -> LLM -> context -> TTS
+
+        
+        # Build pipeline: STT -> Context -> LLM -> TTS (bypass output context aggregator)
         pipeline = Pipeline([
             transport.input(),
             stt_timing_start,
             stt,
             stt_collector,
-            tma_in,
+            tma_in,  # Convert TranscriptionFrame to OpenAILLMContextFrame
             llm,
             llm_collector,
-            #tma_out,
+            # tma_out,  # Skip output aggregator - TextFrames go directly to TTS
             tts,
             tts_timing_end,
             transport.output()
@@ -286,7 +303,7 @@ class VoiceAssistantRunner:
         
         # Collect results
         stt_output = " ".join(stt_texts)
-        llm_response = " ".join(llm_texts)
+        llm_response = "".join(llm_texts)  # Concatenate without spaces to avoid word breaks
         
         # Save TTS audio from transport
         tts_audio_path = None
