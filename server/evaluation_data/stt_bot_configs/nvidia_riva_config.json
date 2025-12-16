@@ -1,0 +1,14 @@
+{
+  "stt_service_id": "nvidia_riva",
+  "stt_service_name": "NVIDIA Riva STT",
+  "module": "src.core.nemo_batch_stt_adapter",
+  "class": "NeMoBatchSTT",
+  "config": {
+    "model_name": "nvidia/parakeet-tdt-0.6b-v3",
+    "cache_dir": "./models",
+    "chunk_len_in_secs": 2.0,
+    "left_context_secs": 10.0,
+    "right_context_secs": 2.0
+  },
+  "instructions": "\n# Configuration for NVIDIA Riva STT (Parakeet)\n\nUses LiveKit integration for self-hosted NVIDIA Riva STT server.\n"
+}
