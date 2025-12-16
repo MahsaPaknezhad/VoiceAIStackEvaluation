@@ -1,7 +1,7 @@
 {
   "stt_service_id": "nvidia_riva",
   "stt_service_name": "NVIDIA Riva STT",
-  "module": "src.core.nemo_batch_stt_adapter",
+  "module": "src.core.nvidia.nemo_batch_stt_adapter",
   "class": "NeMoBatchSTT",
   "config": {
     "model_name": "nvidia/parakeet-tdt-0.6b-v3",

@@ -1,7 +1,7 @@
 {
   "tts_service_id": "nvidia_riva",
   "tts_service_name": "NVIDIA Riva",
-  "module": "src.core.livekit_tts_adapter",
+  "module": "src.core.nvidia.livekit_tts_adapter",
   "class": "LiveKitTTSAdapter",
   "config": {
     "server": "${NVIDIA_RIVA_TTS_SERVER}:50051",
