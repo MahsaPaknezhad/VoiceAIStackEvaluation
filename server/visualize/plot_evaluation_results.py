@@ -377,46 +377,19 @@ def plot_tts_metrics(tts_metrics: Dict, output_path: str):
     
     fig, ax = plt.subplots(figsize=(10, 7))
     
-    # Provider-specific colors and markers
-    provider_styles = {
-        'nvidia': {'color': '#76b900', 'marker': '^', 'label': 'NVIDIA Riva'},
-        'riva': {'color': '#76b900', 'marker': '^', 'label': 'NVIDIA Riva'},
-        'deepgram': {'color': '#00A67E', 'marker': 's', 'label': 'Deepgram'},
-        'aws': {'color': '#232F3E', 'marker': 'o', 'label': 'AWS Polly'},
-        'elevenlabs': {'color': '#9467bd', 'marker': 'D', 'label': 'ElevenLabs'},
-        'cartesia': {'color': '#ff7f0e', 'marker': 'v', 'label': 'Cartesia'},
-        'openai': {'color': '#2ca02c', 'marker': 'p', 'label': 'OpenAI'}
-    }
-    
-    # Fallback colors and markers
-    colors = plt.cm.tab10(np.linspace(0, 1, len(tts_metrics)))
+    # Use tab10 colormap for consistency
+    models = sorted(tts_metrics.items())
+    colors = plt.cm.tab10(np.linspace(0, 1, len(models)))
     markers = ['o', 's', '^', 'D', 'v', '<', '>', 'p', '*', 'h']
     
-    plotted_providers = set()
-    
-    for i, (model, metrics) in enumerate(sorted(tts_metrics.items())):
+    for i, (model, metrics) in enumerate(models):
         x = metrics['latency']
         y = metrics['score']
         x_std = metrics['latency_std']
         y_std = metrics['score_std']
         
-        # Determine provider and style
-        provider = None
-        for p in provider_styles.keys():
-            if p in model.lower():
-                provider = p
-                break
-        
-        if provider and provider in provider_styles:
-            style = provider_styles[provider]
-            color = style['color']
-            marker = style['marker']
-            provider_label = style['label'] if provider not in plotted_providers else None
-            plotted_providers.add(provider)
-        else:
-            color = colors[i]
-            marker = markers[i % len(markers)]
-            provider_label = model
+        color = colors[i]
+        marker = markers[i % len(markers)]
         
         # Smaller error ellipse
         ellipse = Ellipse((x, y), width=x_std*1.2, height=y_std*1.2,
@@ -426,7 +399,7 @@ def plot_tts_metrics(tts_metrics: Dict, output_path: str):
         
         # Data point
         ax.scatter(x, y, s=150, marker=marker, color=color,
-                  edgecolors='white', linewidth=2, label=provider_label,
+                  edgecolors='white', linewidth=2, label=model,
                   zorder=3, alpha=0.9)
         
         # Model label
@@ -455,21 +428,14 @@ def plot_tts_metrics(tts_metrics: Dict, output_path: str):
     plt.close()
 
 def plot_quality_metrics(quality_metrics: Dict, output_dir: str):
-    """Plot quality metrics: fluency, tone, naturalness, LLM variants, NISQA, and SpeechMetrics."""
+    """Plot quality metrics: fluency, tone, naturalness, LLM variants."""
     metrics_to_plot = [
         ('fluency', 'Fluency', 'Acoustic Analysis'),
         ('tone', 'Tone', 'Acoustic Analysis'),
         ('naturalness', 'Naturalness', 'Acoustic Analysis'),
         ('llm_fluency', 'Fluency', 'LLM Evaluation'),
         ('llm_tone', 'Tone', 'LLM Evaluation'),
-        ('llm_naturalness', 'Naturalness', 'LLM Evaluation'),
-        ('mos', 'Mean Opinion Score', 'NISQA'),
-        ('noisiness', 'Noisiness', 'NISQA'),
-        ('coloration', 'Coloration', 'NISQA'),
-        ('discontinuity', 'Discontinuity', 'NISQA'),
-        ('loudness', 'Loudness', 'NISQA'),
-        ('mosnet_score', 'MOSNet Score', 'SpeechMetrics'),
-        ('srmr_score', 'SRMR Score', 'SpeechMetrics')
+        ('llm_naturalness', 'Naturalness', 'LLM Evaluation')
     ]
     
     # Provider-specific colors
@@ -528,7 +494,7 @@ def plot_quality_metrics(quality_metrics: Dict, output_dir: str):
         print(f"Saved: {output_dir}/{filename}")
         plt.close()
 
-def plot_metric_comparison(data: Dict, metric_key: str, title: str, xlabel: str, output_path: str, xlim=None, higher_is_better=True):
+def plot_metric_comparison(data: Dict, metric_key: str, title: str, xlabel: str, output_path: str, xlim=None):
     """Generic bar chart comparing models on a single metric."""
     filtered = {k: v for k, v in data.items() if v.get(metric_key) is not None}
     if not filtered:
@@ -566,15 +532,6 @@ def plot_metric_comparison(data: Dict, metric_key: str, title: str, xlabel: str,
     bars = ax.barh(models, values, xerr=stds, color=colors, alpha=0.3, 
                   edgecolor='white', linewidth=2, capsize=5,
                   error_kw={'ecolor': '#333333', 'elinewidth': 1.5})
-    
-    # Add direction indicator
-    direction_text = "Higher is better ↑" if higher_is_better else "Lower is better ↓"
-    
-    ax.text(0.98, 0.98, direction_text, transform=ax.transAxes, 
-           fontsize=11, fontweight='bold', color='black',
-           horizontalalignment='right', verticalalignment='top',
-           bbox=dict(boxstyle='round,pad=0.4', facecolor='white', 
-                    edgecolor='gray', alpha=0.95, linewidth=1.5))
     
     ax.set_xlabel(xlabel, fontweight='normal', fontsize=13)
     ax.set_ylabel('Model', fontweight='normal', fontsize=13)
@@ -624,43 +581,43 @@ def main():
     # Individual metric comparisons
     print("Generating metric comparison plots...")
     plot_metric_comparison(stt_metrics, 'latency', 'STT Latency Comparison', 'Latency (ms)', 
-                          str(output_dir / "comparison_stt_latency.png"), higher_is_better=False)
+                          str(output_dir / "stt_latency.png"))
     plot_metric_comparison(stt_metrics, 'wer', 'STT Word Error Rate Comparison', 'WER', 
-                          str(output_dir / "comparison_stt_wer.png"), higher_is_better=False)
+                          str(output_dir / "stt_wer.png"))
     plot_metric_comparison(tts_metrics, 'latency', 'TTS Latency Comparison', 'Latency (ms)', 
-                          str(output_dir / "comparison_tts_latency.png"), higher_is_better=False)
+                          str(output_dir / "tts_latency.png"))
     plot_metric_comparison(tts_metrics, 'score', 'TTS Quality Score Comparison', 'Score (0-10)', 
-                          str(output_dir / "comparison_tts_score.png"), xlim=(0, 10.5), higher_is_better=True)
+                          str(output_dir / "tts_score.png"), xlim=(0, 10.5))
     plot_metric_comparison(quality_metrics, 'fluency', 'Fluency Comparison (Acoustic)', 'Score (0-10)', 
-                          str(output_dir / "comparison_fluency.png"), xlim=(0, 10.5), higher_is_better=True)
+                          str(output_dir / "tts_fluency.png"), xlim=(0, 10.5))
     plot_metric_comparison(quality_metrics, 'tone', 'Tone Comparison (Acoustic)', 'Score (0-10)', 
-                          str(output_dir / "comparison_tone.png"), xlim=(0, 10.5), higher_is_better=True)
+                          str(output_dir / "tts_tone.png"), xlim=(0, 10.5))
     plot_metric_comparison(quality_metrics, 'naturalness', 'Naturalness Comparison (Acoustic)', 'Score (0-10)', 
-                          str(output_dir / "comparison_naturalness.png"), xlim=(0, 10.5), higher_is_better=True)
+                          str(output_dir / "tts_naturalness.png"), xlim=(0, 10.5))
     plot_metric_comparison(quality_metrics, 'llm_fluency', 'Fluency Comparison (LLM)', 'Score (0-10)', 
-                          str(output_dir / "comparison_llm_fluency.png"), xlim=(0, 10.5), higher_is_better=True)
+                          str(output_dir / "tts_llm_fluency.png"), xlim=(0, 10.5))
     plot_metric_comparison(quality_metrics, 'llm_tone', 'Tone Comparison (LLM)', 'Score (0-10)', 
-                          str(output_dir / "comparison_llm_tone.png"), xlim=(0, 10.5), higher_is_better=True)
+                          str(output_dir / "tts_llm_tone.png"), xlim=(0, 10.5))
     plot_metric_comparison(quality_metrics, 'llm_naturalness', 'Naturalness Comparison (LLM)', 'Score (0-10)', 
-                          str(output_dir / "comparison_llm_naturalness.png"), xlim=(0, 10.5), higher_is_better=True)
+                          str(output_dir / "tts_llm_naturalness.png"), xlim=(0, 10.5))
     
     # NISQA metrics
     plot_metric_comparison(quality_metrics, 'mos', 'Mean Opinion Score (NISQA)', 'MOS (1-5)', 
-                          str(output_dir / "comparison_mos.png"), xlim=(1, 5), higher_is_better=True)
+                          str(output_dir / "tts_mos.png"), xlim=(1, 5))
     plot_metric_comparison(quality_metrics, 'noisiness', 'Noisiness (NISQA)', 'Score (1-5)', 
-                          str(output_dir / "comparison_noisiness.png"), xlim=(1, 5), higher_is_better=True)
+                          str(output_dir / "tts_noisiness.png"), xlim=(1, 5))
     plot_metric_comparison(quality_metrics, 'coloration', 'Coloration (NISQA)', 'Score (1-5)', 
-                          str(output_dir / "comparison_coloration.png"), xlim=(1, 5), higher_is_better=True)
+                          str(output_dir / "tts_coloration.png"), xlim=(1, 5))
     plot_metric_comparison(quality_metrics, 'discontinuity', 'Discontinuity (NISQA)', 'Score (1-5)', 
-                          str(output_dir / "comparison_discontinuity.png"), xlim=(1, 5), higher_is_better=True)
+                          str(output_dir / "tts_discontinuity.png"), xlim=(1, 5))
     plot_metric_comparison(quality_metrics, 'loudness', 'Loudness (NISQA)', 'Score (1-5)', 
-                          str(output_dir / "comparison_loudness.png"), xlim=(1, 5), higher_is_better=True)
+                          str(output_dir / "tts_loudness.png"), xlim=(1, 5))
     
     # SpeechMetrics
     plot_metric_comparison(quality_metrics, 'mosnet_score', 'MOSNet Score (SpeechMetrics)', 'Score (1-5)', 
-                          str(output_dir / "comparison_mosnet.png"), xlim=(1, 5), higher_is_better=True)
+                          str(output_dir / "tts_mosnet.png"), xlim=(1, 5))
     plot_metric_comparison(quality_metrics, 'srmr_score', 'SRMR Score (SpeechMetrics)', 'SRMR (dB)', 
-                          str(output_dir / "comparison_srmr.png"), higher_is_better=True)
+                          str(output_dir / "tts_srmr.png"))
     
     print(f"\nComplete. Plots saved to {output_dir}")
 
