@@ -123,7 +123,7 @@ This evaluation framework measures voice assistant performance across accuracy, 
 | NVIDIA Parakeet | Deepgram Aura | ❌ **Missing** | `test_nvidia_parakeet_deepgram_aura.sh` |
 | NVIDIA Parakeet | ElevenLabs | ❌ **Missing** | `test_nvidia_parakeet_elevenlabs.sh` |
 | NVIDIA Parakeet | LMNT | ❌ **Missing** | `test_nvidia_parakeet_lmnt.sh` |
-| NVIDIA Parakeet | NVIDIA Magpie | ✅ **Available** | `evaluate_nvidia_parakeet_nvidia_magpie.sh` |
+| NVIDIA Parakeet | NVIDIA Magpie | ✅ **Available** | `test_nvidia_parakeet_nvidia_magpie.sh` |
 | NVIDIA Parakeet | NVIDIA Riva TTS | ❌ **Missing** | `test_nvidia_parakeet_nvidia_riva_tts.sh` |
 | NVIDIA Parakeet | OpenAI TTS | ❌ **Missing** | `test_nvidia_parakeet_openai_tts.sh` |
 | NVIDIA Parakeet | OpenAI TTS HD | ❌ **Missing** | `test_nvidia_parakeet_openai_tts_hd.sh` |
