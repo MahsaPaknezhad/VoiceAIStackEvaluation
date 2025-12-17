@@ -74,6 +74,7 @@ class EvaluationInput(FrameProcessor):
                 # Send audio in 100ms chunks for better transcription
                 chunk_size = int(self._sample_rate * 0.1 * 2)
                 print(f"Sending {len(self._audio_data)} bytes of audio in {len(self._audio_data)//chunk_size} chunks")
+                chunk_count = 0
                 for i in range(0, len(self._audio_data), chunk_size):
                     chunk = self._audio_data[i:i+chunk_size]
                     audio_frame = AudioRawFrame(
@@ -81,6 +82,8 @@ class EvaluationInput(FrameProcessor):
                         sample_rate=self._sample_rate,
                         num_channels=1
                     )
+                    audio_frame.id = f"audio_chunk_{chunk_count}"
+                    chunk_count += 1
                     await self.push_frame(audio_frame, direction)
                     await asyncio.sleep(0.1)
                 

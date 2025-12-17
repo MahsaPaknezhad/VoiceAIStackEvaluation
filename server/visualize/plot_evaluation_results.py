@@ -50,7 +50,7 @@ def load_evaluation_results(results_dir: str) -> List[Dict]:
                     for part in parts:
                         if part in ['deepgram', 'openai', 'groq', 'elevenlabs', 'speechmatics', 
                                     'assemblyai', 'gladia', 'cartesia', 'fish', 'lmnt', 'playht', 
-                                    'rime', 'nvidia', 'riva', 'aura', 'tts', 'polly', 'audio', 'aws', 'transcribe']:
+                                    'rime', 'nvidia', 'riva', 'aura', 'tts', 'polly', 'audio', 'aws', 'transcribe', 'magpie']:
                             if not found_tts and len(stt_parts) > 0:
                                 found_tts = True
                             if found_tts:
@@ -301,9 +301,22 @@ def plot_tts_metrics(tts_metrics: Dict, output_path: str):
     
     fig, ax = plt.subplots(figsize=(10, 7))
     
-    # Color palette
+    # Provider-specific colors and markers
+    provider_styles = {
+        'nvidia': {'color': '#76b900', 'marker': '^', 'label': 'NVIDIA Riva'},
+        'riva': {'color': '#76b900', 'marker': '^', 'label': 'NVIDIA Riva'},
+        'deepgram': {'color': '#00A67E', 'marker': 's', 'label': 'Deepgram'},
+        'aws': {'color': '#232F3E', 'marker': 'o', 'label': 'AWS Polly'},
+        'elevenlabs': {'color': '#9467bd', 'marker': 'D', 'label': 'ElevenLabs'},
+        'cartesia': {'color': '#ff7f0e', 'marker': 'v', 'label': 'Cartesia'},
+        'openai': {'color': '#2ca02c', 'marker': 'p', 'label': 'OpenAI'}
+    }
+    
+    # Fallback colors and markers
     colors = plt.cm.tab10(np.linspace(0, 1, len(tts_metrics)))
     markers = ['o', 's', '^', 'D', 'v', '<', '>', 'p', '*', 'h']
+    
+    plotted_providers = set()
     
     for i, (model, metrics) in enumerate(sorted(tts_metrics.items())):
         x = metrics['latency']
@@ -311,16 +324,33 @@ def plot_tts_metrics(tts_metrics: Dict, output_path: str):
         x_std = metrics['latency_std']
         y_std = metrics['score_std']
         
+        # Determine provider and style
+        provider = None
+        for p in provider_styles.keys():
+            if p in model.lower():
+                provider = p
+                break
+        
+        if provider and provider in provider_styles:
+            style = provider_styles[provider]
+            color = style['color']
+            marker = style['marker']
+            provider_label = style['label'] if provider not in plotted_providers else None
+            plotted_providers.add(provider)
+        else:
+            color = colors[i]
+            marker = markers[i % len(markers)]
+            provider_label = model
+        
         # Smaller error ellipse
         ellipse = Ellipse((x, y), width=x_std*1.2, height=y_std*1.2,
-                         facecolor=colors[i], alpha=0.1,
-                         edgecolor=colors[i], linewidth=1.5, linestyle='--')
+                         facecolor=color, alpha=0.1,
+                         edgecolor=color, linewidth=1.5, linestyle='--')
         ax.add_patch(ellipse)
         
         # Data point
-        marker = markers[i % len(markers)]
-        ax.scatter(x, y, s=150, marker=marker, color=colors[i],
-                  edgecolors='white', linewidth=2, label=model,
+        ax.scatter(x, y, s=150, marker=marker, color=color,
+                  edgecolors='white', linewidth=2, label=provider_label,
                   zorder=3, alpha=0.9)
         
         # Model label
@@ -365,7 +395,10 @@ def plot_quality_metrics(quality_metrics: Dict, output_dir: str):
         'deepgram_aura': '#17becf',
         'elevenlabs': '#9467bd',
         'cartesia': '#ff7f0e',
-        'openai': '#2ca02c'
+        'openai': '#2ca02c',
+        'nvidia_riva': '#76b900',
+        'nvidia': '#76b900',
+        'riva': '#76b900'
     }
     
     for metric_key, metric_label, method in metrics_to_plot:
@@ -380,7 +413,12 @@ def plot_quality_metrics(quality_metrics: Dict, output_dir: str):
         stds = [filtered[m].get(f'{metric_key}_std', 0) for m in models]
         
         # Assign distinct colors per service
-        colors = [provider_colors.get(m, provider_colors.get(m.split('_')[0] + '_' + m.split('_')[-1], '#7f7f7f')) for m in models]
+        colors = []
+        for m in models:
+            if 'nvidia' in m.lower() or 'riva' in m.lower():
+                colors.append(provider_colors['nvidia_riva'])
+            else:
+                colors.append(provider_colors.get(m, provider_colors.get(m.split('_')[0] + '_' + m.split('_')[-1], '#7f7f7f')))
         
         bars = ax.barh(models, values, xerr=stds, color=colors, alpha=0.2, 
                       edgecolor='white', linewidth=2.5, capsize=6, 
@@ -418,6 +456,13 @@ def main():
     print(f"Loading results from {results_dir}...")
     results = load_evaluation_results(str(results_dir))
     print(f"Loaded {len(results)} evaluation results")
+    
+    # Debug: Print detected models
+    if results:
+        stt_models = set(r.get('stt_model', 'unknown') for r in results)
+        tts_models = set(r.get('tts_model', 'unknown') for r in results)
+        print(f"Detected STT models: {sorted(stt_models)}")
+        print(f"Detected TTS models: {sorted(tts_models)}")
     
     if not results:
         print("No results found")
