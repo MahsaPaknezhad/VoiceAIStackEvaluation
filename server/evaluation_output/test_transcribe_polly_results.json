@@ -1,0 +1,228 @@
+{
+  "stt_model": "AWS Transcribe",
+  "stt_service_id": "aws_transcribe",
+  "tts_model": "AWS Polly",
+  "tts_service_id": "aws_polly",
+  "results": [
+    {
+      "question_id": "listening_general_0",
+      "audio_file": "evaluation_data/voiceassistant_eval_new/audio_input/listening_general_0.wav",
+      "stt_output": "Does the music sound more like something from today. or does it sound like it is from the past.",
+      "ground_truth": "Does the music sound more like something from today, or does it sound like it is from the past?",
+      "llm_response": "I  notice  your  question got  cut off!  You  starte d asking  \" Does the music sound more...\"  but didn't finish.  Coul d you complete  your question ?  For  example,  are  you asking if  music  sounds more like  something , or if  it  has  more of  a certain quality?  I'm  happy to help once  I understand what you're comparing ! I ' d be happy to help,  but I nee d a bit more context!  Are  you asking whether a  particular song  or piece  of music sounds more like something from today  compared to when  it was originally  made , or are you asking  me  to listen  to something  and tell  you if it sounds contemporary ?  If  you can tell me which song or  artist you're asking  about, I can give you a better  answer ! I' d love  to help you  figure  that  out,  but I'm  not able  to hear  or listen  to music.  If  you coul d describe  the  song  to  me\u2014 like telling  me about  the instruments , the production  style , the vocals , or any other details you notice \u2014I can definitely  help you determine whether  it sounds more modern  or vintage !",
+      "tts_audio_path": "evaluation_output/tts_audio/aws_transcribe_aws_polly/listening_general_0_response.wav",
+      "stt_latency_ms": 4395.65,
+      "tts_latency_ms": 260.67,
+      "total_latency_ms": 15001.35
+    },
+    {
+      "question_id": "listening_general_1",
+      "audio_file": "evaluation_data/voiceassistant_eval_new/audio_input/listening_general_1.wav",
+      "stt_output": "Which bowing technique is the fiddler probably using to create create the rhythmic melody in the music.",
+      "ground_truth": "Which bowing technique is the fiddler probably using to create the rhythmic melody in the music?",
+      "llm_response": "I'd be happy to help  you  learn  about bowing techniques! However, I  need a  bit more information .  Are you asking about b owing techniques  for a  string  instrument like violin  or  c ello, or are you intereste d in bowing techniques for arch ery?  Let  me know which  one  you're curious about an d I can  give  you some  helpful details . I appreciate  you  sharing  that,  but I'm  not quite  sure what  you're asking .  It  looks  like your  question  might have  been cut off or  incomplete . Coul d you finish  your question ? For  example, are you asking which  bowing technique is best  for a  particular  instrument, or which  one  is eas iest to learn?  Once  you  give  me the  full  question, I'll be happy to help ! I'm  still  not quite  catching  the  complete  question!  It sounds  like you might be  asking about bowing techniques use d by  a  fiddler, but the  question  seems  to be cut  off. Could you r ephrase it so  I understan d what you're looking  for? For instance, are you asking  which  b owing technique is most common for fi ddle  music , or which  technique  a  particular  fiddler uses? I'm  getting  closer  to  understanding,  but your  question still  seems incomplete!  It  sounds  like you might be asking which  bowing technique a  fiddler is probably  using to create a  certain  sound or  effect ,  but I 'm missing  the en d of your question. Could you finish it  by  telling  me what soun d or style  you 're asking  about? That  way I can give you a goo d answer about the specific  b owing technique. Ah, now I understand! For  creating  a  rhythmic melody,  a  fiddler is probably  using a technique called saw ing or cho pping,  where  they use  short , quick  bow  strokes that  emphas ize the rhythm  and create a driving , perc ussive soun d. This technique",
+      "tts_audio_path": "evaluation_output/tts_audio/aws_transcribe_aws_polly/listening_general_1_response.wav",
+      "stt_latency_ms": 2871.07,
+      "tts_latency_ms": 194.58,
+      "total_latency_ms": 15032.15
+    },
+    {
+      "question_id": "listening_general_2",
+      "audio_file": "evaluation_data/voiceassistant_eval_new/audio_input/listening_general_2.wav",
+      "stt_output": "If you hear a sound that might mean there is an emergency nearby What should you do right away as someone living in the area.",
+      "ground_truth": "If you hear a sound that might mean there is an emergency nearby, what should you do right away as someone living in the area?",
+      "llm_response": "If  you hear a sound that might indicate  an emergency nearby, the  best  thing  to do is stay  calm and try  to identify  what you 're hearing. Listen  carefully to  determine  if it 's a s iren, alarm , or other warning  signal,  and then check  your surroundings or  local  news  to  understan d what's  happening. Once  you know what's  going  on, follow  any  official  instructions from  emergency services or local authorities,  an d move  to a safe location if neede d. If you hear a sound that might indicate  an emergency nearby, you  should first  stay calm and try to identify what the  sound is,  like  a siren or  alarm. Then  check your surroundings and listen  to  local news or emergency alerts  to understand what's happening in  your area. Once  you know what's going on, follow  any official instructions from authorities ,  move  to safety  if  needed, and be  ready  to help neighbors  if it 's safe  to do so.",
+      "tts_audio_path": "evaluation_output/tts_audio/aws_transcribe_aws_polly/listening_general_2_response.wav",
+      "stt_latency_ms": 4606.36,
+      "tts_latency_ms": 412.97,
+      "total_latency_ms": 15002.56
+    },
+    {
+      "question_id": "listening_general_3",
+      "audio_file": "evaluation_data/voiceassistant_eval_new/audio_input/listening_general_3.wav",
+      "stt_output": "Can you identify the metallic noise that can be heard in the recording.",
+      "ground_truth": "Can you identify the metallic noise that can be heard in the recording?",
+      "llm_response": "I  don 't see any recording  attache d to your message. Could you please share  the audio file  or recording  you'd like me to listen  to? Once you upload it, I 'll  do my best to identify the metallic noise  for  you.",
+      "tts_audio_path": "evaluation_output/tts_audio/aws_transcribe_aws_polly/listening_general_3_response.wav",
+      "stt_latency_ms": 5034.89,
+      "tts_latency_ms": 218.86,
+      "total_latency_ms": 15001.74
+    },
+    {
+      "question_id": "listening_general_4",
+      "audio_file": "evaluation_data/voiceassistant_eval_new/audio_input/listening_general_4.wav",
+      "stt_output": "If you hear a sound that suggests something is being packed away. What should you do next to stay safe?",
+      "ground_truth": "If you hear a sound that suggests something is being packed away, what should you do next to stay safe?",
+      "llm_response": "If  you hear a sound that suggests something is  being packed away, it's  likely the  rust ling of bags ,  the  c rin kling of paper  or  plastic, or the  soft  thu dding of items  being place d into  boxes  or containers. You  might also hear the sound of tape  being applied, z ippers closing, or things  being wrappe d up .  These  are  all typical  acoustic  c ues that indicate someone  is organizing ,  storing, or preparing items  for transport or  storage. If you hear a sound suggesting  something is being packed away, the  best  thing  to do depends  on your  situation . If you're in a safe  environment  like  your  home or workplace , you can  simply continue  what  you're doing or  ask  what 's being  packed. However , if you're in an unf amiliar or  potentially unsafe  location, it's wise  to stay  alert ,  keep  your distance ,  and be  aware  of your surroundings until  you understan d what 's happening.",
+      "tts_audio_path": "evaluation_output/tts_audio/aws_transcribe_aws_polly/listening_general_4_response.wav",
+      "stt_latency_ms": 4816.4,
+      "tts_latency_ms": 725.04,
+      "total_latency_ms": 15000.76
+    },
+    {
+      "question_id": "listening_general_5",
+      "audio_file": "evaluation_data/voiceassistant_eval_new/audio_input/listening_general_5.wav",
+      "stt_output": "You are planning to walk to your destination and you hear a sound. What should you wear?",
+      "ground_truth": "You are planning to walk to your destination and you hear a sound. What should you wear?",
+      "llm_response": "I'm not sure I  understand the  connection  between hearing  a sound and what to  wear for your  walk. Coul d you clarify what you mean?  Are you asking what  to wear base d on weather  sounds  like  thunder  or rain ,  or is  this about something else?  Once  I understan d better , I' d be happy to help with  p acking advice  for  your walk !",
+      "tts_audio_path": "evaluation_output/tts_audio/aws_transcribe_aws_polly/listening_general_5_response.wav",
+      "stt_latency_ms": 7189.85,
+      "tts_latency_ms": 318.59,
+      "total_latency_ms": 15001.6
+    },
+    {
+      "question_id": "listening_general_6",
+      "audio_file": "evaluation_data/voiceassistant_eval_new/audio_input/listening_general_6.wav",
+      "stt_output": "Based on the sound you hear what can you guess about the type of event that is happening.",
+      "ground_truth": "Based on the sound you hear, what can you guess about the type of event that is happening?",
+      "llm_response": "I appreciate  you reaching out, but I'm  not able to hear any sounds.  I 'm a  text-based AI assistant, so I  can only rea d and respond to the  text you write  to me. If  you'd like help  with something relate d to sounds  or audio, feel  free to describe  what you're  hearing an d I'll do my best to help you  figure  out what it  is  or  answer  your question  about it! I  appreciate  the  question, but I shoul d clarify that I'm  a  text-based AI an d I 'm  not able to hear any  audio  or sounds. If  you'd like me  to help identify  what type of event might  be happening based on a  sound,  you  could describe what  you're  hearing to  me, and I' d be happy to make  an educated guess base d on your  description.  Just  tell  me what the  sound is like  and any  other details you notice !",
+      "tts_audio_path": "evaluation_output/tts_audio/aws_transcribe_aws_polly/listening_general_6_response.wav",
+      "stt_latency_ms": 3718.48,
+      "tts_latency_ms": 231.51,
+      "total_latency_ms": 15001.43
+    },
+    {
+      "question_id": "listening_general_7",
+      "audio_file": "evaluation_data/voiceassistant_eval_new/audio_input/listening_general_7.wav",
+      "stt_output": "about as the sound of water stay the same or does it change?",
+      "ground_truth": "Does the sound of water stay the same, or does it change?",
+      "llm_response": "The  sound of water actually  changes  quite  a bit depending  on how  it 's moving .  Calm  water like  a still pond is  nearly  silent,  but flowing  water like a stream  or river creates a gentle  rushing  sound,  an d cr ashing waves  or  a  waterfall make  much  lou der ro aring sounds. So  the pitch ,  volume, and character  of water  sounds  vary a  lot base d on factors  like spee d, turb ulence, and what the  water is hitting .",
+      "tts_audio_path": "evaluation_output/tts_audio/aws_transcribe_aws_polly/listening_general_7_response.wav",
+      "stt_latency_ms": 4071.01,
+      "tts_latency_ms": 386.71,
+      "total_latency_ms": 15002.96
+    },
+    {
+      "question_id": "listening_general_8",
+      "audio_file": "evaluation_data/voiceassistant_eval_new/audio_input/listening_general_8.wav",
+      "stt_output": "What should you do if you want to join the conversation after you hear the sound.",
+      "ground_truth": "What should you do if you want to join the conversation after you hear the sound?",
+      "llm_response": "If  you hear  a  sound that  indicates  it 's your  turn to speak, just  go  ahead and start talking  naturally .  Make  sure to speak clearly and at  a normal pace so  the  system  can understand you  well ,  and try  to avoi d interru pting others  if  it 's a  group  conversation.",
+      "tts_audio_path": "evaluation_output/tts_audio/aws_transcribe_aws_polly/listening_general_8_response.wav",
+      "stt_latency_ms": 6039.3,
+      "tts_latency_ms": 481.66,
+      "total_latency_ms": 15002.49
+    },
+    {
+      "question_id": "listening_general_9",
+      "audio_file": "evaluation_data/voiceassistant_eval_new/audio_input/listening_general_9.wav",
+      "stt_output": "What is happening when you hear the sound of the fire.",
+      "ground_truth": "What is happening when you hear the sound of the fire?",
+      "llm_response": "When you hear the sound of a fire , you 're  hearing  a  combination of crac kling, po pping, and ro aring no ises cause d by several  things  happening at once. The woo d is breaking  apart an d coll apsing as  it  burns, which creates those  sharp  cr acking sounds,  while p ockets  of moisture  an d s ap  inside  the wood heat  up and suddenly  burst ,  making  the  popping no ises. The ro aring  soun d comes from the flames  themselves an d the hot  air  rapidly  rising up  from  the fire, all  of  which creates  that distinctive whooshing soun d that makes  fire so  recogn izable.",
+      "tts_audio_path": "evaluation_output/tts_audio/aws_transcribe_aws_polly/listening_general_9_response.wav",
+      "stt_latency_ms": 3803.98,
+      "tts_latency_ms": 509.6,
+      "total_latency_ms": 15003.04
+    },
+    {
+      "question_id": "listening_general_10",
+      "audio_file": "evaluation_data/voiceassistant_eval_new/audio_input/listening_general_10.wav",
+      "stt_output": "Which type of microphone technique was probably used when recording this music.",
+      "ground_truth": "Which type of microphone technique was probably used when recording this music?",
+      "llm_response": "I  appreciate  the  question, but I'm  not able  to hear  or  analyze audio files.  If  you coul d describe the  music  to  me\u2014 like  the genre, instruments  involve d, the  acoustic  environment  it  sounds  like it  was  recorded in, or any particular  qualities  you notice  about  the soun d\u2014I'd be happy to help you  figure  out what  micro phone techniques  were  likely  used.",
+      "tts_audio_path": "evaluation_output/tts_audio/aws_transcribe_aws_polly/listening_general_10_response.wav",
+      "stt_latency_ms": 5635.71,
+      "tts_latency_ms": 272.75,
+      "total_latency_ms": 15003.82
+    },
+    {
+      "question_id": "listening_general_11",
+      "audio_file": "evaluation_data/voiceassistant_eval_new/audio_input/listening_general_11.wav",
+      "stt_output": "Was the laughter a reaction to something that was said.",
+      "ground_truth": "Was the laughter a reaction to something that was said?",
+      "llm_response": "I  don't have any context  about what l aughter you 're referring to.  Could you give  me more details about the  situation you're asking about? For example ,  are you asking about l aughter from  a conversation , video ,  or event  that  happened recently?",
+      "tts_audio_path": "evaluation_output/tts_audio/aws_transcribe_aws_polly/listening_general_11_response.wav",
+      "stt_latency_ms": 5422.27,
+      "tts_latency_ms": 221.0,
+      "total_latency_ms": 15003.87
+    },
+    {
+      "question_id": "listening_general_12",
+      "audio_file": "evaluation_data/voiceassistant_eval_new/audio_input/listening_general_12.wav",
+      "stt_output": "If you wanted to use this sound in a sound installation. What kind of interactive feature could you add to make the listener's experience better.",
+      "ground_truth": "If you wanted to use this sound in a sound installation, what kind of interactive feature could you add to make the listener's experience better?",
+      "llm_response": "I'd be happy to help you think  through  interactive  features for a sound installation,  but I don 't see any  soun d file or description of  what soun d you're  referring to. Coul d you tell  me more about what the  sound is \u2014 like  whether  it's ambient ,  musical , nature -base d, or something else\u2014 an d what kin d of moo d or message  you're trying  to create ?  Once  I understan d that , I can suggest interactive  elements  like  motion  sensors that  trigger  variations ,  spatial  audio that changes as  you move through  the  space, or even visitor  input  devices  that let people  shape  the soun d in  real time .",
+      "tts_audio_path": "evaluation_output/tts_audio/aws_transcribe_aws_polly/listening_general_12_response.wav",
+      "stt_latency_ms": 10702.7,
+      "tts_latency_ms": 441.1,
+      "total_latency_ms": 15000.97
+    },
+    {
+      "question_id": "listening_general_13",
+      "audio_file": "evaluation_data/voiceassistant_eval_new/audio_input/listening_general_13.wav",
+      "stt_output": "Should people pay more attention to their surroundings when they are outside, especially because of the sounds around them.",
+      "ground_truth": "Should people pay more attention to their surroundings when they are outside, especially because of the sounds around them?",
+      "llm_response": "Absolutely,  paying  attention to your surroundings,  including  the sounds around you, is really  important for your safety  and overall  awareness .  Sounds can give  you valuable  information like  whether  a  car  is approaching, if  someone is calling  out to  you, or if there's  something  unusual  happening nearby . Being  aware of both  what  you  see  and hear  helps  you react  quickly  to  potential dangers an d makes  you a  more confident,  safer person when  you're out  and about.",
+      "tts_audio_path": "evaluation_output/tts_audio/aws_transcribe_aws_polly/listening_general_13_response.wav",
+      "stt_latency_ms": 7374.11,
+      "tts_latency_ms": 433.07,
+      "total_latency_ms": 15001.71
+    },
+    {
+      "question_id": "listening_general_14",
+      "audio_file": "evaluation_data/voiceassistant_eval_new/audio_input/listening_general_14.wav",
+      "stt_output": "What sound made by humans, can you hear before the train goes by.",
+      "ground_truth": "What sound made by humans can you hear before the train goes by?",
+      "llm_response": "The  sound you 're  hearing  is the train  horn  or  whistle that  the  engineer  bl ows as  a  warning signal before  the  train passes through ,  especially  at railroa d crossings.  This lou d, distinctive  sound alerts  people  an d vehicles  in  the area  that  a  train is approaching  so  they can move  to safety .",
+      "tts_audio_path": "evaluation_output/tts_audio/aws_transcribe_aws_polly/listening_general_14_response.wav",
+      "stt_latency_ms": 6504.87,
+      "tts_latency_ms": 720.1,
+      "total_latency_ms": 15002.57
+    },
+    {
+      "question_id": "listening_general_15",
+      "audio_file": "evaluation_data/voiceassistant_eval_new/audio_input/listening_general_15.wav",
+      "stt_output": "What should you do if a sound? makes you feel anxious or uncomfortable.",
+      "ground_truth": "What should you do if a sound makes you feel anxious or uncomfortable?",
+      "llm_response": "I 'm  not  quite  sure what you're  asking!  Your  question seems  incomplete .  Di d you mean to ask what  you  should do if you hear a sound,  or if  a  sound is both ering you,  or something else?  Feel  free to r ephrase your question an d I'll be happy to help! If a sound makes you feel anxious  or uncomfortable, the  best approach is to first  try  to identify what's  causing the reaction  an d then  remove  yourself  from that  environment  if possible.  You  could also  try cal ming techniques  like deep breathing,  listening  to music  you  enjoy, or using  e arplugs to  reduce the noise . If certain  sounds consistently  trigger  anxiety , it might be helpful  to talk  with  a healthcare provider about  strategies  to  manage soun d sensitivity  or  explore  whether there's  an  underlying condition  like  mis ophonia that coul d benefit  from treatment .",
+      "tts_audio_path": "evaluation_output/tts_audio/aws_transcribe_aws_polly/listening_general_15_response.wav",
+      "stt_latency_ms": 3029.39,
+      "tts_latency_ms": 265.02,
+      "total_latency_ms": 15004.2
+    },
+    {
+      "question_id": "listening_general_16",
+      "audio_file": "evaluation_data/voiceassistant_eval_new/audio_input/listening_general_16.wav",
+      "stt_output": "If you hear a sound while sleeping during a camping trip. What should you do first",
+      "ground_truth": "If you hear a sound while sleeping during a camping trip, what should you do first?",
+      "llm_response": "If  you hear a sound while sleeping during a  camping trip, the  first  thing to do is stay  calm and listen  carefully to  identify  what it  might  be. Most  night time sounds in  nature  come  from harm less wildlife  like raccoons, owls, or  win d moving  through trees,  so  take  a moment to assess  whether  you're actually  in  danger before  re acting.  If  it  sounds  like a large  animal or  something  genu inely concerning , quietly  wake  your camping  companions ,  stay  inside  your tent, make  yourself appear  larger, and make  noise to discou rage the  animal from approaching. The  first thing you should do is stay calm  and listen carefully to figure  out what the  sound actually  is. Most camping  sounds turn  out to be harm less wildlife or  natural  no ises like wind or  branches  moving,  so take  a moment to assess the  situation before you  panic  or   do anything dr astic.",
+      "tts_audio_path": "evaluation_output/tts_audio/aws_transcribe_aws_polly/listening_general_16_response.wav",
+      "stt_latency_ms": 6557.38,
+      "tts_latency_ms": 443.62,
+      "total_latency_ms": 15003.55
+    },
+    {
+      "question_id": "listening_general_17",
+      "audio_file": "evaluation_data/voiceassistant_eval_new/audio_input/listening_general_17.wav",
+      "stt_output": "Can you tell me what the sound in the background is.",
+      "ground_truth": "Can you tell me what the sound in the background is?",
+      "llm_response": "I  don 't have  access to any audio or soun d file  in our conversation. If  you'd like me to help identify  a  backgroun d sound, you' d need to describe  it to me in words , or let  me know what context  it 's from.  Feel  free to tell  me what you're hearing an d I'll do my best to help you  figure  out  what it might  be!",
+      "tts_audio_path": "evaluation_output/tts_audio/aws_transcribe_aws_polly/listening_general_17_response.wav",
+      "stt_latency_ms": 4204.96,
+      "tts_latency_ms": 948.34,
+      "total_latency_ms": 15001.56
+    },
+    {
+      "question_id": "listening_general_18",
+      "audio_file": "evaluation_data/voiceassistant_eval_new/audio_input/listening_general_18.wav",
+      "stt_output": "What is the best way to ask if the person needs help based on the sound without surprising them.",
+      "ground_truth": "What is the best way to ask if the person needs help, based on the sound, without surprising them?",
+      "llm_response": "The  best approach  is to use  a  calm , gentle  tone and give  them a  moment  of  warning  before offering  help. You  might  say something like \"I notice d you might  be having  trouble  with that \u2014 would you like some  help ?\"  or  simply  \"Can  I l end you  a hand?\" This way , you're acknowle dging what  you 've  observe d without being pushy,  and giving  them the  choice  to accept  or  decline,  which helps  them feel respecte d rather than start led.",
+      "tts_audio_path": "evaluation_output/tts_audio/aws_transcribe_aws_polly/listening_general_18_response.wav",
+      "stt_latency_ms": 7725.28,
+      "tts_latency_ms": 488.11,
+      "total_latency_ms": 15001.53
+    },
+    {
+      "question_id": "listening_general_19",
+      "audio_file": "evaluation_data/voiceassistant_eval_new/audio_input/listening_general_19.wav",
+      "stt_output": "Based on the sound, what should you do to help protect local wildlife.",
+      "ground_truth": "Based on the sound, what should you do to help protect local wildlife?",
+      "llm_response": "Based on the sound of  what  I 'm  hearing, I 'd nee d you  to tell  me what  specific soun d you're referring to,  since  I  can't actually  hear audio  in  our conversation. However , if  you're asking generally  about protecting wildlife  base d on environmental sounds, reducing  noise pollution is  really  important\u2014 things  like keeping  vehicle  speeds  down in  wildlife  areas , avoiding loud activities  during  breeding  seasons, and resp ecting quiet  zones  help  animals  communicate  and th rive in  their natural habitats.",
+      "tts_audio_path": "evaluation_output/tts_audio/aws_transcribe_aws_polly/listening_general_19_response.wav",
+      "stt_latency_ms": 4810.26,
+      "tts_latency_ms": 595.24,
+      "total_latency_ms": 15001.29
+    }
+  ]
+}

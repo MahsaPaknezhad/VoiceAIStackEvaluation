@@ -2,7 +2,7 @@
 
 set -e
 
-DATASET="evaluation_data/voiceassistant_eval_new/test_2samples.json"
+DATASET="evaluation_data/voiceassistant_eval_new/voiceassistant_eval_dataset.json"
 AUDIO_DIR="evaluation_data/voiceassistant_eval_new/audio_input"
 STT_CONFIG="evaluation_data/stt_bot_configs/aws_transcribe_config.json"
 TTS_CONFIG="evaluation_data/tts_bot_configs/deepgram_aura_config.json"

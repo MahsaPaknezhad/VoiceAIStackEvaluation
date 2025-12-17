@@ -2,6 +2,11 @@
 fastapi
 uvicorn
 python-dotenv
+pipecat-ai[aws,webrtc,deepgram,local-smart-turn-v3]
+pipecat-ai[riva,cartesia]
+pipecat-ai-small-webrtc-prebuilt
+pipecat-ai-whisker
+strands-agents
 soundfile
 jiwer
 datasets
@@ -9,7 +14,6 @@ librosa
 matplotlib
 pytest
 pytest-asyncio
-livekit-plugins-nvidia
 openai-whisper
 faster-whisper
 huggingface_hub

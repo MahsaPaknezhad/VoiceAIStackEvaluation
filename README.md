@@ -51,6 +51,7 @@ This project provides a complete pipeline for building, testing, and evaluating 
 ### Prerequisites
 - Python 3.8+
 - Node.js 16+
+- ffmpeg (required for audio quality metrics)
 - AWS account with Transcribe/Polly access
 - API keys for desired AI services (see `.env.example`)
 
@@ -75,6 +76,10 @@ Required keys:
 ### 2. Backend Setup
 
 ```bash
+# Install system dependencies
+sudo apt-get update
+sudo apt-get install -y ffmpeg
+
 cd server/
 
 # Create virtual environment (recommended)
@@ -83,6 +88,9 @@ source .nab_venv/bin/activate  # On Windows: .nab_venv\Scripts\activate
 
 # Install dependencies
 pip install -r requirements.txt
+
+# Fix numpy compatibility in srmrpy
+./scripts/fix_srmrpy.sh
 
 # Download Whisper models (required for local STT)
 python -c "import whisper; whisper.load_model('turbo'); whisper.load_model('large'); whisper.load_model('small')"
