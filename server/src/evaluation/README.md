@@ -50,9 +50,9 @@ This evaluation framework measures voice assistant performance across accuracy, 
 
 ## Service Combinations
 
-**Progress**: 9 of 101 combinations complete (9% coverage)
-- ✅ **Available Scripts**: 9
-- ❌ **Missing Scripts**: 92
+**Progress**: 16 of 101 combinations complete (16% coverage)
+- ✅ **Available Scripts**: 16
+- ❌ **Missing Scripts**: 85
 
 *Note: This table reflects current service configurations. Update counts when new STT/TTS service configs are added to `evaluation_data/` directories.*
 
@@ -61,6 +61,7 @@ This evaluation framework measures voice assistant performance across accuracy, 
 | **AWS Transcribe** | AWS Polly | ✅ **Available** | `test_aws_transcribe_polly.sh` |
 | AWS Transcribe | Cartesia | ✅ **Available** | `test_aws_transcribe_cartesia.sh` |
 | AWS Transcribe | Deepgram Aura | ✅ **Available** | `test_aws_transcribe_deepgram_aura.sh` |
+| AWS Transcribe | Groq | ✅ **Available** | `test_aws_transcribe_groq.sh` |
 | AWS Transcribe | ElevenLabs | ❌ **Missing** | `test_aws_transcribe_elevenlabs.sh` |
 | AWS Transcribe | LMNT | ❌ **Missing** | `test_aws_transcribe_lmnt.sh` |
 | AWS Transcribe | NVIDIA Magpie | ❌ **Missing** | `test_aws_transcribe_nvidia_magpie.sh` |
@@ -69,6 +70,7 @@ This evaluation framework measures voice assistant performance across accuracy, 
 | AWS Transcribe | PlayHT | ❌ **Missing** | `test_aws_transcribe_playht.sh` |
 | AWS Transcribe | Rime | ❌ **Missing** | `test_aws_transcribe_rime.sh` |
 | **Deepgram Nova-2** | AWS Polly | ✅ **Available** | `test_deepgram_nova2_polly.sh` |
+| Deepgram Nova-2 | Groq | ✅ **Available** | `test_deepgram_nova2_groq.sh` |
 | Deepgram Nova-2 | Cartesia | ❌ **Missing** | `test_deepgram_nova2_cartesia.sh` |
 | Deepgram Nova-2 | Deepgram Aura | ❌ **Missing** | `test_deepgram_nova2_deepgram_aura.sh` |
 | Deepgram Nova-2 | ElevenLabs | ❌ **Missing** | `test_deepgram_nova2_elevenlabs.sh` |
@@ -79,6 +81,7 @@ This evaluation framework measures voice assistant performance across accuracy, 
 | Deepgram Nova-2 | PlayHT | ❌ **Missing** | `test_deepgram_nova2_playht.sh` |
 | Deepgram Nova-2 | Rime | ❌ **Missing** | `test_deepgram_nova2_rime.sh` |
 | **Deepgram Nova-3** | AWS Polly | ✅ **Available** | `test_deepgram_nova3_polly.sh` |
+| Deepgram Nova-3 | Groq | ✅ **Available** | `test_deepgram_nova3_groq.sh` |
 | Deepgram Nova-3 | Cartesia | ❌ **Missing** | `test_deepgram_nova3_cartesia.sh` |
 | Deepgram Nova-3 | Deepgram Aura | ❌ **Missing** | `test_deepgram_nova3_deepgram_aura.sh` |
 | Deepgram Nova-3 | ElevenLabs | ❌ **Missing** | `test_deepgram_nova3_elevenlabs.sh` |
@@ -89,6 +92,7 @@ This evaluation framework measures voice assistant performance across accuracy, 
 | Deepgram Nova-3 | PlayHT | ❌ **Missing** | `test_deepgram_nova3_playht.sh` |
 | Deepgram Nova-3 | Rime | ❌ **Missing** | `test_deepgram_nova3_rime.sh` |
 | **Whisper Large** | AWS Polly | ✅ **Available** | `test_whisper_large_polly.sh` |
+| Whisper Large | Groq | ✅ **Available** | `test_whisper_large_groq.sh` |
 | Whisper Large | Cartesia | ❌ **Missing** | `test_whisper_large_cartesia.sh` |
 | Whisper Large | Deepgram Aura | ❌ **Missing** | `test_whisper_large_deepgram_aura.sh` |
 | Whisper Large | ElevenLabs | ❌ **Missing** | `test_whisper_large_elevenlabs.sh` |
@@ -99,6 +103,7 @@ This evaluation framework measures voice assistant performance across accuracy, 
 | Whisper Large | PlayHT | ❌ **Missing** | `test_whisper_large_playht.sh` |
 | Whisper Large | Rime | ❌ **Missing** | `test_whisper_large_rime.sh` |
 | **Whisper Small** | AWS Polly | ✅ **Available** | `test_whisper_small_polly.sh` |
+| Whisper Small | Groq | ✅ **Available** | `test_whisper_small_groq.sh` |
 | Whisper Small | Cartesia | ❌ **Missing** | `test_whisper_small_cartesia.sh` |
 | Whisper Small | Deepgram Aura | ❌ **Missing** | `test_whisper_small_deepgram_aura.sh` |
 | Whisper Small | ElevenLabs | ❌ **Missing** | `test_whisper_small_elevenlabs.sh` |
@@ -109,6 +114,7 @@ This evaluation framework measures voice assistant performance across accuracy, 
 | Whisper Small | PlayHT | ❌ **Missing** | `test_whisper_small_playht.sh` |
 | Whisper Small | Rime | ❌ **Missing** | `test_whisper_small_rime.sh` |
 | **Whisper Turbo** | AWS Polly | ✅ **Available** | `test_whisper_turbo_polly.sh` |
+| Whisper Turbo | Groq | ✅ **Available** | `test_whisper_turbo_groq.sh` |
 | Whisper Turbo | Cartesia | ❌ **Missing** | `test_whisper_turbo_cartesia.sh` |
 | Whisper Turbo | Deepgram Aura | ❌ **Missing** | `test_whisper_turbo_deepgram_aura.sh` |
 | Whisper Turbo | ElevenLabs | ❌ **Missing** | `test_whisper_turbo_elevenlabs.sh` |
@@ -123,6 +129,7 @@ This evaluation framework measures voice assistant performance across accuracy, 
 | NVIDIA Parakeet | Deepgram Aura | ❌ **Missing** | `test_nvidia_parakeet_deepgram_aura.sh` |
 | NVIDIA Parakeet | ElevenLabs | ❌ **Missing** | `test_nvidia_parakeet_elevenlabs.sh` |
 | NVIDIA Parakeet | LMNT | ❌ **Missing** | `test_nvidia_parakeet_lmnt.sh` |
+| NVIDIA Parakeet | Groq | ✅ **Available** | `test_nvidia_parakeet_groq.sh` |
 | NVIDIA Parakeet | NVIDIA Magpie | ✅ **Available** | `test_nvidia_parakeet_nvidia_magpie.sh` |
 | NVIDIA Parakeet | NVIDIA Riva TTS | ❌ **Missing** | `test_nvidia_parakeet_nvidia_riva_tts.sh` |
 | NVIDIA Parakeet | OpenAI TTS | ❌ **Missing** | `test_nvidia_parakeet_openai_tts.sh` |
@@ -152,8 +159,8 @@ This evaluation framework measures voice assistant performance across accuracy, 
 
 ### Summary
 - **Total Possible Combinations**: 101
-- **Available Scripts**: 9 (9%)
-- **Missing Scripts**: 92 (91%)
+- **Available Scripts**: 16 (16%)
+- **Missing Scripts**: 85 (84%)
 
 **Available STT Services**: 6 (AWS Transcribe, Deepgram Nova-2/3, Whisper Large/Small/Turbo, NVIDIA Parakeet, AssemblyAI, Gladia)
 **Available TTS Services**: 11 (AWS Polly, Cartesia, Deepgram Aura, ElevenLabs, LMNT, NVIDIA Magpie, NVIDIA Riva TTS, OpenAI TTS/HD, PlayHT, Rime)
