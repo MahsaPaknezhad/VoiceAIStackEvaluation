@@ -7,7 +7,7 @@ and text outputs during the voice assistant pipeline execution.
 import time
 from typing import Optional, List
 from pipecat.processors.frame_processor import FrameProcessor
-from pipecat.frames.frames import AudioRawFrame, TranscriptionFrame, TextFrame, TTSAudioRawFrame
+from pipecat.frames.frames import AudioRawFrame, TranscriptionFrame, TextFrame, TTSAudioRawFrame, LLMFullResponseStartFrame
 
 
 class TimingCollector:
@@ -153,12 +153,35 @@ class LLMCollector(FrameProcessor):
         """Process frame and collect LLM output."""
         await super().process_frame(frame, direction)
         
-        if isinstance(frame, TextFrame):
-            # Mark TTS start time when LLM begins outputting text
-            if self.timing_collector.tts_start_time is None:
-                self.timing_collector.tts_start_time = time.time()
+        if isinstance(frame, LLMFullResponseStartFrame):
+            # New LLM response starting - keep collecting (don't clear for post-processing)
+            print(f"DEBUG: LLMCollector - New LLM response starting (keeping previous {len(self.text_collector)} fragments for post-processing)")
+            await self.push_frame(frame, direction)
             
-            # Collect LLM response text for evaluation
-            self.text_collector.append(frame.text)
+        elif isinstance(frame, TextFrame):
+            # Filter out invalid text but allow important sentence starters
+            import re
+            if not frame.text:
+                return
             
-        await self.push_frame(frame, direction)
+            # Allow common sentence starters and words with letters
+            text = frame.text.strip()
+            important_words = ['I', 'A', 'The', 'This', 'That', 'You', 'We', 'It', 'He', 'She']
+            
+            # Skip only pure punctuation or very short non-word fragments
+            if (any(c.isalnum() for c in text) or 
+                text in important_words or 
+                len(re.sub(r'[^\w\s]', '', text).strip()) >= 1):
+                
+                # Mark TTS start time when LLM begins outputting text
+                if self.timing_collector.tts_start_time is None:
+                    self.timing_collector.tts_start_time = time.time()
+                
+                # Collect LLM response text for evaluation
+                self.text_collector.append(frame.text)
+                print(f"DEBUG: LLMCollector - Collected text fragment: '{frame.text}' (total fragments: {len(self.text_collector)})")
+                
+                await self.push_frame(frame, direction)
+            # Skip only pure punctuation frames
+        else:
+            await self.push_frame(frame, direction)

@@ -1,0 +1,121 @@
+{
+  "timestamp": "2025-12-17T06:13:31.338046",
+  "dataset": "evaluation_data/voiceassistant_eval_new/test_2samples.json",
+  "total_questions": 2,
+  "evaluations": [
+    {
+      "question_id": "listening_general_0",
+      "category": "general",
+      "ground_truth": "Does the music sound more like something from today, or does it sound like it is from the past?",
+      "stt_output": "Does the music sound more like something from today. or does it sound like it is from the past.",
+      "wer": 10.526315789473683,
+      "llm_response": "I still can't hear any music in our conversation, so I'm unable to tell you whether it sounds modern or from the past. If you're listening to a song right now, you could describe what it sounds like to melike whether it has electronic production, acoustic instruments, a certain vocal style, or anything else distinctiveand I can help you figure out if it seems contemporary or retro!",
+      "judge_scores": {
+        "correctness": 10,
+        "relevance": 10,
+        "completeness": 9,
+        "clarity": 10,
+        "overall": 9.75,
+        "reasoning": "The assistant correctly identifies that no audio was provided in the conversation and appropriately explains this limitation. The response is highly relevant, directly addressing why it cannot answer the question. It's clear and well-explained, offering a helpful workaround by inviting the user to describe the music instead. The only minor incompleteness is that it could have briefly mentioned some general characteristics that distinguish modern vs. past music (e.g., production quality, instrumentation types) to make the alternative solution even more actionable, but this is a very minor point."
+      },
+      "stt_latency_ms": 4388.36,
+      "tts_latency_ms": 378.56,
+      "total_latency_ms": 15001.29,
+      "voice_quality": {
+        "fluency": {
+          "score": 8.76,
+          "speaking_rate_sps": 4.46,
+          "silence_ratio": 0.2,
+          "energy_consistency": 0.9430000185966492
+        },
+        "naturalness": {
+          "score": 8.89,
+          "pitch_mean_hz": 176.7,
+          "pitch_std_hz": 65.2,
+          "pitch_range_hz": 350.0,
+          "pitch_variation": 0.369,
+          "spectral_centroid_hz": 1903.9
+        },
+        "tone": {
+          "score": 2.97,
+          "clarity": 23.65,
+          "smoothness": 0.044,
+          "hnr_db": 1.159999966621399
+        },
+        "overall_quality": 6.873333333333332,
+        "llm_fluency": 7,
+        "llm_naturalness": 6,
+        "llm_tone": 7,
+        "llm_overall": 6,
+        "llm_reasoning": "The speech demonstrates moderate fluency with a speaking rate of 4.5 syllables/second (slightly faster than conversational normal of ~4 syl/s), suggesting engaged delivery. However, naturalness is limited by low energy variation (0.061), indicating relatively monotone prosody without much emotional dynamics. The pitch at 176.7 Hz is appropriate for voice synthesis output but lacks the natural variation of human speech. Tone quality appears decent with acceptable clarity, but the combination of limited prosodic variation and synthetic characteristics prevents a higher rating. The overall impression is competent but noticeably non-human, typical of AI-generated speech without advanced emotional modeling."
+      }
+    },
+    {
+      "question_id": "listening_general_1",
+      "category": "general",
+      "ground_truth": "Which bowing technique is the fiddler probably using to create the rhythmic melody in the music?",
+      "stt_output": "Which bowing technique is the fiddler probably using to create create the rhythmic melody in the music.",
+      "wer": 12.5,
+      "llm_response": "I'd be happy to help you learn about bowing techniques! However, I need a bit more information Are you asking about bowing techniques for a stringed instrument like violin or cello, or are you interested in bowing as a form of greeting or respect in different cultures?It looks like your question got cut off! Could you finish asking me about which bowing technique you're wondering about? I'm ready to help once I know what you'd like to know",
+      "judge_scores": {
+        "correctness": 5,
+        "relevance": 3,
+        "completeness": 4,
+        "clarity": 6,
+        "overall": 4.5,
+        "reasoning": "The assistant's response has significant issues. While it correctly identifies that no audio is available to analyze, it fails to directly address this fundamental limitation upfront. Instead, it asks clarifying questions about what the user means by 'bowing' (stringed instrument vs. cultural greeting), which is a misguided tangent since the user clearly asked about a fiddler\u2014making the context obvious. The response also claims the question was 'cut off' when it wasn't. The assistant should have clearly stated it cannot hear the music and therefore cannot identify the specific bowing technique being used, then offered to help if the user describes what they hear. The response is somewhat confusing and doesn't efficiently address the core issue (no audio access), making it less helpful than needed."
+      },
+      "stt_latency_ms": 2935.03,
+      "tts_latency_ms": 445.6,
+      "total_latency_ms": 15001.3,
+      "voice_quality": {
+        "fluency": {
+          "score": 9.07,
+          "speaking_rate_sps": 3.91,
+          "silence_ratio": 0.2,
+          "energy_consistency": 0.9449999928474426
+        },
+        "naturalness": {
+          "score": 8.54,
+          "pitch_mean_hz": 195.2,
+          "pitch_std_hz": 63.5,
+          "pitch_range_hz": 315.7,
+          "pitch_variation": 0.325,
+          "spectral_centroid_hz": 1700.4
+        },
+        "tone": {
+          "score": 3.22,
+          "clarity": 24.74,
+          "smoothness": 0.062,
+          "hnr_db": 1.5700000524520874
+        },
+        "overall_quality": 6.9433333333333325,
+        "llm_fluency": 6,
+        "llm_naturalness": 5,
+        "llm_tone": 6,
+        "llm_overall": 5,
+        "llm_reasoning": "The speech exhibits moderate fluency but with notable issues. The speaking rate of 3.9 syllables/second is slightly slower than natural conversation, and the transcript shows missing punctuation/pauses (e.g., 'information Are you' and 'cultures?It looks'), suggesting awkward transitions and poor phrasing. Energy variation is very low (0.058), indicating flat, monotonous delivery with minimal emotional inflection. The higher pitch of 195.2 Hz combined with limited prosodic variety creates a somewhat strained, synthetic quality. While the tone is generally clear and pleasant, the lack of natural stress patterns, emotional variation, and the apparent concatenation issues significantly detract from listenability. The overall impression is of competent but stilted, robotic speech lacking human naturalness."
+      }
+    }
+  ],
+  "summary": {
+    "average_wer": 11.513157894736842,
+    "average_overall_score": 7.125,
+    "average_stt_latency_ms": 3661.6949999999997,
+    "average_tts_latency_ms": 412.08000000000004,
+    "average_total_latency_ms": 15001.295,
+    "by_category": {
+      "general": {
+        "count": 2,
+        "avg_wer": 11.513157894736842,
+        "avg_score": 7.125,
+        "avg_stt_latency_ms": 3661.6949999999997,
+        "avg_tts_latency_ms": 412.08000000000004
+      }
+    }
+  },
+  "stt_model": "AWS Transcribe",
+  "stt_service_id": "aws_transcribe",
+  "tts_model": "Groq",
+  "tts_service_id": "groq"
+}

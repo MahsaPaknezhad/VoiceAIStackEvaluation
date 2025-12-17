@@ -1,0 +1,11 @@
+{
+  "tts_service_id": "groq",
+  "tts_service_name": "Groq",
+  "module": "pipecat.services.groq.tts",
+  "class": "GroqTTSService",
+  "config": {
+    "model_name": "playai-tts",
+    "voice_id": "Arista-PlayAI"
+  },
+  "instructions": "\n# Configuration for Groq\n\nTo use this TTS service in bot.py, replace the TTS initialization with:\n\nfrom pipecat.services.groq.tts import GroqTTSService\n\ntts = GroqTTSService(\n    api_key=os.getenv(\"GROQ_API_KEY\"),\n    **{\n    \"voice\": \"alloy\"\n}\n)\n\n# Available voices: ['alloy', 'echo', 'fable', 'onyx', 'nova', 'shimmer']\n"
+}

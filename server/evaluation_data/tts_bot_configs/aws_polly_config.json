@@ -5,7 +5,8 @@
   "class": "AWSPollyTTSService",
   "config": {
     "voice_id": "Joanna",
-    "engine": "neural"
+    "engine": "neural",
+    "region": "${AWS_REGION}"
   },
   "available_voices": [
     "Joanna",

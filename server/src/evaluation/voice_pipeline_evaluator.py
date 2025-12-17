@@ -69,7 +69,11 @@ class VoiceAssistantRunner:
         """Load service config from JSON file"""
         with open(config_path, 'r', encoding='utf-8') as f:
             logger.info(f'Loading in config {config_path}')
-            json_file = json.load(f)
+            content = f.read()
+            # Replace environment variables
+            import re
+            content = re.sub(r'\$\{([^}]+)\}', lambda m: os.getenv(m.group(1), m.group(0)), content)
+            json_file = json.loads(content)
             return json_file
     
     def _create_stt_service(self):
@@ -154,6 +158,8 @@ class VoiceAssistantRunner:
             api_key = os.getenv("PLAYHT_API_KEY")
         elif "rime" in module_name:
             api_key = os.getenv("RIME_API_KEY")
+        elif "groq" in module_name:
+            api_key = os.getenv("GROQ_API_KEY")
         
         logger.info(f"Using API key: {'***' if api_key else 'None'}")
         
@@ -161,6 +167,9 @@ class VoiceAssistantRunner:
             if "livekit" in module_name:
                 from src.core.livekit_tts_adapter import LiveKitTTSAdapter
                 return LiveKitTTSAdapter(**config)
+            elif "aws" in module_name:
+                return service_class(**config)
+
             elif api_key:
                 return service_class(api_key=api_key, **config)
             else:
@@ -173,6 +182,58 @@ class VoiceAssistantRunner:
         """Load the evaluation dataset"""
         with open(self.dataset_path, 'r') as f:
             return json.load(f)
+    
+    def _extract_final_response(self, full_text: str) -> str:
+        """Extract the final/most complete response from concatenated LLM outputs.
+        
+        Strategy: Split on common response patterns and take the last complete response.
+        """
+        if not full_text:
+            return ""
+        
+        # Common patterns that indicate start of new responses
+        response_starters = [
+            "I notice your question",
+            "I'd be happy to help", 
+            "I'm not quite sure",
+            "I see your question",
+            "I'm still not",
+            "I'm getting closer",
+            "I appreciate",
+            "I still can't",
+            "I'm not able"
+        ]
+        
+        # Find all potential response boundaries
+        boundaries = [0]  # Start of text
+        for starter in response_starters:
+            pos = 0
+            while True:
+                pos = full_text.find(starter, pos)
+                if pos == -1:
+                    break
+                boundaries.append(pos)
+                pos += 1
+        
+        # Sort boundaries and split text
+        boundaries = sorted(set(boundaries))
+        responses = []
+        
+        for i in range(len(boundaries)):
+            start = boundaries[i]
+            end = boundaries[i + 1] if i + 1 < len(boundaries) else len(full_text)
+            response = full_text[start:end].strip()
+            if response:
+                responses.append(response)
+        
+        if not responses:
+            return full_text.strip()
+        
+        # Return the longest response (most complete)
+        final_response = max(responses, key=len)
+        print(f"DEBUG: Found {len(responses)} responses, selected longest ({len(final_response)} chars)")
+        
+        return final_response
     
     async def process_audio_file(self, audio_path: str, question_id: str) -> Dict:
         """
@@ -238,7 +299,7 @@ class VoiceAssistantRunner:
         
         # Setup context with timeout from config if specified
         context = AWSBedrockLLMContext()
-        aggregation_timeout = self.stt_config.get("aggregation_timeout", 3.0) if self.stt_config else 3.0
+        aggregation_timeout = self.stt_config.get("aggregation_timeout", 6.0) if self.stt_config else 6.0
         from pipecat.processors.aggregators.llm_response import LLMUserAggregatorParams
         user_params = LLMUserAggregatorParams(aggregation_timeout=aggregation_timeout)
         tma_in = LLMUserContextAggregator(context=context, params=user_params)
@@ -256,7 +317,7 @@ class VoiceAssistantRunner:
         llm_collector = LLMCollector(timing_collector, llm_texts)
         logger.info('Successfully completed video frame processing')
         
-        # Build pipeline: STT -> context -> LLM -> context -> TTS
+        # Build pipeline: STT -> context -> LLM -> collector -> TTS
         pipeline = Pipeline([
             transport.input(),
             stt_timing_start,
@@ -265,7 +326,6 @@ class VoiceAssistantRunner:
             tma_in,
             llm,
             llm_collector,
-            #tma_out,
             tts,
             tts_timing_end,
             transport.output()
@@ -292,8 +352,8 @@ class VoiceAssistantRunner:
         runner = PipelineRunner()
         run_task = asyncio.create_task(runner.run(task))
         
-        # Wait for processing - use config-driven timeout (default 15s)
-        pipeline_timeout = self.stt_config.get("pipeline_timeout", 15.0) if self.stt_config else 15.0
+        # Wait for processing - use config-driven timeout (default 25s for longer responses)
+        pipeline_timeout = self.stt_config.get("pipeline_timeout", 25.0) if self.stt_config else 25.0
         await asyncio.sleep(pipeline_timeout)
         
         # Force TTS disconnect if configured
@@ -320,7 +380,14 @@ class VoiceAssistantRunner:
         
         # Collect results
         stt_output = " ".join(stt_texts)
-        llm_response = " ".join(llm_texts)
+        
+        # Post-process LLM responses: use only the final/most complete response
+        full_llm_text = "".join(llm_texts)
+        llm_response = self._extract_final_response(full_llm_text)
+        
+        print(f"DEBUG: Full LLM text length: {len(full_llm_text)}")
+        print(f"DEBUG: Final response length: {len(llm_response)}")
+        print(f"DEBUG: Final response: {llm_response[:200]}...")
         
         # Save TTS audio from transport
         tts_audio_path = None

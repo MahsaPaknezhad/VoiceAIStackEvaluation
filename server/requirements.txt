@@ -1,7 +1,7 @@
 fastapi
 uvicorn
 python-dotenv
-pipecat-ai[aws,webrtc,deepgram,local-smart-turn-v3,nvidia,cartesia]
+pipecat-ai[aws,webrtc,deepgram,local-smart-turn-v3,nvidia,cartesia,groq]
 pipecat-ai-small-webrtc-prebuilt
 pipecat-ai-whisker
 strands-agents

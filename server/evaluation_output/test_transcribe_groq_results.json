@@ -1,0 +1,30 @@
+{
+  "stt_model": "AWS Transcribe",
+  "stt_service_id": "aws_transcribe",
+  "tts_model": "Groq",
+  "tts_service_id": "groq",
+  "results": [
+    {
+      "question_id": "listening_general_0",
+      "audio_file": "evaluation_data/voiceassistant_eval_new/audio_input/listening_general_0.wav",
+      "stt_output": "Does the music sound more like something from today. or does it sound like it is from the past.",
+      "ground_truth": "Does the music sound more like something from today, or does it sound like it is from the past?",
+      "llm_response": "I still can't hear any music in our conversation, so I'm unable to tell you whether it sounds modern or from the past. If you're listening to a song right now, you could describe what it sounds like to melike whether it has electronic production, acoustic instruments, a certain vocal style, or anything else distinctiveand I can help you figure out if it seems contemporary or retro!",
+      "tts_audio_path": "evaluation_output/tts_audio/aws_transcribe_groq/listening_general_0_response.wav",
+      "stt_latency_ms": 4388.36,
+      "tts_latency_ms": 378.56,
+      "total_latency_ms": 15001.29
+    },
+    {
+      "question_id": "listening_general_1",
+      "audio_file": "evaluation_data/voiceassistant_eval_new/audio_input/listening_general_1.wav",
+      "stt_output": "Which bowing technique is the fiddler probably using to create create the rhythmic melody in the music.",
+      "ground_truth": "Which bowing technique is the fiddler probably using to create the rhythmic melody in the music?",
+      "llm_response": "I'd be happy to help you learn about bowing techniques! However, I need a bit more information Are you asking about bowing techniques for a stringed instrument like violin or cello, or are you interested in bowing as a form of greeting or respect in different cultures?It looks like your question got cut off! Could you finish asking me about which bowing technique you're wondering about? I'm ready to help once I know what you'd like to know",
+      "tts_audio_path": "evaluation_output/tts_audio/aws_transcribe_groq/listening_general_1_response.wav",
+      "stt_latency_ms": 2935.03,
+      "tts_latency_ms": 445.6,
+      "total_latency_ms": 15001.3
+    }
+  ]
+}
