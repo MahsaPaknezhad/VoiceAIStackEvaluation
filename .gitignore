@@ -1,7 +1,7 @@
 # Created by https://www.toptal.com/developers/gitignore/api/python,visualstudiocode,macos
 # Edit at https://www.toptal.com/developers/gitignore?templates=python,visualstudiocode,macos
+### IGNORE MODEL FILES ###
 
-### model ###
 server/models/*
 
 ### macOS ###

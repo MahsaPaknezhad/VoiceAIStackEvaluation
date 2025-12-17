@@ -50,7 +50,7 @@ def load_evaluation_results(results_dir: str) -> List[Dict]:
                     for part in parts:
                         if part in ['deepgram', 'openai', 'groq', 'elevenlabs', 'speechmatics', 
                                     'assemblyai', 'gladia', 'cartesia', 'fish', 'lmnt', 'playht', 
-                                    'rime', 'nvidia', 'riva', 'aura', 'tts', 'polly', 'audio', 'aws', 'transcribe']:
+                                    'rime', 'nvidia', 'riva', 'aura', 'tts', 'polly', 'audio', 'aws', 'transcribe', 'magpie']:
                             if not found_tts and len(stt_parts) > 0:
                                 found_tts = True
                             if found_tts:
@@ -150,8 +150,12 @@ def extract_metrics(results: List[Dict]) -> Tuple[Dict, Dict, Dict]:
             quality_metrics[tts_model] = {
                 'fluency': [], 'tone': [], 'naturalness': [],
                 'llm_fluency': [], 'llm_tone': [], 'llm_naturalness': [],
+                'mos': [], 'noisiness': [], 'coloration': [], 'discontinuity': [], 'loudness': [],
+                'mosnet_score': [], 'srmr_score': [],
                 'fluency_std': [], 'tone_std': [], 'naturalness_std': [],
-                'llm_fluency_std': [], 'llm_tone_std': [], 'llm_naturalness_std': []
+                'llm_fluency_std': [], 'llm_tone_std': [], 'llm_naturalness_std': [],
+                'mos_std': [], 'noisiness_std': [], 'coloration_std': [], 'discontinuity_std': [], 'loudness_std': [],
+                'mosnet_score_std': [], 'srmr_score_std': []
             }
         
         if fluency:
@@ -172,6 +176,56 @@ def extract_metrics(results: List[Dict]) -> Tuple[Dict, Dict, Dict]:
         if llm_naturalness:
             quality_metrics[tts_model]['llm_naturalness'].append(np.mean(llm_naturalness))
             quality_metrics[tts_model]['llm_naturalness_std'].append(np.std(llm_naturalness))
+        
+        # NISQA metrics
+        mos_scores = []
+        noisiness_scores = []
+        coloration_scores = []
+        discontinuity_scores = []
+        loudness_scores = []
+        
+        # SpeechMetrics
+        mosnet_scores = []
+        srmr_scores = []
+        
+        for eval_item in result.get('evaluations', []):
+            voice_quality = eval_item.get('voice_quality', {})
+            if voice_quality.get('mos') is not None:
+                mos_scores.append(voice_quality['mos'])
+            if voice_quality.get('noisiness') is not None:
+                noisiness_scores.append(voice_quality['noisiness'])
+            if voice_quality.get('coloration') is not None:
+                coloration_scores.append(voice_quality['coloration'])
+            if voice_quality.get('discontinuity') is not None:
+                discontinuity_scores.append(voice_quality['discontinuity'])
+            if voice_quality.get('loudness') is not None:
+                loudness_scores.append(voice_quality['loudness'])
+            if voice_quality.get('mosnet_score') is not None:
+                mosnet_scores.append(voice_quality['mosnet_score'])
+            if voice_quality.get('srmr_score') is not None:
+                srmr_scores.append(voice_quality['srmr_score'])
+        
+        if mos_scores:
+            quality_metrics[tts_model]['mos'].append(np.mean(mos_scores))
+            quality_metrics[tts_model]['mos_std'].append(np.std(mos_scores))
+        if noisiness_scores:
+            quality_metrics[tts_model]['noisiness'].append(np.mean(noisiness_scores))
+            quality_metrics[tts_model]['noisiness_std'].append(np.std(noisiness_scores))
+        if coloration_scores:
+            quality_metrics[tts_model]['coloration'].append(np.mean(coloration_scores))
+            quality_metrics[tts_model]['coloration_std'].append(np.std(coloration_scores))
+        if discontinuity_scores:
+            quality_metrics[tts_model]['discontinuity'].append(np.mean(discontinuity_scores))
+            quality_metrics[tts_model]['discontinuity_std'].append(np.std(discontinuity_scores))
+        if loudness_scores:
+            quality_metrics[tts_model]['loudness'].append(np.mean(loudness_scores))
+            quality_metrics[tts_model]['loudness_std'].append(np.std(loudness_scores))
+        if mosnet_scores:
+            quality_metrics[tts_model]['mosnet_score'].append(np.mean(mosnet_scores))
+            quality_metrics[tts_model]['mosnet_score_std'].append(np.std(mosnet_scores))
+        if srmr_scores:
+            quality_metrics[tts_model]['srmr_score'].append(np.mean(srmr_scores))
+            quality_metrics[tts_model]['srmr_score_std'].append(np.std(srmr_scores))
     
     # Aggregate
     for model in stt_metrics:
@@ -198,12 +252,26 @@ def extract_metrics(results: List[Dict]) -> Tuple[Dict, Dict, Dict]:
             'llm_fluency': np.mean(quality_metrics[model]['llm_fluency']) if quality_metrics[model]['llm_fluency'] else None,
             'llm_tone': np.mean(quality_metrics[model]['llm_tone']) if quality_metrics[model]['llm_tone'] else None,
             'llm_naturalness': np.mean(quality_metrics[model]['llm_naturalness']) if quality_metrics[model]['llm_naturalness'] else None,
+            'mos': np.mean(quality_metrics[model]['mos']) if quality_metrics[model]['mos'] else None,
+            'noisiness': np.mean(quality_metrics[model]['noisiness']) if quality_metrics[model]['noisiness'] else None,
+            'coloration': np.mean(quality_metrics[model]['coloration']) if quality_metrics[model]['coloration'] else None,
+            'discontinuity': np.mean(quality_metrics[model]['discontinuity']) if quality_metrics[model]['discontinuity'] else None,
+            'loudness': np.mean(quality_metrics[model]['loudness']) if quality_metrics[model]['loudness'] else None,
+            'mosnet_score': np.mean(quality_metrics[model]['mosnet_score']) if quality_metrics[model]['mosnet_score'] else None,
+            'srmr_score': np.mean(quality_metrics[model]['srmr_score']) if quality_metrics[model]['srmr_score'] else None,
             'fluency_std': np.mean(quality_metrics[model]['fluency_std']) if quality_metrics[model]['fluency_std'] else 0,
             'tone_std': np.mean(quality_metrics[model]['tone_std']) if quality_metrics[model]['tone_std'] else 0,
             'naturalness_std': np.mean(quality_metrics[model]['naturalness_std']) if quality_metrics[model]['naturalness_std'] else 0,
             'llm_fluency_std': np.mean(quality_metrics[model]['llm_fluency_std']) if quality_metrics[model]['llm_fluency_std'] else 0,
             'llm_tone_std': np.mean(quality_metrics[model]['llm_tone_std']) if quality_metrics[model]['llm_tone_std'] else 0,
-            'llm_naturalness_std': np.mean(quality_metrics[model]['llm_naturalness_std']) if quality_metrics[model]['llm_naturalness_std'] else 0
+            'llm_naturalness_std': np.mean(quality_metrics[model]['llm_naturalness_std']) if quality_metrics[model]['llm_naturalness_std'] else 0,
+            'mos_std': np.mean(quality_metrics[model]['mos_std']) if quality_metrics[model]['mos_std'] else 0,
+            'noisiness_std': np.mean(quality_metrics[model]['noisiness_std']) if quality_metrics[model]['noisiness_std'] else 0,
+            'coloration_std': np.mean(quality_metrics[model]['coloration_std']) if quality_metrics[model]['coloration_std'] else 0,
+            'discontinuity_std': np.mean(quality_metrics[model]['discontinuity_std']) if quality_metrics[model]['discontinuity_std'] else 0,
+            'loudness_std': np.mean(quality_metrics[model]['loudness_std']) if quality_metrics[model]['loudness_std'] else 0,
+            'mosnet_score_std': np.mean(quality_metrics[model]['mosnet_score_std']) if quality_metrics[model]['mosnet_score_std'] else 0,
+            'srmr_score_std': np.mean(quality_metrics[model]['srmr_score_std']) if quality_metrics[model]['srmr_score_std'] else 0
         }
     
     return stt_metrics, tts_metrics, quality_metrics
@@ -230,8 +298,7 @@ def confidence_ellipse(x, y, ax, n_std=1.0, facecolor='none', **kwargs):
 
 def plot_stt_metrics(stt_metrics: Dict, output_path: str):
     """Scientific plot of STT performance."""
-    filtered = {k: v for k, v in stt_metrics.items() 
-                if 'aws' in k.lower() or 'deepgram' in k.lower()}
+    filtered = stt_metrics
     
     if not filtered:
         return
@@ -241,13 +308,22 @@ def plot_stt_metrics(stt_metrics: Dict, output_path: str):
     # Define colors and markers
     provider_styles = {
         'aws': {'color': '#232F3E', 'marker': 'o', 'label': 'AWS Transcribe'},
-        'deepgram': {'color': '#00A67E', 'marker': 's', 'label': 'Deepgram'}
+        'deepgram': {'color': '#00A67E', 'marker': 's', 'label': 'Deepgram'},
+        'whisper': {'color': '#FF6B35', 'marker': '^', 'label': 'Whisper'}
     }
     
     plotted_providers = set()
     
     for model, metrics in filtered.items():
-        provider = 'aws' if 'aws' in model.lower() else 'deepgram'
+        if 'whisper' in model.lower():
+            provider = 'whisper'
+        elif 'aws' in model.lower() or 'transcribe' in model.lower():
+            provider = 'aws'
+        elif 'deepgram' in model.lower():
+            provider = 'deepgram'
+        else:
+            provider = 'aws'
+        
         style = provider_styles[provider]
         
         x = metrics['latency']
@@ -301,25 +377,28 @@ def plot_tts_metrics(tts_metrics: Dict, output_path: str):
     
     fig, ax = plt.subplots(figsize=(10, 7))
     
-    # Color palette
-    colors = plt.cm.tab10(np.linspace(0, 1, len(tts_metrics)))
+    # Use tab10 colormap for consistency
+    models = sorted(tts_metrics.items())
+    colors = plt.cm.tab10(np.linspace(0, 1, len(models)))
     markers = ['o', 's', '^', 'D', 'v', '<', '>', 'p', '*', 'h']
     
-    for i, (model, metrics) in enumerate(sorted(tts_metrics.items())):
+    for i, (model, metrics) in enumerate(models):
         x = metrics['latency']
         y = metrics['score']
         x_std = metrics['latency_std']
         y_std = metrics['score_std']
         
+        color = colors[i]
+        marker = markers[i % len(markers)]
+        
         # Smaller error ellipse
         ellipse = Ellipse((x, y), width=x_std*1.2, height=y_std*1.2,
-                         facecolor=colors[i], alpha=0.1,
-                         edgecolor=colors[i], linewidth=1.5, linestyle='--')
+                         facecolor=color, alpha=0.1,
+                         edgecolor=color, linewidth=1.5, linestyle='--')
         ax.add_patch(ellipse)
         
         # Data point
-        marker = markers[i % len(markers)]
-        ax.scatter(x, y, s=150, marker=marker, color=colors[i],
+        ax.scatter(x, y, s=150, marker=marker, color=color,
                   edgecolors='white', linewidth=2, label=model,
                   zorder=3, alpha=0.9)
         
@@ -349,7 +428,7 @@ def plot_tts_metrics(tts_metrics: Dict, output_path: str):
     plt.close()
 
 def plot_quality_metrics(quality_metrics: Dict, output_dir: str):
-    """Plot quality metrics: fluency, tone, naturalness and LLM variants."""
+    """Plot quality metrics: fluency, tone, naturalness, LLM variants."""
     metrics_to_plot = [
         ('fluency', 'Fluency', 'Acoustic Analysis'),
         ('tone', 'Tone', 'Acoustic Analysis'),
@@ -365,7 +444,10 @@ def plot_quality_metrics(quality_metrics: Dict, output_dir: str):
         'deepgram_aura': '#17becf',
         'elevenlabs': '#9467bd',
         'cartesia': '#ff7f0e',
-        'openai': '#2ca02c'
+        'openai': '#2ca02c',
+        'nvidia_riva': '#76b900',
+        'nvidia': '#76b900',
+        'riva': '#76b900'
     }
     
     for metric_key, metric_label, method in metrics_to_plot:
@@ -380,9 +462,14 @@ def plot_quality_metrics(quality_metrics: Dict, output_dir: str):
         stds = [filtered[m].get(f'{metric_key}_std', 0) for m in models]
         
         # Assign distinct colors per service
-        colors = [provider_colors.get(m, provider_colors.get(m.split('_')[0] + '_' + m.split('_')[-1], '#7f7f7f')) for m in models]
+        colors = []
+        for m in models:
+            if 'nvidia' in m.lower() or 'riva' in m.lower():
+                colors.append(provider_colors['nvidia_riva'])
+            else:
+                colors.append(provider_colors.get(m, provider_colors.get(m.split('_')[0] + '_' + m.split('_')[-1], '#7f7f7f')))
         
-        bars = ax.barh(models, values, xerr=stds, color=colors, alpha=0.2, 
+        bars = ax.barh(models, values, xerr=stds, color=colors, alpha=0.3, 
                       edgecolor='white', linewidth=2.5, capsize=6, 
                       error_kw={'ecolor': '#333333', 'elinewidth': 2})
         
@@ -407,17 +494,76 @@ def plot_quality_metrics(quality_metrics: Dict, output_dir: str):
         print(f"Saved: {output_dir}/{filename}")
         plt.close()
 
+def plot_metric_comparison(data: Dict, metric_key: str, title: str, xlabel: str, output_path: str, xlim=None):
+    """Generic bar chart comparing models on a single metric."""
+    filtered = {k: v for k, v in data.items() if v.get(metric_key) is not None}
+    if not filtered:
+        return
+    
+    fig, ax = plt.subplots(figsize=(10, max(7, len(filtered) * 0.4)))
+    
+    models = sorted(filtered.keys())
+    values = [filtered[m][metric_key] for m in models]
+    stds = [filtered[m].get(f'{metric_key}_std', 0) for m in models]
+    
+    # Check if this is STT data based on title
+    if 'STT' in title:
+        # STT-specific colors matching stt_latency_vs_wer.png
+        stt_colors = {
+            'aws': '#232F3E',
+            'deepgram': '#00A67E', 
+            'whisper': '#FF6B35'
+        }
+        
+        colors = []
+        for model in models:
+            if 'whisper' in model.lower():
+                colors.append(stt_colors['whisper'])
+            elif 'aws' in model.lower() or 'transcribe' in model.lower():
+                colors.append(stt_colors['aws'])
+            elif 'deepgram' in model.lower():
+                colors.append(stt_colors['deepgram'])
+            else:
+                colors.append('#7f7f7f')
+    else:
+        # Use tab10 colormap for TTS models
+        colors = plt.cm.tab10(np.linspace(0, 1, len(models)))
+    
+    bars = ax.barh(models, values, xerr=stds, color=colors, alpha=0.3, 
+                  edgecolor='white', linewidth=2, capsize=5,
+                  error_kw={'ecolor': '#333333', 'elinewidth': 1.5})
+    
+    ax.set_xlabel(xlabel, fontweight='normal', fontsize=13)
+    ax.set_ylabel('Model', fontweight='normal', fontsize=13)
+    ax.set_title(title, fontweight='bold', pad=15, fontsize=14)
+    if xlim:
+        ax.set_xlim(xlim)
+    ax.tick_params(axis='both', labelsize=10)
+    ax.grid(True, axis='x', alpha=0.3, linestyle='--', linewidth=0.7)
+    
+    plt.tight_layout()
+    plt.savefig(output_path, dpi=300, bbox_inches='tight', facecolor='white')
+    print(f"Saved: {output_path}")
+    plt.close()
+
 def main():
     script_dir = Path(__file__).parent
     server_dir = script_dir.parent
-    results_dir = server_dir / "evaluation_output" / "small"
-    output_dir = script_dir
+    results_dir = server_dir / "evaluation_output" 
+    output_dir = script_dir / "plots"
     
     output_dir.mkdir(exist_ok=True)
     
     print(f"Loading results from {results_dir}...")
     results = load_evaluation_results(str(results_dir))
     print(f"Loaded {len(results)} evaluation results")
+    
+    # Debug: Print detected models
+    if results:
+        stt_models = set(r.get('stt_model', 'unknown') for r in results)
+        tts_models = set(r.get('tts_model', 'unknown') for r in results)
+        print(f"Detected STT models: {sorted(stt_models)}")
+        print(f"Detected TTS models: {sorted(tts_models)}")
     
     if not results:
         print("No results found")
@@ -431,6 +577,47 @@ def main():
     plot_stt_metrics(stt_metrics, str(output_dir / "stt_latency_vs_wer.png"))
     plot_tts_metrics(tts_metrics, str(output_dir / "tts_latency_vs_quality.png"))
     plot_quality_metrics(quality_metrics, str(output_dir))
+    
+    # Individual metric comparisons
+    print("Generating metric comparison plots...")
+    plot_metric_comparison(stt_metrics, 'latency', 'STT Latency Comparison', 'Latency (ms)', 
+                          str(output_dir / "stt_latency.png"))
+    plot_metric_comparison(stt_metrics, 'wer', 'STT Word Error Rate Comparison', 'WER', 
+                          str(output_dir / "stt_wer.png"))
+    plot_metric_comparison(tts_metrics, 'latency', 'TTS Latency Comparison', 'Latency (ms)', 
+                          str(output_dir / "tts_latency.png"))
+    plot_metric_comparison(tts_metrics, 'score', 'TTS Quality Score Comparison', 'Score (0-10)', 
+                          str(output_dir / "tts_score.png"), xlim=(0, 10.5))
+    plot_metric_comparison(quality_metrics, 'fluency', 'Fluency Comparison (Acoustic)', 'Score (0-10)', 
+                          str(output_dir / "tts_fluency.png"), xlim=(0, 10.5))
+    plot_metric_comparison(quality_metrics, 'tone', 'Tone Comparison (Acoustic)', 'Score (0-10)', 
+                          str(output_dir / "tts_tone.png"), xlim=(0, 10.5))
+    plot_metric_comparison(quality_metrics, 'naturalness', 'Naturalness Comparison (Acoustic)', 'Score (0-10)', 
+                          str(output_dir / "tts_naturalness.png"), xlim=(0, 10.5))
+    plot_metric_comparison(quality_metrics, 'llm_fluency', 'Fluency Comparison (LLM)', 'Score (0-10)', 
+                          str(output_dir / "tts_llm_fluency.png"), xlim=(0, 10.5))
+    plot_metric_comparison(quality_metrics, 'llm_tone', 'Tone Comparison (LLM)', 'Score (0-10)', 
+                          str(output_dir / "tts_llm_tone.png"), xlim=(0, 10.5))
+    plot_metric_comparison(quality_metrics, 'llm_naturalness', 'Naturalness Comparison (LLM)', 'Score (0-10)', 
+                          str(output_dir / "tts_llm_naturalness.png"), xlim=(0, 10.5))
+    
+    # NISQA metrics
+    plot_metric_comparison(quality_metrics, 'mos', 'Mean Opinion Score (NISQA)', 'MOS (1-5)', 
+                          str(output_dir / "tts_mos.png"), xlim=(1, 5))
+    plot_metric_comparison(quality_metrics, 'noisiness', 'Noisiness (NISQA)', 'Score (1-5)', 
+                          str(output_dir / "tts_noisiness.png"), xlim=(1, 5))
+    plot_metric_comparison(quality_metrics, 'coloration', 'Coloration (NISQA)', 'Score (1-5)', 
+                          str(output_dir / "tts_coloration.png"), xlim=(1, 5))
+    plot_metric_comparison(quality_metrics, 'discontinuity', 'Discontinuity (NISQA)', 'Score (1-5)', 
+                          str(output_dir / "tts_discontinuity.png"), xlim=(1, 5))
+    plot_metric_comparison(quality_metrics, 'loudness', 'Loudness (NISQA)', 'Score (1-5)', 
+                          str(output_dir / "tts_loudness.png"), xlim=(1, 5))
+    
+    # SpeechMetrics
+    plot_metric_comparison(quality_metrics, 'mosnet_score', 'MOSNet Score (SpeechMetrics)', 'Score (1-5)', 
+                          str(output_dir / "tts_mosnet.png"), xlim=(1, 5))
+    plot_metric_comparison(quality_metrics, 'srmr_score', 'SRMR Score (SpeechMetrics)', 'SRMR (dB)', 
+                          str(output_dir / "tts_srmr.png"))
     
     print(f"\nComplete. Plots saved to {output_dir}")
 

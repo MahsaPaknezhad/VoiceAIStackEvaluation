@@ -1,10 +1,10 @@
 {
   "tts_service_id": "nvidia_riva",
   "tts_service_name": "NVIDIA Riva",
-  "module": "livekit.plugins.nvidia",
-  "class": "TTS",
+  "module": "src.core.nvidia.livekit_tts_adapter",
+  "class": "LiveKitTTSAdapter",
   "config": {
-    "server": "${NVIDIA_RIVA_SERVER}:50051",
+    "server": "${NVIDIA_RIVA_TTS_SERVER}:50051",
     "use_ssl": false,
     "voice": "Magpie-Multilingual.EN-US.Aria"
   },
