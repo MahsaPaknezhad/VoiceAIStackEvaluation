@@ -182,14 +182,14 @@ class VoiceAssistantRunner:
         try:
             if "livekit" in module_name:
                 if "nvidia" in module_name:
-                    from src.core.livekit_tts_adapter import LiveKitTTSAdapter
+                    from src.core.nvidia.livekit_tts_adapter import LiveKitTTSAdapter
                     return LiveKitTTSAdapter(**config)
                 elif "patakeet" in module_name:
                     from src.core.livekit_patakeet_adapter import LiveKitPatakeetAdapter
                     return LiveKitPatakeetAdapter(**config)
                 else:
                     # Generic LiveKit adapter fallback
-                    from src.core.livekit_tts_adapter import LiveKitTTSAdapter
+                    from src.core.nvidia.livekit_tts_adapter import LiveKitTTSAdapter
                     return LiveKitTTSAdapter(**config)
             elif "nvidia" in module_name or "riva" in module_name:
                 # NVIDIA services don't use api_key parameter
@@ -317,8 +317,8 @@ class VoiceAssistantRunner:
         pipeline_params_config = self.stt_config.get("pipeline_params", {}) if self.stt_config else {}
         pipeline_params = PipelineParams(
             allow_interruptions=pipeline_params_config.get("allow_interruptions", True),
-            enable_metrics=pipeline_params_config.get("enable_metrics", True),
-            enable_usage_metrics=pipeline_params_config.get("enable_usage_metrics", True),
+            enable_metrics=pipeline_params_config.get("enable_metrics", False),
+            enable_usage_metrics=pipeline_params_config.get("enable_usage_metrics", False),
             report_only_initial_ttfb=pipeline_params_config.get("report_only_initial_ttfb", True)
         )
         

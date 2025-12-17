@@ -141,6 +141,10 @@ class NeMoBatchSTTService:
     async def cleanup(self):
         """Cleanup method for pipeline shutdown."""
         pass
+    
+    def can_generate_metrics(self) -> bool:
+        """Check if this service can generate performance metrics."""
+        return False
 
 
 # Alias for backward compatibility with config files
