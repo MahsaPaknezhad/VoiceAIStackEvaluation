@@ -1,6 +1,5 @@
 from strands import Agent
 from strands.models import BedrockModel
-from loguru import logger
 
 
 def build_conversation_agent(model_id, tts_service=None):
@@ -26,5 +25,5 @@ Your responses will be converted to speech, so:
 Be friendly, helpful, and direct in your responses.""",
         callback_handler=None
     )
-    logger.info(f'Agent successfully created with {model_id}')
+
     return agent

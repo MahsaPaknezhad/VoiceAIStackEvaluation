@@ -16,11 +16,15 @@ import re
 
 # Import Pipecat components
 from pipecat.services.deepgram.stt import DeepgramSTTService, LiveOptions
-from pipecat.frames.frames import EndFrame, StartFrame
+from pipecat.audio.vad.silero import SileroVADAnalyzer
+from pipecat.frames.frames import AudioRawFrame, EndFrame, StartFrame, TranscriptionFrame, TextFrame, LLMFullResponseStartFrame, TTSAudioRawFrame
 from pipecat.pipeline.pipeline import Pipeline
 from pipecat.pipeline.runner import PipelineRunner
 from pipecat.pipeline.task import PipelineTask, PipelineParams
+from pipecat.transports.base_transport import TransportParams
+from pipecat.processors.frame_processor import FrameProcessor
 from pipecat.processors.aggregators.openai_llm_context import OpenAILLMContext
+from pipecat.services.aws.llm import AWSBedrockLLMContext
 from pipecat.services.aws.llm import AWSBedrockLLMContext
 from pipecat.processors.aggregators.llm_response import LLMUserContextAggregator, LLMAssistantContextAggregator
 from dotenv import load_dotenv
@@ -68,14 +72,11 @@ class VoiceAssistantRunner:
     
     def _load_config(self, config_path: str) -> Dict:
         """Load service config from JSON file"""
-        with open(config_path, 'r', encoding='utf-8') as f:
-            logger.info(f'Loading in config {config_path}')
-            json_file = json.load(f)
-            return json_file
+        with open(config_path, 'r') as f:
+            return json.load(f)
     
     def _create_stt_service(self):
         """Create STT service from config"""
-        logger.info("Creating STT service...")
         if not self.stt_config:
             # Default
             return DeepgramSTTService(
@@ -110,33 +111,24 @@ class VoiceAssistantRunner:
                 api_key=os.getenv("OPENAI_API_KEY"),
                 **config
             )
-        elif "aws" in module_name:
-            return service_class(**config)
         else:
             return service_class(**config)
     
     def _create_tts_service(self):
         """Create TTS service from config"""
-        logger.info("Creating TTS service...")
         if not self.tts_config:
             # Default
             return DeepgramTTSService(
                 api_key=os.getenv("DEEPGRAM_API_KEY"),
                 voice="aura-2-delia-en"
             )
-
+        
         # Import the service class dynamically
         module_name = self.tts_config["module"]
         class_name = self.tts_config["class"]
         
-        logger.info(f"Importing {class_name} from {module_name}")
-        
-        try:
-            module = __import__(module_name, fromlist=[class_name])
-            service_class = getattr(module, class_name)
-        except Exception as e:
-            logger.error(f"Failed to import {class_name} from {module_name}: {e}")
-            raise
+        module = __import__(module_name, fromlist=[class_name])
+        service_class = getattr(module, class_name)
         
         # Get config params and substitute environment variables
         config = self.tts_config.get("config", {})
@@ -158,21 +150,21 @@ class VoiceAssistantRunner:
         # Determine API key based on service
         api_key = None
         if "deepgram" in module_name:
-            api_key = os.getenv("DEEPGRAM_API_KEY")
+            return service_class(api_key=os.getenv("DEEPGRAM_API_KEY"), **config)
         elif "openai" in module_name:
-            api_key = os.getenv("OPENAI_API_KEY")
+            return service_class(api_key=os.getenv("OPENAI_API_KEY"), **config)
         elif "elevenlabs" in module_name:
-            api_key = os.getenv("ELEVENLABS_API_KEY")
+            return service_class(api_key=os.getenv("ELEVENLABS_API_KEY"), **config)
         elif "cartesia" in module_name:
-            api_key = os.getenv("CARTESIA_API_KEY")
-        elif "nvidia" in module_name or "riva" in module_name:
-            api_key = os.getenv("NVIDIA_API_KEY")
+            return service_class(api_key=os.getenv("CARTESIA_API_KEY"), **config)
+        elif "riva" in module_name:
+            return service_class(api_key=os.getenv("RIVA_API_KEY"), **config)
         elif "fish" in module_name:
-            api_key = os.getenv("FISH_AUDIO_API_KEY")
+            return service_class(api_key=os.getenv("FISH_AUDIO_API_KEY"), **config)
         elif "lmnt" in module_name:
-            api_key = os.getenv("LMNT_API_KEY")
+            return service_class(api_key=os.getenv("LMNT_API_KEY"), **config)
         elif "playht" in module_name:
-            api_key = os.getenv("PLAYHT_API_KEY")
+            return service_class(api_key=os.getenv("PLAYHT_API_KEY"), **config)
         elif "rime" in module_name:
             api_key = os.getenv("RIME_API_KEY")
         
@@ -222,11 +214,11 @@ class VoiceAssistantRunner:
             raise ValueError(f"Question {question_id} not found in dataset")
         
         ground_truth = question_data['text']
+        
         # Read audio file
         with wave.open(audio_path, 'rb') as wf:
             sample_rate = wf.getframerate()
             audio_data = wf.readframes(wf.getnframes())
-            logger.info(f"File {audio_path} loaded with sample rate {sample_rate}")
         
         # Handle audio resampling if required by STT config
         if self.stt_config and self.stt_config.get("audio_requirements"):
@@ -293,7 +285,6 @@ class VoiceAssistantRunner:
         tts_timing_end = TTSTimingProcessor(timing_collector)
         stt_collector = STTCollector(timing_collector, stt_texts)
         llm_collector = LLMCollector(timing_collector, llm_texts)
-        logger.info('Successfully completed video frame processing')
         
 
         
@@ -311,7 +302,6 @@ class VoiceAssistantRunner:
             tts_timing_end,
             transport.output()
         ])
-        logger.info('Pipeline build complete')
         
         # Get pipeline params from config (with defaults)
         pipeline_params_config = self.stt_config.get("pipeline_params", {}) if self.stt_config else {}
@@ -409,7 +399,7 @@ class VoiceAssistantRunner:
         if self.evaluate_voice_quality and tts_audio_path:
             try:
                 if self.use_llm_judge:
-                    voice_metrics = await self.voice_evaluator.evaluate_async(tts_audio_path, result["bot_response"])
+                    voice_metrics = await self.voice_evaluator.evaluate_with_llm_judge(tts_audio_path, result["bot_response"])
                 else:
                     voice_metrics = self.voice_evaluator.evaluate(tts_audio_path)
                 
@@ -548,8 +538,11 @@ class VoiceAssistantRunner:
             "results": results
         }
         
-        with open(output_path, 'w') as f:
+        # Write atomically to prevent corruption
+        temp_path = output_path + '.tmp'
+        with open(temp_path, 'w') as f:
             json.dump(output_data, f, indent=2)
+        os.rename(temp_path, output_path)
         logger.info(f"Results saved to {output_path}")
 
 
