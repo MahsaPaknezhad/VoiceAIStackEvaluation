@@ -387,16 +387,26 @@ class VoiceAssistantRunner:
         pipeline_timeout = self.stt_config.get("pipeline_timeout", 18.0) if self.stt_config else 18.0
         await asyncio.sleep(pipeline_timeout)
         
-        # Force TTS disconnect if configured
-        force_tts_stop = self.tts_config.get("force_stop_on_cancel", False) if self.tts_config else False
-        if force_tts_stop:
-            try:
+        # Clean shutdown of services
+        try:
+            # Stop STT service cleanly
+            if hasattr(stt, 'disconnect'):
+                await stt.disconnect()
+        except:
+            pass
+        
+        try:
+            # Stop TTS service cleanly  
+            if hasattr(tts, 'stop'):
                 await tts.stop(EndFrame())
-            except:
-                pass
+        except:
+            pass
         
         # Cancel task
         await task.cancel()
+        
+        # Give time for cleanup
+        await asyncio.sleep(0.1)
         
         # Wait for run_task to complete cancellation with config-driven timeout
         # cleanup_timeout = self.stt_config.get("cleanup_timeout", 2.0) if self.stt_config else 2.0
