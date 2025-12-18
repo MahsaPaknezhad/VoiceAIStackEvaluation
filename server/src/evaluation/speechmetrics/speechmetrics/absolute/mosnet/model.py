@@ -93,7 +93,7 @@ class MOSNet(Metric):
                               n_fft=self.FFT_SIZE,
                               hop_length=self.HOP_LENGTH,
                               win_length=self.WIN_LENGTH,
-                              window=scipy.signal.hamming,
+                              window=getattr(scipy.signal, 'hamming', scipy.signal.windows.hamming),
                               )
 
         # magnitude spectrogram

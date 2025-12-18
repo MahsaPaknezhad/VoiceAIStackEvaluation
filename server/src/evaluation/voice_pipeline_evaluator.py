@@ -10,6 +10,8 @@ import time
 import random
 from typing import Dict, List
 from loguru import logger
+import warnings
+warnings.filterwarnings("ignore", message="Dangling tasks detected")
 import argparse
 from pathlib import Path
 import re
@@ -52,6 +54,9 @@ from src.evaluation.frame_processor import (
 
 load_dotenv(override=True)
 
+# Suppress Pipecat cleanup warnings
+logger.disable("pipecat.pipeline.task")
+
 
 class VoiceAssistantRunner:
     def __init__(self, dataset_path: str, audio_dir: str, stt_config: str = None, 
@@ -75,6 +80,23 @@ class VoiceAssistantRunner:
         with open(config_path, 'r') as f:
             return json.load(f)
     
+    def _substitute_env_vars(self, config: Dict) -> Dict:
+        """Substitute environment variables in config values"""
+        result = config.copy()
+        for key, value in result.items():
+            if isinstance(value, str) and value.startswith('${') and value.endswith('}'):
+                env_var = value[2:-1]  # Remove ${ and }
+                if ':' in env_var:  # Handle ${VAR}:port format
+                    env_var, suffix = env_var.split(':', 1)
+                    env_value = os.getenv(env_var)
+                    if env_value:
+                        result[key] = f"{env_value}:{suffix}"
+                else:
+                    env_value = os.getenv(env_var)
+                    if env_value:
+                        result[key] = env_value
+        return result
+    
     def _create_stt_service(self):
         """Create STT service from config"""
         if not self.stt_config:
@@ -97,8 +119,8 @@ class VoiceAssistantRunner:
         module = __import__(module_name, fromlist=[class_name])
         service_class = getattr(module, class_name)
         
-        # Get config params
-        config = self.stt_config.get("config", {})
+        # Get config params and substitute environment variables
+        config = self._substitute_env_vars(self.stt_config.get("config", {}))
         
         # Create service
         if "deepgram" in module_name:
@@ -111,6 +133,9 @@ class VoiceAssistantRunner:
                 api_key=os.getenv("OPENAI_API_KEY"),
                 **config
             )
+        elif "aws" in module_name:
+            # AWS services use default credential chain
+            return service_class(**config)
         else:
             return service_class(**config)
     
@@ -131,21 +156,7 @@ class VoiceAssistantRunner:
         service_class = getattr(module, class_name)
         
         # Get config params and substitute environment variables
-        config = self.tts_config.get("config", {})
-        
-        # Substitute environment variables in config values
-        for key, value in config.items():
-            if isinstance(value, str) and value.startswith('${') and value.endswith('}'):
-                env_var = value[2:-1]  # Remove ${ and }
-                if ':' in env_var:  # Handle ${VAR}:port format
-                    env_var, suffix = env_var.split(':', 1)
-                    env_value = os.getenv(env_var)
-                    if env_value:
-                        config[key] = f"{env_value}:{suffix}"
-                else:
-                    env_value = os.getenv(env_var)
-                    if env_value:
-                        config[key] = env_value
+        config = self._substitute_env_vars(self.tts_config.get("config", {}))
         
         # Determine API key based on service
         api_key = None

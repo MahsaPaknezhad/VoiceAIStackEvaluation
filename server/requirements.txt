@@ -12,11 +12,16 @@ jiwer
 datasets
 librosa
 matplotlib
+museval
+scipy
+gammatone
+git+https://github.com/jfsantos/SRMRpy.git
 pytest
 pytest-asyncio
 openai-whisper
 faster-whisper
 huggingface_hub
+tensorflow
 
 # PyTorch FIRST (before NeMo)
 --extra-index-url https://download.pytorch.org/whl/cu118

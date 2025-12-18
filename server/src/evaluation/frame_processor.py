@@ -179,7 +179,6 @@ class LLMCollector(FrameProcessor):
                 
                 # Collect LLM response text for evaluation
                 self.text_collector.append(frame.text)
-                print(f"DEBUG: LLMCollector - Collected text fragment: '{frame.text}' (total fragments: {len(self.text_collector)})")
                 
                 await self.push_frame(frame, direction)
             # Skip only pure punctuation frames

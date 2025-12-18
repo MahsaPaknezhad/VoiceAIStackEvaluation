@@ -89,6 +89,9 @@ source .nab_venv/bin/activate  # On Windows: .nab_venv\Scripts\activate
 # Install dependencies
 pip install -r requirements.txt
 
+# Install srmrpy for audio quality metrics (from GitHub)
+pip install git+https://github.com/jfsantos/SRMRpy.git
+
 # Fix numpy compatibility in srmrpy
 ./scripts/fix_srmrpy.sh
 
