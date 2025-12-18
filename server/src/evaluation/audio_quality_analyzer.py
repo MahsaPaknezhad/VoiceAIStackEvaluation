@@ -1,7 +1,7 @@
 """
 Voice quality evaluation for TTS output.
 Measures fluency, naturalness, and tone.
-Includes LLM-based perceptual evaluation.
+Includes LLM-based perceptual evaluation and NISQA naturalness scoring.
 """
 
 import librosa
@@ -17,34 +17,126 @@ from loguru import logger
 import os
 import boto3
 import re
+import tempfile
+import subprocess
+
+try:
+    # Add NISQA to path and import
+    import sys
+    nisqa_path = os.path.join(os.path.dirname(__file__), "NISQA")
+    if nisqa_path not in sys.path:
+        sys.path.insert(0, nisqa_path)
+    from nisqa.NISQA_model import nisqaModel
+    NISQA_AVAILABLE = True
+except ImportError:
+    logger.warning("NISQA not available - naturalness will use fallback method")
+    NISQA_AVAILABLE = False
+
+try:
+    # Add speechmetrics to path and import
+    import sys
+    import os
+    speechmetrics_path = os.path.join(os.path.dirname(__file__), "speechmetrics")
+    if speechmetrics_path not in sys.path:
+        sys.path.insert(0, speechmetrics_path)
+    from speechmetrics.absolute import mosnet, srmr
+    SPEECHMETRICS_AVAILABLE = True
+except ImportError as e:
+    logger.warning(f"SpeechMetrics not available - will skip MOSNet and SRMR: {e}")
+    SPEECHMETRICS_AVAILABLE = False
 
 
 class VoiceQualityEvaluator:
     
     def __init__(self, sample_rate: int = 16000, use_llm_judge: bool = False, 
-                 use_nova_sonic: bool = False):
+                 use_nisqa: bool = True, use_speechmetrics: bool = True):
         self.sample_rate = sample_rate
         self.use_llm_judge = use_llm_judge
-        self.use_nova_sonic = use_nova_sonic
-        
-        if use_llm_judge:
-            self.llm_judge = self._create_llm_judge()
-        
-        if use_nova_sonic:
-            self.deepgram_api_key = os.getenv("DEEPGRAM_API_KEY")
+        self.use_nisqa = use_nisqa and NISQA_AVAILABLE
+        self.use_speechmetrics = use_speechmetrics and SPEECHMETRICS_AVAILABLE
+            
+        if self.use_nisqa:
+            self._init_nisqa()
+            
+        if self.use_speechmetrics:
+            self._init_speechmetrics()
+    
+    def _init_speechmetrics(self):
+        """Initialize SpeechMetrics models"""
+        try:
+            # MOSNet and SRMR need to be loaded with specific parameters
+            self.mosnet_metric = mosnet.load(window=0.75)  # 750ms window
+            self.srmr_metric = srmr.load(window=0.75)      # 750ms window
+            logger.info("SpeechMetrics (MOSNet, SRMR) initialized successfully")
+        except Exception as e:
+            logger.error(f"Failed to initialize SpeechMetrics: {e}")
+            self.use_speechmetrics = False
+    
+    def _init_nisqa(self):
+        """Initialize NISQA model for naturalness evaluation"""
+        try:
+            nisqa_dir = os.path.join(os.path.dirname(__file__), "NISQA")
+            model_path = os.path.join(nisqa_dir, "weights", "nisqa.tar")  # Use full model, not TTS-only
+            
+            if not os.path.exists(model_path):
+                logger.warning(f"NISQA model not found at {model_path}")
+                self.use_nisqa = False
+                return
+                
+            # Initialize with minimal required args - deg will be set per prediction
+            args = {
+                'mode': 'predict_file',
+                'pretrained_model': model_path,
+                'deg': None,  # Will be set during prediction
+                'tr_bs_val': 1,
+                'tr_num_workers': 0,
+                'ms_channel': None,  # For mono audio
+                'output_dir': None,  # No output file needed
+                'ms_max_segments': 2000  # Increase max segments to handle longer audio
+            }
+            self.nisqa_args = args  # Store args template
+            logger.info("NISQA model initialized successfully")
+        except Exception as e:
+            logger.error(f"Failed to initialize NISQA: {e}")
+            self.use_nisqa = False
     
     def _create_llm_judge(self) -> Agent:
-        """Create LLM agent for voice quality evaluation"""
-        model = BedrockModel(model="anthropic.claude-haiku-4-5-20251001-v1:0")
+        """Create LLM agent for voice quality evaluation using Claude 3 Haiku"""
+        model = BedrockModel(
+            model_id="anthropic.claude-haiku-4-5-20251001-v1:0",
+            region_name="ap-southeast-2"
+        )
         return Agent(
             name="VoiceQualityJudge",
             model=model,
-            system_prompt="""You are an expert speech quality evaluator. Listen to the audio and evaluate:
+            system_prompt="""You are an expert speech quality evaluator. You will receive audio metrics extracted from librosa analysis. Based on these technical measurements, evaluate:
 
-1. **Fluency** (0-10): How smooth and natural is the speech flow? Are there awkward pauses or robotic rhythm?
-2. **Naturalness** (0-10): Does it sound like a real human? Is the prosody and intonation natural?
-3. **Tone** (0-10): Is the voice pleasant and clear? Good warmth and emotional expression?
+1. **Fluency** (0-10): How smooth and natural is the speech flow based on pitch variation and energy consistency?
+2. **Naturalness** (0-10): Does it sound like a real human based on spectral characteristics and prosody metrics?
+3. **Tone** (0-10): Is the voice pleasant and clear based on harmonic content and spectral balance?
 4. **Overall** (0-10): Overall voice quality and listenability.
+
+QUALITY GUIDELINES:
+Category	    Metric	                        Acceptable Range	        Quality Threshold
+Fluency	        Duration	                    3-5 seconds per sentence	Natural conversation flow
+Fluency	        Pitch Mean (Male)	            90-155 Hz	                Natural male voice
+Fluency	        Pitch Mean (Female)	            165-255 Hz	                Natural female voice
+Fluency	        Pitch Coefficient of Variation	0.1-0.3	                    Natural variation
+Fluency	        Speech Rate	                    120-180 words/min	        Optimal comprehension
+Fluency	        Primary Tempo	                120-180 BPM	                Natural rhythm
+Fluency	        Energy Mean (Sample Rate)	    48+ kHz	                    High fidelity capture
+Fluency	        Energy Consistency (Bit Depth)	24-bit preferred	        Wide dynamic range
+Naturalness	    Spectral Centroid (Male)	    500-2000 Hz	                Natural brightness
+Naturalness	    Spectral Centroid (Female)	    1000-3000 Hz	            Natural brightness
+Naturalness	    MFCC Coefficients (2-13)	    ±20 (typical)	            Normal speech patterns
+Naturalness	    Spectral Rolloff	            2000-6000 Hz	            Natural speech bandwidth
+Tone	        Spectral Contrast	            10-35 dB across bands	    Good spectral balance
+Tone	        Zero Crossing Rate	            Application-specific	    Voice activity detection
+Tone	        Harmonic-to-Noise Ratio	        7-15 dB	                    Clear voice quality
+Overall Quality	Chroma (Music)	                0.1-0.9 (normalized)	    Meaningful harmonic content
+Overall Quality	Chroma (Speech)	                0.1-0.4 (normalized)	    Stable tonal content
+Overall Quality	Tonnetz (Music)	                ±0.8 (normalized)	        Stable harmonic relationships
+Overall Quality	Dynamic Range	                96-120+ dB	                Professional audio
 
 Return ONLY valid JSON:
 {
@@ -52,164 +144,134 @@ Return ONLY valid JSON:
     "naturalness": <0-10>,
     "tone": <0-10>,
     "overall": <0-10>,
-    "reasoning": "<brief explanation of scores>"
+    "reasoning": "<brief explanation of scores based on the metrics>"
 }"""
         )
     
-    async def evaluate_with_nova_sonic(self, audio_path: str) -> Dict:
+    async def evaluate_with_llm_judge(self, audio_path: str, transcript: str = "") -> Dict:
         """
-        Evaluate voice quality using AWS Bedrock Nova Sonic 2.
-        Nova Sonic 2 can analyze audio directly.
-        
-        Args:
-            audio_path: Path to audio file
-            
-        Returns:
-            Dict with Nova Sonic evaluation scores
-        """
-        if not self.use_nova_sonic:
-            return {}
-        
-        try:
-            # Read and encode audio
-            with open(audio_path, 'rb') as f:
-                audio_bytes = f.read()
-            audio_b64 = base64.b64encode(audio_bytes).decode('utf-8')
-            
-            # Initialize Bedrock client
-            bedrock = boto3.client('bedrock-runtime', region_name='us-east-1')
-            
-            # Prompt for voice quality evaluation
-            prompt = """Analyze this speech audio and evaluate its quality on these dimensions (0-10 scale):
-
-1. Fluency: How smooth and natural is the speech flow? Any awkward pauses or robotic rhythm?
-2. Naturalness: Does it sound like a real human? Natural prosody and intonation?
-3. Tone: Is the voice pleasant, clear, and well-articulated?
-4. Overall: Overall voice quality and listenability.
-
-Return ONLY valid JSON:
-{
-    "fluency": <0-10>,
-    "naturalness": <0-10>,
-    "tone": <0-10>,
-    "overall": <0-10>,
-    "reasoning": "<brief explanation>"
-}"""
-            
-            # Call Nova Sonic 2
-            response = bedrock.invoke_model(
-                modelId='amazon.nova-2-sonic-v1:0',
-                body=json.dumps({
-                    "messages": [
-                        {
-                            "role": "user",
-                            "content": [
-                                {
-                                    "audio": {
-                                        "format": "wav",
-                                        "source": {
-                                            "bytes": audio_b64
-                                        }
-                                    }
-                                },
-                                {
-                                    "text": prompt
-                                }
-                            ]
-                        }
-                    ],
-                    "inferenceConfig": {
-                        "max_new_tokens": 500,
-                        "temperature": 0.3
-                    }
-                })
-            )
-            
-            # Parse response
-            response_body = json.loads(response['body'].read())
-            content = response_body['output']['message']['content'][0]['text']
-            
-            # Extract JSON from response
-            result = json.loads(content)
-            
-            return {
-                "nova_sonic_fluency": result.get("fluency", 0),
-                "nova_sonic_naturalness": result.get("naturalness", 0),
-                "nova_sonic_tone": result.get("tone", 0),
-                "nova_sonic_overall": result.get("overall", 0),
-                "nova_sonic_reasoning": result.get("reasoning", "")
-            }
-            
-        except Exception as e:
-            logger.error(f"Nova Sonic 2 evaluation failed: {e}")
-            return {
-                "nova_sonic_fluency": 0,
-                "nova_sonic_naturalness": 0,
-                "nova_sonic_tone": 0,
-                "nova_sonic_overall": 0,
-                "nova_sonic_reasoning": f"Error: {str(e)}"
-            }
-    
-    def evaluate_with_llm(self, audio_path: str, transcript: str = "") -> Dict:
-        """
-        Evaluate voice quality using LLM judge.
+        Evaluate voice quality using Claude 3 Haiku with librosa metrics.
         
         Args:
             audio_path: Path to audio file
             transcript: Optional transcript of what's being said
             
         Returns:
-            Dict with LLM scores
+            Dict with LLM evaluation scores
         """
-        if not self.use_llm_judge:
-            return {}
-        
         try:
-            # Read audio file and encode to base64
-            with open(audio_path, 'rb') as f:
-                audio_bytes = f.read()
-            audio_b64 = base64.b64encode(audio_bytes).decode('utf-8')
-            
-            # Create prompt
-            prompt = f"Evaluate this speech audio for voice quality."
-            if transcript:
-                prompt += f"\n\nTranscript: {transcript}"
-            
-            # Note: Claude doesn't support audio input yet, so we'll use audio features as proxy
-            # For now, describe the audio characteristics
+            # Extract comprehensive audio features
             y, sr = librosa.load(audio_path, sr=self.sample_rate)
             
-            # Extract features to describe
+            # Fluency metrics
             f0 = librosa.yin(y, fmin=50, fmax=400, sr=sr)
             f0_valid = f0[f0 > 0]
             pitch_mean = np.mean(f0_valid) if len(f0_valid) > 0 else 0
+            pitch_std = np.std(f0_valid) if len(f0_valid) > 0 else 0
+            pitch_cv = pitch_std / pitch_mean if pitch_mean > 0 else 0
             
-            tempo = librosa.beat.tempo(y=y, sr=sr)[0]
-            speaking_rate = tempo / 60.0 * 2
+            onsets = librosa.onset.onset_detect(y=y, sr=sr, units='time')
+            speech_rate = len(onsets) / (len(y) / sr) if len(onsets) > 0 else 0
+            
+            # Also get tempo for additional rhythm info
+            tempo_estimates = librosa.beat.tempo(y=y, sr=sr)
+            primary_tempo = tempo_estimates[0] if len(tempo_estimates) > 0 else 0
             
             rms = librosa.feature.rms(y=y)[0]
+            energy_mean = np.mean(rms)
             energy_std = np.std(rms)
+            energy_consistency = 1 - (energy_std / energy_mean) if energy_mean > 0 else 0
             
-            # Describe audio characteristics to LLM
-            audio_description = f"""Audio characteristics:
-- Average pitch: {pitch_mean:.1f} Hz
-- Speaking rate: {speaking_rate:.1f} syllables/second
-- Energy variation: {energy_std:.3f}
-- Duration: {len(y)/sr:.1f} seconds
+            # Naturalness metrics
+            spectral_centroid = np.mean(librosa.feature.spectral_centroid(y=y, sr=sr))
+            mfcc = librosa.feature.mfcc(y=y, sr=sr, n_mfcc=13)
+            mfcc_mean = np.mean(mfcc, axis=1)
+            spectral_rolloff = np.mean(librosa.feature.spectral_rolloff(y=y, sr=sr))
+            
+            # Tone metrics
+            spectral_contrast = np.mean(librosa.feature.spectral_contrast(y=y, sr=sr))
+            zero_crossing_rate = np.mean(librosa.feature.zero_crossing_rate(y))
+            
+            # Calculate HNR (Harmonic-to-Noise Ratio)
+            stft = librosa.stft(y)
+            magnitude = np.abs(stft)
+            harmonic_energy = np.sum(magnitude**2)
+            noise_energy = np.sum((magnitude - np.mean(magnitude, axis=1, keepdims=True))**2)
+            hnr = 10 * np.log10(harmonic_energy / (noise_energy + 1e-10)) if noise_energy > 0 else 0
+            
+            # Overall quality metrics
+            chroma = np.mean(librosa.feature.chroma_stft(y=y, sr=sr))
+            tonnetz = np.mean(librosa.feature.tonnetz(y=librosa.effects.harmonic(y), sr=sr))
+            dynamic_range = np.max(rms) / (np.min(rms) + 1e-10)
+            spectral_flatness = np.mean(librosa.feature.spectral_flatness(y=y))
+            
+            duration = len(y) / sr
+            
+            # Create comprehensive metrics prompt
+            metrics_text = f"""Audio Quality Analysis - Technical Measurements:
+
+FLUENCY METRICS:
+- Duration: {duration:.2f} seconds
+- Pitch Mean: {pitch_mean:.1f} Hz
+- Pitch Std: {pitch_std:.1f} Hz
+- Pitch Coefficient of Variation: {pitch_cv:.3f}
+- Speech Rate: {speech_rate:.2f} onsets/second
+- Primary Tempo: {primary_tempo:.1f} BPM
+- Energy Mean: {energy_mean:.4f}
+- Energy Consistency: {energy_consistency:.3f} (higher = more consistent)
+
+NATURALNESS METRICS:
+- Spectral Centroid: {spectral_centroid:.1f} Hz (brightness)
+- MFCC-1: {mfcc_mean[0]:.2f} (overall spectral shape)
+- MFCC-2: {mfcc_mean[1]:.2f} (spectral slope)
+- Spectral Rolloff: {spectral_rolloff:.1f} Hz (high frequency content)
+
+TONE METRICS:
+- Spectral Contrast: {spectral_contrast:.3f} (clarity)
+- Zero Crossing Rate: {zero_crossing_rate:.4f} (texture/breathiness)
+- Harmonic-to-Noise Ratio: {hnr:.2f} dB (voice quality)
+
+OVERALL QUALITY METRICS:
+- Chroma: {chroma:.3f} (tonal content)
+- Tonnetz: {tonnetz:.3f} (harmonic relationships)
+- Dynamic Range: {dynamic_range:.2f} (energy variation)
+- Spectral Flatness: {spectral_flatness:.4f} (naturalness vs synthetic)
 """
+
             if transcript:
-                audio_description += f"- Content: {transcript}"
+                metrics_text += f"\n\nSPEECH CONTENT: {transcript}"
+
+            # Use direct Bedrock client instead of Agent
+            import boto3
+            bedrock = boto3.client('bedrock-runtime', region_name='ap-southeast-2')
             
-            full_prompt = f"{prompt}\n\n{audio_description}\n\nBased on these characteristics, evaluate the voice quality."
+            body = {
+                "anthropic_version": "bedrock-2023-05-31",
+                "messages": [
+                    {
+                        "role": "user",
+                        "content": [{"type": "text", "text": metrics_text}]
+                    }
+                ],
+                "max_tokens": 500,
+                "temperature": 0.3
+            }
             
-            response = self.llm_judge(full_prompt)
-            print(f'LLM JUDGE RESPONSE:, {response}')
-            response_text = response.output.text if hasattr(response, 'output') else str(response)
-            if not response_text or not response_text.strip():
-                logger.error(f"Empty response from LLM judge")
-                raise ValueError("Empty response from LLM")
-            cleaned = re.sub(r'^```json\s*|\s*```$', '', response_text.strip(), flags=re.MULTILINE)
-            result = json.loads(cleaned)
+            response = bedrock.invoke_model(
+                modelId='au.anthropic.claude-haiku-4-5-20251001-v1:0',
+                body=json.dumps(body)
+            )
+            
+            result_body = json.loads(response['body'].read())
+            response_text = result_body["content"][0]["text"]
+            
+            # Parse JSON response
+            try:
+                result = json.loads(response_text)
+            except json.JSONDecodeError:
+                # If not valid JSON, try to extract scores from text
+                print(f"Claude response (not JSON): {response_text}")
+                result = {"fluency": 5, "naturalness": 5, "tone": 5, "overall": 5, "reasoning": response_text}
             
             return {
                 "llm_fluency": result.get("fluency", 0),
@@ -226,219 +288,191 @@ Return ONLY valid JSON:
                 "llm_naturalness": 0,
                 "llm_tone": 0,
                 "llm_overall": 0,
-                "llm_reasoning": f"Evaluation failed: {str(e)}"
+                "llm_reasoning": f"Error: {str(e)}"
             }
     
     def evaluate(self, audio_path: str) -> Dict:
         """
-        Evaluate voice quality metrics (synchronous).
+        Evaluate voice quality metrics using NISQA and SpeechMetrics (synchronous).
         
         Returns:
-            Dict with fluency, naturalness, and tone scores
+            Dict with NISQA and SpeechMetrics scores
         """
-        # Load audio
-        y, sr = librosa.load(audio_path, sr=self.sample_rate)
+        results = {}
         
-        # Calculate metrics
-        fluency = self._calculate_fluency(y, sr)
-        naturalness = self._calculate_naturalness(y, sr)
-        tone = self._calculate_tone(y, sr)
+        # Get NISQA scores if available
+        if self.use_nisqa:
+            nisqa_results = self._evaluate_with_nisqa(audio_path)
+            results.update(nisqa_results)
         
-        return {
-            "fluency": fluency,
-            "naturalness": naturalness,
-            "tone": tone,
-            "overall_quality": (fluency["score"] + naturalness["score"] + tone["score"]) / 3
-        }
-    
-    async def evaluate_async(self, audio_path: str, transcript: str = "") -> Dict:
-        """
-        Evaluate voice quality with optional LLM judge and Nova Sonic (asynchronous).
+        # Get SpeechMetrics scores if available
+        if self.use_speechmetrics:
+            speechmetrics_results = self._evaluate_with_speechmetrics(audio_path)
+            results.update(speechmetrics_results)
         
-        Args:
-            audio_path: Path to audio file
-            transcript: Optional transcript for LLM context
-            
-        Returns:
-            Dict with all metrics including LLM and Nova Sonic scores if enabled
-        """
-        # Get objective metrics
-        results = self.evaluate(audio_path)
-        
-        # Add Nova Sonic evaluation if enabled
-        if self.use_nova_sonic:
-            nova_scores = await self.evaluate_with_nova_sonic(audio_path)
-            results.update(nova_scores)
-        
-        # Add LLM evaluation if enabled
-        if self.use_llm_judge:
-            llm_scores = self.evaluate_with_llm(audio_path, transcript)
-            results.update(llm_scores)
+        # Fallback to basic acoustic measures if no advanced metrics available
+        if not self.use_nisqa and not self.use_speechmetrics:
+            results = {
+                "overall_quality": -1,  # Default neutral score
+                "note": "No advanced metrics available - use --llm for detailed analysis"
+            }
         
         return results
     
-    def _calculate_fluency(self, y: np.ndarray, sr: int) -> Dict:
+    def _evaluate_with_nisqa(self, audio_path: str) -> Dict:
         """
-        Fluency: smoothness, pauses, speaking rate
-        Score 0-10 (higher = more fluent)
+        Evaluate naturalness and speech quality using NISQA.
+        
+        Args:
+            audio_path: Path to audio file
+            
+        Returns:
+            Dict with NISQA scores
         """
-        # Speaking rate (syllables per second estimate)
-        onset_env = librosa.onset.onset_strength(y=y, sr=sr)
-        tempo = librosa.beat.tempo(onset_envelope=onset_env, sr=sr)[0]
-        speaking_rate = tempo / 60.0 * 2  # Rough syllables per second
-        
-        # Pause detection (silence ratio)
-        rms = librosa.feature.rms(y=y)[0]
-        silence_threshold = np.percentile(rms, 20)
-        silence_ratio = np.sum(rms < silence_threshold) / len(rms)
-        
-        # Energy consistency (less variation = more fluent)
-        energy_std = np.std(rms)
-        energy_consistency = 1.0 / (1.0 + energy_std)
-        
-        # Score: optimal speaking rate (3-5 sps), low silence, consistent energy
-        rate_score = 10 * (1 - abs(speaking_rate - 4.0) / 4.0)  # Optimal ~4 sps
-        pause_score = 10 * (1 - silence_ratio)
-        consistency_score = 10 * energy_consistency
-        
-        score = (rate_score + pause_score + consistency_score) / 3
-        score = max(0, min(10, score))
-        
-        return {
-            "score": round(score, 2),
-            "speaking_rate_sps": round(speaking_rate, 2),
-            "silence_ratio": round(silence_ratio, 3),
-            "energy_consistency": round(energy_consistency, 3)
-        }
+        if not self.use_nisqa:
+            return {}
+            
+        try:
+            # NISQA expects specific format - ensure audio is compatible
+            y, sr = librosa.load(audio_path, sr=48000)  # NISQA trained on 48kHz
+            
+            # Create temporary file with correct format
+            with tempfile.NamedTemporaryFile(suffix='.wav', delete=False) as tmp_file:
+                sf.write(tmp_file.name, y, 48000)
+                temp_path = tmp_file.name
+            
+            # Create args for this prediction
+            args = self.nisqa_args.copy()
+            args['deg'] = temp_path
+            
+            # Create model instance for this prediction
+            nisqa_model = nisqaModel(args)
+            
+            # Run NISQA prediction
+            results = nisqa_model.predict()
+            
+            # Clean up temp file
+            os.unlink(temp_path)
+            
+            # Extract scores (NISQA returns DataFrame)
+            if results is not None and not results.empty:
+                result = results.iloc[0]  # First row of DataFrame
+                return {
+                    "mos": float(result.get('mos_pred', 0)),
+                    "noisiness": float(result.get('noi_pred', 0)),
+                    "coloration": float(result.get('col_pred', 0)),
+                    "discontinuity": float(result.get('dis_pred', 0)),
+                    "loudness": float(result.get('loud_pred', 0)),
+                    "overall_quality": float(result.get('mos_pred', 0))
+                }
+            else:
+                return {
+                    "mos": 0,
+                    "noisiness": 0,
+                    "coloration": 0,
+                    "discontinuity": 0,
+                    "loudness": 0,
+                    "overall_quality": 0
+                }
+                
+        except Exception as e:
+            logger.error(f"NISQA evaluation failed: {e}")
+            return {
+                "mos": 0,
+                "noisiness": 0,
+                "coloration": 0,
+                "discontinuity": 0,
+                "loudness": 0,
+                "overall_quality": 0,
+                "error": str(e)
+            }
     
-    def _calculate_naturalness(self, y: np.ndarray, sr: int) -> Dict:
+    def _evaluate_with_speechmetrics(self, audio_path: str) -> Dict:
         """
-        Naturalness: pitch variation, spectral richness, prosody
-        Score 0-10 (higher = more natural)
+        Evaluate speech quality using MOSNet and SRMR from speechmetrics.
+        
+        Args:
+            audio_path: Path to audio file
+            
+        Returns:
+            Dict with MOSNet and SRMR scores
         """
-        # Pitch (F0) variation
-        f0 = librosa.yin(y, fmin=50, fmax=400, sr=sr)
-        f0_valid = f0[f0 > 0]
-        
-        if len(f0_valid) > 0:
-            pitch_mean = np.mean(f0_valid)
-            pitch_std = np.std(f0_valid)
-            pitch_range = np.ptp(f0_valid)
-            pitch_variation = pitch_std / pitch_mean if pitch_mean > 0 else 0
-        else:
-            pitch_mean = pitch_std = pitch_range = pitch_variation = 0
-        
-        # Spectral features
-        spectral_centroid = np.mean(librosa.feature.spectral_centroid(y=y, sr=sr))
-        spectral_rolloff = np.mean(librosa.feature.spectral_rolloff(y=y, sr=sr))
-        spectral_bandwidth = np.mean(librosa.feature.spectral_bandwidth(y=y, sr=sr))
-        
-        # Score: good pitch variation (10-20%), rich spectrum
-        variation_score = 10 * min(pitch_variation / 0.15, 1.0)  # Optimal ~15%
-        spectrum_score = 10 * min(spectral_bandwidth / 2000, 1.0)  # Rich spectrum
-        
-        score = (variation_score + spectrum_score) / 2
-        score = max(0, min(10, score))
-        
-        return {
-            "score": round(score, 2),
-            "pitch_mean_hz": round(pitch_mean, 1),
-            "pitch_std_hz": round(pitch_std, 1),
-            "pitch_range_hz": round(pitch_range, 1),
-            "pitch_variation": round(pitch_variation, 3),
-            "spectral_centroid_hz": round(spectral_centroid, 1)
-        }
+        if not self.use_speechmetrics:
+            return {}
+            
+        try:
+            results = {}
+            
+            # MOSNet - predicts MOS score
+            try:
+                mosnet_result = self.mosnet_metric.test(audio_path)
+                mosnet_scores = mosnet_result['mosnet']
+                results["mosnet_score"] = float(mosnet_scores.mean()) if len(mosnet_scores) > 0 else 0.0
+            except Exception as e:
+                logger.error(f"MOSNet evaluation failed: {e}")
+                results["mosnet_score"] = 0.0
+            
+            # SRMR - Speech-to-Reverberation Modulation energy Ratio
+            try:
+                srmr_result = self.srmr_metric.test(audio_path)
+                srmr_scores = srmr_result['srmr']
+                results["srmr_score"] = float(srmr_scores.mean()) if len(srmr_scores) > 0 else 0.0
+            except Exception as e:
+                logger.error(f"SRMR evaluation failed: {e}")
+                results["srmr_score"] = 0.0
+            
+            return results
+            
+        except Exception as e:
+            logger.error(f"SpeechMetrics evaluation failed: {e}")
+            return {
+                "mosnet_score": 0.0,
+                "srmr_score": 0.0,
+                "speechmetrics_error": str(e)
+            }
     
-    def _calculate_tone(self, y: np.ndarray, sr: int) -> Dict:
-        """
-        Tone: warmth, clarity, pleasantness
-        Score 0-10 (higher = better tone)
-        """
-        # MFCCs for tonal quality
-        mfccs = librosa.feature.mfcc(y=y, sr=sr, n_mfcc=13)
-        mfcc_mean = np.mean(mfccs, axis=1)
-        
-        # Spectral contrast (clarity)
-        contrast = librosa.feature.spectral_contrast(y=y, sr=sr)
-        clarity = np.mean(contrast)
-        
-        # Zero crossing rate (smoothness)
-        zcr = np.mean(librosa.feature.zero_crossing_rate(y))
-        smoothness = 1.0 / (1.0 + zcr * 100)
-        
-        # Harmonic-to-noise ratio estimate
-        harmonic, percussive = librosa.effects.hpss(y)
-        hnr = np.sum(harmonic**2) / (np.sum(percussive**2) + 1e-6)
-        hnr_db = 10 * np.log10(hnr + 1e-6)
-        
-        # Score: high clarity, smooth, good HNR
-        clarity_score = 10 * min(clarity / 30, 1.0)
-        smoothness_score = 10 * smoothness
-        hnr_score = 10 * min(hnr_db / 20, 1.0)  # Good HNR ~20dB
-        
-        score = (clarity_score + smoothness_score + hnr_score) / 3
-        score = max(0, min(10, score))
-        
-        return {
-            "score": round(score, 2),
-            "clarity": round(clarity, 2),
-            "smoothness": round(smoothness, 3),
-            "hnr_db": round(hnr_db, 2)
-        }
-
-
-def evaluate_audio_file(audio_path: str) -> Dict:
-    """Convenience function to evaluate a single audio file"""
-    evaluator = VoiceQualityEvaluator()
-    return evaluator.evaluate(audio_path)
 
 
 if __name__ == "__main__":
     import sys
     
     if len(sys.argv) < 2:
-        print("Usage: python voice_quality_evaluator.py <audio_file> [--llm] [--nova-sonic]")
+        print("Usage: python voice_quality_evaluator.py <audio_file> [--llm]")
         sys.exit(1)
     
     audio_path = sys.argv[1]
     use_llm = "--llm" in sys.argv
-    use_nova = "--nova-sonic" in sys.argv
     
-    evaluator = VoiceQualityEvaluator(use_llm_judge=use_llm, use_nova_sonic=use_nova)
+    evaluator = VoiceQualityEvaluator(use_llm_judge=use_llm)
     
-    if use_llm or use_nova:
-        results = asyncio.run(evaluator.evaluate_async(audio_path))
-    else:
-        results = evaluator.evaluate(audio_path)
+    results = evaluator.evaluate(audio_path)
     
     print("\n" + "="*60)
     print("VOICE QUALITY EVALUATION")
     print("="*60)
     print(f"Audio: {audio_path}")
     print(f"\nOverall Quality: {results['overall_quality']:.2f}/10")
-    print(f"\nFluency: {results['fluency']['score']:.2f}/10")
-    print(f"  - Speaking rate: {results['fluency']['speaking_rate_sps']:.2f} syllables/sec")
-    print(f"  - Silence ratio: {results['fluency']['silence_ratio']:.3f}")
-    print(f"  - Energy consistency: {results['fluency']['energy_consistency']:.3f}")
-    print(f"\nNaturalness: {results['naturalness']['score']:.2f}/10")
-    print(f"  - Pitch mean: {results['naturalness']['pitch_mean_hz']:.1f} Hz")
-    print(f"  - Pitch variation: {results['naturalness']['pitch_variation']:.3f}")
-    print(f"  - Spectral centroid: {results['naturalness']['spectral_centroid_hz']:.1f} Hz")
-    print(f"\nTone: {results['tone']['score']:.2f}/10")
-    print(f"  - Clarity: {results['tone']['clarity']:.2f}")
-    print(f"  - Smoothness: {results['tone']['smoothness']:.3f}")
-    print(f"  - HNR: {results['tone']['hnr_db']:.2f} dB")
     
-    if use_nova and 'nova_sonic_overall' in results:
-        print(f"\n--- BEDROCK NOVA SONIC 2 SCORES ---")
-        print(f"Fluency: {results['nova_sonic_fluency']:.2f}/10")
-        print(f"Naturalness: {results['nova_sonic_naturalness']:.2f}/10")
-        print(f"Tone: {results['nova_sonic_tone']:.2f}/10")
-        print(f"Overall: {results['nova_sonic_overall']:.2f}/10")
-        print(f"Reasoning: {results['nova_sonic_reasoning']}")
+    if 'note' in results:
+        print(f"Note: {results['note']}")
+    
+    # Show NISQA scores if available
+    if 'mos' in results:
+        print(f"\n--- NISQA SCORES ---")
+        print(f"MOS: {results['mos']:.2f}/5")
+        print(f"Noisiness: {results['noisiness']:.2f}")
+        print(f"Coloration: {results['coloration']:.2f}")
+        print(f"Discontinuity: {results['discontinuity']:.2f}")
+        print(f"Loudness: {results['loudness']:.2f}")
+    
+    # Show SpeechMetrics scores if available
+    if 'mosnet_score' in results:
+        print(f"\n--- SPEECHMETRICS SCORES ---")
+        print(f"MOSNet: {results['mosnet_score']:.2f}/5")
+        print(f"SRMR: {results['srmr_score']:.2f}")
     
     if use_llm and 'llm_overall' in results:
-        print(f"\n--- LLM JUDGE SCORES ---")
+        print(f"\n--- CLAUDE HAIKU 4.5 SCORES ---")
         print(f"Fluency: {results['llm_fluency']:.2f}/10")
         print(f"Naturalness: {results['llm_naturalness']:.2f}/10")
         print(f"Tone: {results['llm_tone']:.2f}/10")

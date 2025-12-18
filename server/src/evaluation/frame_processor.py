@@ -7,7 +7,7 @@ and text outputs during the voice assistant pipeline execution.
 import time
 from typing import Optional, List
 from pipecat.processors.frame_processor import FrameProcessor
-from pipecat.frames.frames import AudioRawFrame, TranscriptionFrame, TextFrame, TTSAudioRawFrame
+from pipecat.frames.frames import AudioRawFrame, TranscriptionFrame, TextFrame, TTSAudioRawFrame, LLMFullResponseStartFrame
 
 
 class TimingCollector:
@@ -94,28 +94,18 @@ class TTSTimingProcessor(FrameProcessor):
             
         await self.push_frame(frame, direction)
 
+
 class STTCollector(FrameProcessor):
     """
     Collects Speech-to-Text transcription outputs and timing.
-    
-    Captures transcribed text from STT service and marks the end time
-    of STT processing for latency calculation.
     """
     
     def __init__(self, timing_collector: TimingCollector, text_collector: List[str]):
-        """
-        Initialize STT collector.
-        
-        Args:
-            timing_collector: Shared timing data collector
-            text_collector: List to store transcribed text segments
-        """
         super().__init__()
         self.timing_collector = timing_collector
         self.text_collector = text_collector
     
     async def process_frame(self, frame, direction):
-        """Process frame and collect STT output."""
         await super().process_frame(frame, direction)
         
         if isinstance(frame, TranscriptionFrame):
@@ -125,40 +115,49 @@ class STTCollector(FrameProcessor):
             
             # Collect transcribed text for evaluation
             self.text_collector.append(frame.text)
+            print(f"DEBUG: STTCollector received transcription: '{frame.text}'")
             
         await self.push_frame(frame, direction)
 
 
 class LLMCollector(FrameProcessor):
     """
-    Collects Large Language Model response outputs and timing.
-    
-    Captures text responses from the LLM and marks when TTS processing
-    begins (when LLM output is ready for speech synthesis).
+    Collects LLM response text for evaluation.
     """
     
     def __init__(self, timing_collector: TimingCollector, text_collector: List[str]):
-        """
-        Initialize LLM collector.
-        
-        Args:
-            timing_collector: Shared timing data collector
-            text_collector: List to store LLM response text segments
-        """
         super().__init__()
         self.timing_collector = timing_collector
         self.text_collector = text_collector
     
     async def process_frame(self, frame, direction):
-        """Process frame and collect LLM output."""
         await super().process_frame(frame, direction)
         
-        if isinstance(frame, TextFrame):
-            # Mark TTS start time when LLM begins outputting text
-            if self.timing_collector.tts_start_time is None:
-                self.timing_collector.tts_start_time = time.time()
+        if isinstance(frame, LLMFullResponseStartFrame):
+            await self.push_frame(frame, direction)
             
-            # Collect LLM response text for evaluation
-            self.text_collector.append(frame.text)
+        elif isinstance(frame, TextFrame):
+            import re
+            if not frame.text:
+                return
             
-        await self.push_frame(frame, direction)
+            text = frame.text.strip()
+            important_words = ['I', 'A', 'The', 'This', 'That', 'You', 'We', 'It', 'He', 'She']
+            
+            if (any(c.isalnum() for c in text) or 
+                text in important_words or 
+                len(re.sub(r'[^\w\s]', '', text).strip()) >= 1):
+                
+                # Mark TTS start time when LLM begins outputting text
+                if self.timing_collector.tts_start_time is None:
+                    self.timing_collector.tts_start_time = time.time()
+                
+                # Clean and collect LLM response text for evaluation
+                clean_text = frame.text.replace('\u2014', '--').replace('\u2013', '-').replace('\u2019', "'").replace('\u201c', '"').replace('\u201d', '"')
+                self.text_collector.append(clean_text)
+                
+                # Send cleaned text to TTS
+                clean_frame = TextFrame(clean_text)
+                await self.push_frame(clean_frame, direction)
+        else:
+            await self.push_frame(frame, direction)

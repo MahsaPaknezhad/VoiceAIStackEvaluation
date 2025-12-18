@@ -26,7 +26,7 @@ class VoiceAssistantEvaluator:
         self.evaluate_voice_quality = evaluate_voice_quality
         
         if evaluate_voice_quality:
-            self.voice_evaluator = VoiceQualityEvaluator(use_llm_judge=True, use_nova_sonic=False)
+            self.voice_evaluator = VoiceQualityEvaluator(use_llm_judge=True)
         
     def _load_dataset(self) -> Dict:
         """Load the evaluation dataset"""
@@ -35,7 +35,10 @@ class VoiceAssistantEvaluator:
     
     def _create_judge_agent(self) -> Agent:
         """Create LLM judge agent"""
-        model = BedrockModel(model_id="us.anthropic.claude-haiku-4-5-20251001-v1:0")
+        model = BedrockModel(
+            model_id="au.anthropic.claude-haiku-4-5-20251001-v1:0",
+            region_name="ap-southeast-2"
+        )
         return Agent(
             name="EvaluationJudge",
             model=model,
@@ -154,7 +157,14 @@ Evaluate the actual response."""
         # Add voice quality metrics if enabled and TTS audio available
         if self.evaluate_voice_quality and tts_audio_path:
             try:
-                voice_metrics = await self.voice_evaluator.evaluate_async(tts_audio_path, llm_response)
+                # Get LLM judge evaluation
+                llm_voice_metrics = await self.voice_evaluator.evaluate_with_llm_judge(tts_audio_path, llm_response)
+                
+                # Get NISQA and speechmetrics evaluation
+                technical_voice_metrics = self.voice_evaluator.evaluate(tts_audio_path)
+                
+                # Combine both sets of metrics
+                voice_metrics = {**llm_voice_metrics, **technical_voice_metrics}
                 result["voice_quality"] = voice_metrics
             except Exception as e:
                 logger.error(f"Voice quality evaluation failed for {question_id}: {e}")
@@ -168,9 +178,17 @@ Evaluate the actual response."""
         Args:
             results_file: Path to JSON file with STT outputs and bot responses
         """
-        # Load results
-        with open(results_file, 'r') as f:
-            results_data = json.load(f)
+        # Load results with error handling
+        try:
+            with open(results_file, 'r') as f:
+                content = f.read().strip()
+                if not content:
+                    raise ValueError(f"Results file {results_file} is empty")
+                results_data = json.loads(content)
+        except (json.JSONDecodeError, ValueError) as e:
+            print(f"Error reading results file {results_file}: {e}")
+            print("File may be corrupted or still being written. Please try again.")
+            return None
         
         # Extract model metadata if present
         if isinstance(results_data, dict) and 'results' in results_data:
@@ -373,6 +391,11 @@ async def main():
     
     logger.info("Starting evaluation...")
     results = await evaluator.run_evaluation(args.results)
+    
+    if results is None:
+        print("Evaluation failed due to corrupted or empty results file.")
+        print("Please re-run the voice pipeline evaluator to generate new results.")
+        return
     
     evaluator.save_results(results, args.output)
     

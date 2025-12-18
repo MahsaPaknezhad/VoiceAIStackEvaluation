@@ -3,21 +3,25 @@ Evaluation transport for batch processing audio files.
 """
 
 import asyncio
-from pipecat.transports.base_transport import BaseTransport
-from pipecat.frames.frames import AudioRawFrame, Frame, StartFrame, TextFrame, TTSAudioRawFrame, EndFrame
+import uuid
+from pipecat.transports.base_transport import BaseTransport, TransportParams
+from pipecat.frames.frames import AudioRawFrame, Frame, StartFrame, TextFrame, TTSAudioRawFrame, TTSStoppedFrame
 from pipecat.processors.frame_processor import FrameDirection, FrameProcessor
 
 
 class EvaluationTransport(BaseTransport):
     """Transport for batch evaluation that processes audio files."""
     
-    def __init__(self, audio_data: bytes, sample_rate: int):
+    def __init__(self, audio_data: bytes, sample_rate: int, params: TransportParams = None, stt_model: str = "small"):
         self._audio_data = audio_data
         self._sample_rate = sample_rate
         self._output_audio = []
+        self._params = params or TransportParams()
+        self._stt_model = stt_model
         
         # Create input/output processors BEFORE calling super().__init__()
-        self._input = EvaluationInput(self._audio_data, self._sample_rate)
+        vad_analyzer = self._params.vad_analyzer if self._params else None
+        self._input = EvaluationInput(self._audio_data, self._sample_rate, vad_analyzer, stt_model)
         self._output = EvaluationOutput(self._output_audio)
         
         super().__init__(input_name="EvaluationInput", output_name="EvaluationOutput")
@@ -38,11 +42,17 @@ class EvaluationTransport(BaseTransport):
 class EvaluationInput(FrameProcessor):
     """Input processor that sends audio data in chunks."""
     
-    def __init__(self, audio_data: bytes, sample_rate: int):
+    def __init__(self, audio_data: bytes, sample_rate: int, vad_analyzer=None, stt_model: str = "small"):
         super().__init__()
         self._audio_data = audio_data
         self._sample_rate = sample_rate
         self._sent = False
+        self._vad_analyzer = vad_analyzer
+        self._stt_model = stt_model
+        
+        # Initialize VAD with sample rate if provided
+        if self._vad_analyzer:
+            self._vad_analyzer.set_sample_rate(sample_rate)
     
     async def process_frame(self, frame: Frame, direction: FrameDirection):
         await super().process_frame(frame, direction)
@@ -57,22 +67,28 @@ class EvaluationInput(FrameProcessor):
                 # Small delay to let StartFrame propagate
                 await asyncio.sleep(0.1)
                 
+                # For Whisper evaluation: send single VAD start, all audio, then VAD stop
+                if self._vad_analyzer:
+                    from pipecat.frames.frames import UserStartedSpeakingFrame, UserStoppedSpeakingFrame
+                    await self.push_frame(UserStartedSpeakingFrame(), direction)
+                
                 # Send audio in 100ms chunks for better transcription
-                # 16000 Hz * 0.1s * 2 bytes = 3200 bytes per chunk
                 chunk_size = int(self._sample_rate * 0.1 * 2)
                 print(f"Sending {len(self._audio_data)} bytes of audio in {len(self._audio_data)//chunk_size} chunks")
+                chunk_count = 0
                 for i in range(0, len(self._audio_data), chunk_size):
                     chunk = self._audio_data[i:i+chunk_size]
-                    frame = AudioRawFrame(
+                    audio_frame = AudioRawFrame(
                         audio=chunk,
                         sample_rate=self._sample_rate,
                         num_channels=1
                     )
-                    frame.id = f"audio_chunk_{i//chunk_size}"
-                    await self.push_frame(frame, direction)
-                    await asyncio.sleep(0.1)  # Match chunk duration to prevent timeout
+                    audio_frame.id = f"audio_chunk_{chunk_count}"
+                    chunk_count += 1
+                    await self.push_frame(audio_frame, direction)
+                    await asyncio.sleep(0.1)
                 
-                # Add 2 seconds of silence padding to ensure full transcription
+                # Add silence padding
                 silence_duration = 2.0
                 silence_bytes = int(self._sample_rate * silence_duration * 2)
                 silence_chunk = b'\x00' * silence_bytes
@@ -84,16 +100,24 @@ class EvaluationInput(FrameProcessor):
                         sample_rate=self._sample_rate,
                         num_channels=1
                     )
-                    frame.id = f"silence_chunk_{silence_chunk_count}"
-                    silence_chunk_count += 1
+                    frame.id = str(uuid.uuid4())
                     await self.push_frame(frame, direction)
                     await asyncio.sleep(0.1)
-                print("Sending EndFrame to signal completion...")
-                end_frame = EndFrame()
-                await self.push_frame(end_frame, direction)
-                print("All audio chunks sent, waiting for transcription...")
-                # Wait for final transcription processing
-                await asyncio.sleep(3.0)
+                
+                # Send VAD stop - aggregator will wait for transcription via timeout
+                if self._vad_analyzer:
+                    from pipecat.frames.frames import UserStoppedSpeakingFrame
+                    await self.push_frame(UserStoppedSpeakingFrame(), direction)
+                
+                # Dynamic wait time based on STT model
+                if "large" in self._stt_model.lower():
+                    wait_time = 30.0  # Whisper Large needs more time
+                    print("All audio chunks sent, waiting 30s for Whisper Large transcription...")
+                else:
+                    wait_time = 15.0  # Whisper Small/Medium
+                    print("All audio chunks sent, waiting 15s for transcription...")
+                
+                await asyncio.sleep(wait_time)
         else:
             await self.push_frame(frame, direction)
 
@@ -112,16 +136,16 @@ class EvaluationOutput(FrameProcessor):
         
         # Start collecting when we see TTS audio (after TextFrame processing)
         if isinstance(frame, TTSAudioRawFrame) and self._collecting_tts:
-            print(f"DEBUG: Collecting TTS audio chunk: {len(frame.audio)} bytes")
+            #print(f"DEBUG: Collecting TTS audio chunk: {len(frame.audio)} bytes")
             self.sample_rate = frame.sample_rate  # Get actual sample rate
             self._output_list.append(frame.audio)
         elif isinstance(frame, TextFrame):
             # TextFrame indicates TTS is about to start
-            print(f"DEBUG: TextFrame detected, starting TTS collection: {frame.text[:50]}...")
+            #print(f"DEBUG: TextFrame detected, starting TTS collection: {frame.text[:50]}...")
             self._collecting_tts = True
-        elif isinstance(frame, EndFrame):
-            # EndFrame signals completion
-            print("DEBUG: EndFrame detected, stopping TTS collection")
+        elif isinstance(frame, TTSStoppedFrame):
+            # TTSStoppedFrame indicates TTS is complete
+            #print(f"DEBUG: TTSStoppedFrame detected, stopping TTS collection")
             self._collecting_tts = False
             
         await self.push_frame(frame, direction)

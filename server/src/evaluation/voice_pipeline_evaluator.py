@@ -10,8 +10,11 @@ import time
 import random
 from typing import Dict, List
 from loguru import logger
+import warnings
+warnings.filterwarnings("ignore", message="Dangling tasks detected")
 import argparse
 from pathlib import Path
+import re
 
 # Import Pipecat components
 from pipecat.services.deepgram.stt import DeepgramSTTService, LiveOptions
@@ -23,6 +26,7 @@ from pipecat.pipeline.task import PipelineTask, PipelineParams
 from pipecat.transports.base_transport import TransportParams
 from pipecat.processors.frame_processor import FrameProcessor
 from pipecat.processors.aggregators.openai_llm_context import OpenAILLMContext
+from pipecat.services.aws.llm import AWSBedrockLLMContext
 from pipecat.services.aws.llm import AWSBedrockLLMContext
 from pipecat.processors.aggregators.llm_response import LLMUserContextAggregator, LLMAssistantContextAggregator
 from dotenv import load_dotenv
@@ -50,6 +54,9 @@ from src.evaluation.frame_processor import (
 
 load_dotenv(override=True)
 
+# Suppress Pipecat cleanup warnings
+logger.disable("pipecat.pipeline.task")
+
 
 class VoiceAssistantRunner:
     def __init__(self, dataset_path: str, audio_dir: str, stt_config: str = None, 
@@ -73,6 +80,23 @@ class VoiceAssistantRunner:
         with open(config_path, 'r') as f:
             return json.load(f)
     
+    def _substitute_env_vars(self, config: Dict) -> Dict:
+        """Substitute environment variables in config values"""
+        result = config.copy()
+        for key, value in result.items():
+            if isinstance(value, str) and value.startswith('${') and value.endswith('}'):
+                env_var = value[2:-1]  # Remove ${ and }
+                if ':' in env_var:  # Handle ${VAR}:port format
+                    env_var, suffix = env_var.split(':', 1)
+                    env_value = os.getenv(env_var)
+                    if env_value:
+                        result[key] = f"{env_value}:{suffix}"
+                else:
+                    env_value = os.getenv(env_var)
+                    if env_value:
+                        result[key] = env_value
+        return result
+    
     def _create_stt_service(self):
         """Create STT service from config"""
         if not self.stt_config:
@@ -86,11 +110,17 @@ class VoiceAssistantRunner:
         module_name = self.stt_config["module"]
         class_name = self.stt_config["class"]
         
+        # Special handling for NVIDIA/LiveKit STT services
+        if "livekit" in module_name and "nvidia" in module_name:
+            from src.core.livekit_stt_adapter import LiveKitSTTAdapter
+            config = self.stt_config.get("config", {})
+            return LiveKitSTTAdapter(**config)
+        
         module = __import__(module_name, fromlist=[class_name])
         service_class = getattr(module, class_name)
         
-        # Get config params
-        config = self.stt_config.get("config", {})
+        # Get config params and substitute environment variables
+        config = self._substitute_env_vars(self.stt_config.get("config", {}))
         
         # Create service
         if "deepgram" in module_name:
@@ -103,7 +133,11 @@ class VoiceAssistantRunner:
                 api_key=os.getenv("OPENAI_API_KEY"),
                 **config
             )
-        return service_class(**config)
+        elif "aws" in module_name:
+            # AWS services use default credential chain
+            return service_class(**config)
+        else:
+            return service_class(**config)
     
     def _create_tts_service(self):
         """Create TTS service from config"""
@@ -121,10 +155,11 @@ class VoiceAssistantRunner:
         module = __import__(module_name, fromlist=[class_name])
         service_class = getattr(module, class_name)
         
-        # Get config params
-        config = self.tts_config.get("config", {})
+        # Get config params and substitute environment variables
+        config = self._substitute_env_vars(self.tts_config.get("config", {}))
         
-        # Create service with appropriate API key
+        # Determine API key based on service
+        api_key = None
         if "deepgram" in module_name:
             return service_class(api_key=os.getenv("DEEPGRAM_API_KEY"), **config)
         if "openai" in module_name:
@@ -141,14 +176,96 @@ class VoiceAssistantRunner:
             return service_class(api_key=os.getenv("LMNT_API_KEY"), **config)
         if "playht" in module_name:
             return service_class(api_key=os.getenv("PLAYHT_API_KEY"), **config)
-        if "rime" in module_name:
-            return service_class(api_key=os.getenv("RIME_API_KEY"), **config)
-        return service_class(**config)
+        elif "rime" in module_name:
+            api_key = os.getenv("RIME_API_KEY")
+        elif "groq" in module_name:
+            api_key = os.getenv("GROQ_API_KEY")
+        
+        logger.info(f"Using API key: {'***' if api_key else 'None'}")
+        logger.info(f"Final config after env substitution: {config}")
+        
+        try:
+            if "livekit" in module_name:
+                if "nvidia" in module_name:
+                    from src.core.nvidia.livekit_tts_adapter import LiveKitTTSAdapter
+                    return LiveKitTTSAdapter(**config)
+                elif "patakeet" in module_name:
+                    from src.core.livekit_patakeet_adapter import LiveKitPatakeetAdapter
+                    return LiveKitPatakeetAdapter(**config)
+                else:
+                    # Generic LiveKit adapter fallback
+                    from src.core.livekit_tts_adapter import LiveKitTTSAdapter
+                    return LiveKitTTSAdapter(**config)
+            elif "nvidia" in module_name or "riva" in module_name:
+                # NVIDIA services don't use api_key parameter
+                return service_class(**config)
+            elif "aws" in module_name:
+                return service_class(**config)
+            elif api_key:
+                return service_class(api_key=api_key, **config)
+            else:
+                return service_class(**config)
 
+        except Exception as e:
+            logger.error(f"Failed to create {class_name} with config {config}: {e}")
+            raise
+        
     def _load_dataset(self) -> Dict:
         """Load the evaluation dataset"""
         with open(self.dataset_path, 'r') as f:
             return json.load(f)
+    
+    def _extract_final_response(self, full_text: str) -> str:
+        """Extract the final/most complete response from concatenated LLM outputs.
+        
+        Strategy: Split on common response patterns and take the last complete response.
+        """
+        if not full_text:
+            return ""
+        
+        # Common patterns that indicate start of new responses
+        response_starters = [
+            "I notice your question",
+            "I'd be happy to help", 
+            "I'm not quite sure",
+            "I see your question",
+            "I'm still not",
+            "I'm getting closer",
+            "I appreciate",
+            "I still can't",
+            "I'm not able"
+        ]
+        
+        # Find all potential response boundaries
+        boundaries = [0]  # Start of text
+        for starter in response_starters:
+            pos = 0
+            while True:
+                pos = full_text.find(starter, pos)
+                if pos == -1:
+                    break
+                boundaries.append(pos)
+                pos += 1
+        
+        # Sort boundaries and split text
+        boundaries = sorted(set(boundaries))
+        responses = []
+        
+        for i in range(len(boundaries)):
+            start = boundaries[i]
+            end = boundaries[i + 1] if i + 1 < len(boundaries) else len(full_text)
+            response = full_text[start:end].strip()
+            if response:
+                responses.append(response)
+        
+        if not responses:
+            return full_text.strip()
+        
+        # Return the longest response (most complete)
+        final_response = max(responses, key=len)
+        print(f"DEBUG: Found {len(responses)} responses, selected longest ({len(final_response)} chars)")
+        
+        return final_response
     
     async def process_audio_file(self, audio_path: str, question_id: str) -> Dict:
         """
@@ -180,18 +297,63 @@ class VoiceAssistantRunner:
             print(f"Audio data size: {len(audio_data)} bytes")
             print(f"Audio duration: {duration_seconds:.2f} seconds")
         
-        transport = EvaluationTransport(audio_data, sample_rate)
+        # Handle audio resampling if required by STT config
+        if self.stt_config and self.stt_config.get("audio_requirements"):
+            audio_reqs = self.stt_config["audio_requirements"]
+            required_rates = audio_reqs.get("sample_rates", [])
+            target_rate = audio_reqs.get("resample_to")
+            
+            if required_rates and sample_rate not in required_rates and target_rate:
+                import librosa
+                import numpy as np
+                audio_array = np.frombuffer(audio_data, dtype=np.int16).astype(np.float32) / 32768.0
+                audio_array = librosa.resample(audio_array, orig_sr=sample_rate, target_sr=target_rate)
+                audio_data = (audio_array * 32768.0).astype(np.int16).tobytes()
+                sample_rate = target_rate
+        
+        # Always use VAD for batch evaluation to detect speech end
+        from pipecat.audio.vad.silero import SileroVADAnalyzer
+        from pipecat.audio.vad.vad_analyzer import VADParams
+        from pipecat.transports.base_transport import TransportParams
+        
+        vad_analyzer = SileroVADAnalyzer(params=VADParams(stop_secs=1.0))  # 1 second silence = speech end
+        params = TransportParams(audio_in_enabled=True, vad_analyzer=vad_analyzer)
+        
+        transport = EvaluationTransport(
+            audio_data, 
+            sample_rate, 
+            params=params,
+            stt_model=self.stt_config.get("config", {}).get("model", "default") if self.stt_config else "default"
+        )
         
         # Create services
         stt = self._create_stt_service()
+        
+        # For batch STT, transcribe the file first
+        if hasattr(stt, 'transcribe_file'):
+            transcription = stt.transcribe_file(audio_path)
+            stt.set_transcription(transcription)
+        
         tts = self._create_tts_service()
-        agent = build_conversation_agent(model_id="us.anthropic.claude-haiku-4-5-20251001-v1:0", tts_service=tts)
+        agent = build_conversation_agent(model_id="au.anthropic.claude-haiku-4-5-20251001-v1:0", tts_service=tts)
         llm = StrandsAgentsProcessor(agent=agent)
         
-        # Setup context
-        #context = AWSBedrockLLMContext()
-        context = OpenAILLMContext()
-        tma_in = LLMUserContextAggregator(context=context)
+        # Setup context - use timeout for Whisper (batch STT), VAD for streaming STT
+        context = AWSBedrockLLMContext()
+        from pipecat.processors.aggregators.llm_response import LLMUserAggregatorParams
+        
+        # Check if using Whisper (batch processing)
+        is_whisper = self.stt_config and 'whisper' in self.stt_config.get('stt_service_id', '').lower()
+        if is_whisper:
+            # Use timeout for Whisper since it sends single transcription
+            user_params = LLMUserAggregatorParams(aggregation_timeout=5.0)
+            print(f"DEBUG: Using timeout-based aggregation for Whisper (5s)")
+        else:
+            # Use VAD for streaming STT
+            user_params = LLMUserAggregatorParams(aggregation_timeout=None)
+            print(f"DEBUG: Using VAD-based aggregation for streaming STT")
+            
+        tma_in = LLMUserContextAggregator(context=context, params=user_params)
         tma_out = LLMAssistantContextAggregator(context=context)
         
         # Collectors
@@ -204,45 +366,85 @@ class VoiceAssistantRunner:
         tts_timing_end = TTSTimingProcessor(timing_collector)
         stt_collector = STTCollector(timing_collector, stt_texts)
         llm_collector = LLMCollector(timing_collector, llm_texts)
+
         
-        # Build pipeline: STT -> context -> LLM -> context -> TTS
+        # Build pipeline: STT -> Context -> LLM -> TTS (bypass output context aggregator)
         pipeline = Pipeline([
             transport.input(),
             stt_timing_start,
             stt,
             stt_collector,
-            tma_in,
+            tma_in,  # Convert TranscriptionFrame to OpenAILLMContextFrame
             llm,
             llm_collector,
-            #tma_out,
+            # tma_out,  # Skip output aggregator - TextFrames go directly to TTS
             tts,
             tts_timing_end,
             transport.output()
         ])
         
-        task = PipelineTask(pipeline, params=PipelineParams())
+        # Get pipeline params from config (with defaults)
+        pipeline_params_config = self.stt_config.get("pipeline_params", {}) if self.stt_config else {}
+        pipeline_params = PipelineParams(
+            allow_interruptions=pipeline_params_config.get("allow_interruptions", True),
+            enable_metrics=pipeline_params_config.get("enable_metrics", False),
+            enable_usage_metrics=pipeline_params_config.get("enable_usage_metrics", False),
+            report_only_initial_ttfb=pipeline_params_config.get("report_only_initial_ttfb", True)
+        )
+        
+        task = PipelineTask(pipeline, params=pipeline_params)
         
         # Process audio
         start_time = time.time()
         
-        await task.queue_frames([
-            StartFrame(),
-            EndFrame()
-        ])
+        await task.queue_frames([StartFrame(), EndFrame()])
         
-        # Run pipeline with error handling
+        # Run pipeline in background
         runner = PipelineRunner()
+        run_task = asyncio.create_task(runner.run(task))
+        
+        # Wait for VAD-triggered LLM and TTS to complete
+        pipeline_timeout = self.stt_config.get("pipeline_timeout", 18.0) if self.stt_config else 18.0
+        await asyncio.sleep(pipeline_timeout)
+        
+        # Clean shutdown of services
         try:
-            await runner.run(task)
-        except Exception as pipeline_error:
-            # Re-raise the error to be caught by outer retry logic
-            raise pipeline_error
+            # Stop STT service cleanly
+            if hasattr(stt, 'disconnect'):
+                await stt.disconnect()
+        except:
+            pass
+        
+        try:
+            # Stop TTS service cleanly  
+            if hasattr(tts, 'stop'):
+                await tts.stop(EndFrame())
+        except:
+            pass
+        
+        # Cancel task
+        await task.cancel()
+        
+        # Give time for cleanup
+        await asyncio.sleep(0.1)
+        
+        # Wait for run_task to complete cancellation with config-driven timeout
+        # cleanup_timeout = self.stt_config.get("cleanup_timeout", 2.0) if self.stt_config else 2.0
+        # try:
+        #     await asyncio.wait_for(run_task, timeout=cleanup_timeout)
+        # except (asyncio.TimeoutError, asyncio.CancelledError):
+        #     pass
+        
+        logger.info("Pipeline processing complete, continuing...")
         
         total_latency = (time.time() - start_time) * 1000
         
         # Collect results
         stt_output = " ".join(stt_texts)
-        llm_response = " ".join(llm_texts)
+        llm_response = "".join(llm_texts)
+        
+        print(f"DEBUG: LLM response length: {len(llm_response)}")
+        print(f"DEBUG: LLM response: {llm_response[:200]}...")
         
         # Save TTS audio from transport
         tts_audio_path = None
@@ -290,7 +492,7 @@ class VoiceAssistantRunner:
         if self.evaluate_voice_quality and tts_audio_path:
             try:
                 if self.use_llm_judge:
-                    voice_metrics = await self.voice_evaluator.evaluate_async(tts_audio_path, result["bot_response"])
+                    voice_metrics = await self.voice_evaluator.evaluate_with_llm_judge(tts_audio_path, result["bot_response"])
                 else:
                     voice_metrics = self.voice_evaluator.evaluate(tts_audio_path)
                 
@@ -304,6 +506,12 @@ class VoiceAssistantRunner:
     async def run_all(self, output_path: str = None) -> List[Dict]:
         """Run bot on all audio files in dataset"""
         results = []
+        total_files = len(self.dataset['questions'])
+        processed_count = 0
+        error_count = 0
+        skipped_count = 0
+        
+        logger.info(f"Starting evaluation of {total_files} audio files")
         
         for i, question in enumerate(self.dataset['questions']):
             question_id = question['id']
@@ -312,6 +520,7 @@ class VoiceAssistantRunner:
             
             if not os.path.exists(audio_path):
                 logger.error(f"Audio file not found: {audio_path}")
+                skipped_count += 1
                 continue
             
             # Retry logic for Bedrock failures
@@ -323,6 +532,17 @@ class VoiceAssistantRunner:
                     if attempt > 0:
                         logger.info(f"Retry attempt {attempt + 1}/{max_retries} for {question_id}")
                     result = await self.process_audio_file(audio_path, question_id)
+                    
+                    # Check if TTS actually worked (if TTS config is provided)
+                    if self.tts_config and result.get("tts_audio_path") is None:
+                        # TTS was expected but failed
+                        result["status"] = "failed"
+                        result["error"] = "TTS failed - no audio generated"
+                        error_count += 1
+                    else:
+                        result["status"] = "success"
+                        processed_count += 1
+                    
                     results.append(result)
                     
                     # Save results after each sample
@@ -353,12 +573,14 @@ class VoiceAssistantRunner:
                         await asyncio.sleep(wait_time)
                     else:
                         logger.error(f"Error processing {question_id} (final attempt): {e}")
+                        error_count += 1
                         results.append({
                             "question_id": question_id,
                             "audio_file": audio_path,
                             "stt_output": "",
-                            "bot_response": "",
-                            "error": str(e)
+                            "llm_response": "",
+                            "error": str(e),
+                            "status": "failed"
                         })
                         
                         # Save results even on error
@@ -371,11 +593,27 @@ class VoiceAssistantRunner:
                 logger.info("Pausing 3 seconds to avoid rate limiting...")
                 await asyncio.sleep(3)
         
+        # Log final summary
+        logger.info(f"\n{'='*60}")
+        logger.info(f"EVALUATION SUMMARY")
+        logger.info(f"{'='*60}")
+        logger.info(f"Total files in dataset: {total_files}")
+        logger.info(f"Successfully processed: {processed_count}")
+        logger.info(f"Failed with errors: {error_count}")
+        logger.info(f"Skipped (file not found): {skipped_count}")
+        success_rate = (processed_count/(processed_count + error_count))*100 if (processed_count + error_count) > 0 else 0
+        logger.info(f"Success rate: {success_rate:.1f}%")
+        logger.info(f"{'='*60}")
+        
         return results
     
     def save_results(self, results: List[Dict], output_path: str):
         """Save results to JSON"""
         os.makedirs(os.path.dirname(output_path), exist_ok=True)
+        
+        # Calculate summary statistics
+        successful = len([r for r in results if r.get('status') == 'success'])
+        failed = len([r for r in results if r.get('status') == 'failed'])
         
         # Add metadata about STT and TTS models
         output_data = {
@@ -383,11 +621,21 @@ class VoiceAssistantRunner:
             "stt_service_id": self.stt_config.get("stt_service_id") if self.stt_config else None,
             "tts_model": self.tts_config.get("tts_service_name") if self.tts_config else None,
             "tts_service_id": self.tts_config.get("tts_service_id") if self.tts_config else None,
+            "summary": {
+                "total_files": len(results),
+                "successful": successful,
+                "failed": failed,
+                "skipped": len(results) - successful - failed,
+                "success_rate": round((successful/len(results))*100, 1) if results else 0
+            },
             "results": results
         }
         
-        with open(output_path, 'w') as f:
+        # Write atomically to prevent corruption
+        temp_path = output_path + '.tmp'
+        with open(temp_path, 'w') as f:
             json.dump(output_data, f, indent=2)
+        os.rename(temp_path, output_path)
         logger.info(f"Results saved to {output_path}")
 
 
@@ -422,10 +670,32 @@ async def main():
     
     runner.save_results(results, args.output)
     
-    print(f"\nProcessed {len(results)} audio files")
+    # Count successful vs failed results
+    successful = len([r for r in results if r.get('status') == 'success'])
+    failed = len([r for r in results if r.get('status') == 'failed'])
+    
+    print(f"\n{'='*60}")
+    print(f"FINAL RESULTS SUMMARY")
+    print(f"{'='*60}")
+    print(f"Total files processed: {len(results)}")
+    print(f"Successful: {successful}")
+    print(f"Failed: {failed}")
+    print(f"Success rate: {(successful/len(results))*100:.1f}%" if results else "No results")
     print(f"Results saved to: {args.output}")
+    print(f"{'='*60}")
     print("\nNext step: Run evaluation with:")
     print(f"  python evaluate_voiceassistant.py --results {args.output}")
+    
+    # Cancel background tasks but not the main task
+    try:
+        loop = asyncio.get_running_loop()
+        current_task = asyncio.current_task()
+        pending = asyncio.all_tasks(loop)
+        for task in pending:
+            if task != current_task and not task.done():
+                task.cancel()
+    except:
+        pass
 
 
 if __name__ == "__main__":
