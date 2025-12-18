@@ -1,0 +1,95 @@
+{
+  "timestamp": "2025-12-18T01:52:17.387683",
+  "dataset": "evaluation_data/voiceassistant_eval_new/test_2samples.json",
+  "total_questions": 2,
+  "evaluations": [
+    {
+      "question_id": "listening_general_0",
+      "category": "general",
+      "ground_truth": "Does the music sound more like something from today, or does it sound like it is from the past?",
+      "stt_output": "Does the music sound more like something from today? Or does it sound like it is from the past?",
+      "wer": 10.526315789473683,
+      "llm_response": "I don't have any audio to listen to, so I'm not able to hear what music you're referring to. If you could describe the song or tell me more about it\u2014like the instruments, style, or any lyrics you remember\u2014I'd be happy to help you figure out whether it sounds contemporary or from an earlier era!I still don't have access to any audio or music to listen to, so I'm unable to hear what you're referring to. Could you describe the music to me\u2014for example, what instruments are playing, what the vocals sound like, or what genre it seems to be\u2014and I'd be glad to help you figure out whether it sounds modern or from an earlier time period!",
+      "judge_scores": {
+        "correctness": 10,
+        "relevance": 10,
+        "completeness": 8,
+        "clarity": 7,
+        "overall": 8.5,
+        "reasoning": "The response is accurate in acknowledging the assistant's inability to hear audio. It's highly relevant, directly addressing why the question cannot be answered. The response is mostly complete, offering alternative solutions. However, there's unnecessary repetition (the message is stated twice with slight variations), which affects clarity and suggests a potential error in the response formatting. Despite this, the core message is helpful and appropriate."
+      },
+      "stt_latency_ms": 5092.97,
+      "tts_latency_ms": 854.56,
+      "total_latency_ms": 20002.62,
+      "voice_quality": {
+        "llm_fluency": 5,
+        "llm_naturalness": 5,
+        "llm_tone": 5,
+        "llm_overall": 5,
+        "llm_reasoning": "# Audio Quality Analysis Report\n\n## Executive Summary\nThis is **synthetic/AI-generated speech** with generally acceptable technical quality but notable limitations in naturalness and emotional expression.\n\n---\n\n## Key Findings\n\n### \u2705 STRENGTHS\n\n| Metric | Value | Assessment |\n|--------|-------|------------|\n| **Speech Rate** | 4.36 onsets/sec | Natural conversational pace |\n| **Pitch Variation** | 0.365 CV | Moderate prosody (not monotone) |\n| **Spectral Clarity** | 23.76 contrast | Clear articulation |\n| **Harmonic Quality** | 0.93 dB HNR | Acceptable voice purity |\n\n### \u26a0\ufe0f CONCERNS\n\n| Metric | Value | Issue |\n|--------|-------|-------|\n| **Energy Consistency** | 0.387 | Relatively flat dynamics (natural speech: 0.5+) |\n| **Spectral Flatness** | 0.0931 | Indicates synthetic characteristics |\n| **Zero Crossing Rate** | 0.1581 | Lower breathiness/naturalness |\n| **Tonnetz** | 0.006 | Minimal harmonic complexity |\n\n---\n\n## Detailed Analysis\n\n### **Fluency: 7/10**\n- Speech rate is natural and conversational\n- Pitch variation adequate but somewhat mechanical\n- Energy delivery lacks dynamic emphasis typical of human speech\n\n### **Naturalness: 6/10**\n- Spectral profile suggests AI synthesis\n- Low spectral flatness confirms non-natural origin\n- Minimal texture variation (breathing, micro-pauses)\n- Lacks emotional inflection in repetitive content\n\n### **Tone Quality: 7/10**\n- Clear articulation and spectral contrast\n- Harmonic-to-noise ratio acceptable\n- Voice lacks warmth and resonance of natural speech\n\n---\n\n## Recommendations\n\n1. **For improvement**: Increase dynamic range and energy variation\n2. **Prosody enhancement**: Add more pitch variation at clause boundaries\n3. **Naturalness**: Incorporate subtle breathing sounds and micro-pauses\n4. **Content note**: Repetitive structure",
+        "mos": 4.433818340301514,
+        "noisiness": 4.2627387046813965,
+        "coloration": 4.170594692230225,
+        "discontinuity": 4.4435529708862305,
+        "loudness": 4.2882609367370605,
+        "overall_quality": 4.433818340301514,
+        "mosnet_score": 3.391162460500544,
+        "srmr_score": 9.766776549384618
+      }
+    },
+    {
+      "question_id": "listening_general_1",
+      "category": "general",
+      "ground_truth": "Which bowing technique is the fiddler probably using to create the rhythmic melody in the music?",
+      "stt_output": "Which bowing technique is the fiddler probably using to create create the rhythmic melody in the music.",
+      "wer": 12.5,
+      "llm_response": "It looks like your question got cut off! You started askingWhich bowing technique is...\" but didn't finish. Could you complete your question? Are you asking about a specific bowing technique for violin cello, or another stringed instrument, or are you curious about something else related to bowing?It seems your question got cut off again! You're asking about a bowing technique a fiddler is using to create something but II'd be happy to help, but I don't have any audio or video to listen to, so I can't tell you what specific bowing technique is being used. However, for creating rhythmic melodies on fiddle, fiddlers commonly use techniques like short, crisp bow strokes called detach\u00e9, or they might use a sawing motion with longer strokes to emphasize rhythm and drive If you can describe what the music sounds like or share more details about the piece I'd have a better idea of which technique might be at play!",
+      "judge_scores": {
+        "correctness": 6,
+        "relevance": 5,
+        "completeness": 5,
+        "clarity": 3,
+        "overall": 4.5,
+        "reasoning": "The response has significant issues. While the assistant correctly identifies its inability to hear audio, the response is poorly structured with multiple false starts and incomplete sentences ('short, crisp bow strokes called detach\u00e9, or they might use a sawing motion with longer strokes to emphasize rhythm and drive If you can describe'). The assistant does provide some relevant information about common fiddle bowing techniques (detach\u00e9, sawing motion), which is somewhat helpful. However, the response is confusing, redundant, and appears to contain multiple interrupted attempts at answering. The clarity is severely compromised by the fragmented structure, making it difficult to follow. Relevance suffers because the response doesn't cleanly acknowledge the core constraint (no audio access) before offering general information."
+      },
+      "stt_latency_ms": 5228.45,
+      "tts_latency_ms": 418.51,
+      "total_latency_ms": 20001.37,
+      "voice_quality": {
+        "llm_fluency": 5,
+        "llm_naturalness": 5,
+        "llm_tone": 5,
+        "llm_overall": 5,
+        "llm_reasoning": "# Audio Quality Analysis Report\n\n## Summary Assessment\nThis audio sample shows **moderate quality with notable inconsistencies** typical of real-time speech or conversational content.\n\n---\n\n## Key Findings\n\n### \u2713 **Strengths**\n- **Natural pitch variation** (CV: 0.327) - indicates expressive, non-robotic speech\n- **Adequate spectral brightness** (1817.3 Hz) - clear mid-range presence\n- **Reasonable harmonic quality** (HNR: 0.95 dB) - acceptable voice clarity\n- **Moderate speech rate** (6.40 onsets/sec) - conversational and understandable\n\n### \u26a0 **Concerns**\n- **Low energy consistency** (0.445) - suggests variable volume/engagement levels\n- **High dynamic range** (2.18B) - significant fluctuations in energy output\n- **Low spectral flatness** (0.0449) - indicates synthetic or processed characteristics\n- **Minimal harmonic relationships** (Tonnetz: 0.001) - fragmented tonal structure\n\n---\n\n## Detailed Metrics Interpretation\n\n| Metric | Value | Assessment |\n|--------|-------|-----------|\n| **Pitch Stability** | 0.327 CV | Good - natural variation |\n| **Energy Stability** | 0.445 | Fair - inconsistent delivery |\n| **Brightness** | 1817 Hz | Adequate - slightly dark |\n| **Voice Quality** | 0.95 dB HNR | Acceptable - some noise present |\n| **Naturalness** | 0.0449 flatness | Below ideal - somewhat processed |\n\n---\n\n## Recommendations\n1. **Normalize audio levels** to improve energy consistency\n2. **Reduce background noise** to improve HNR\n3. **Maintain steadier vocal delivery** for better listener engagement\n4. **Check microphone positioning** for more consistent spectral response",
+        "mos": 4.598668098449707,
+        "noisiness": 4.358188629150391,
+        "coloration": 4.3711113929748535,
+        "discontinuity": 4.4564433097839355,
+        "loudness": 4.467844009399414,
+        "overall_quality": 4.598668098449707,
+        "mosnet_score": 3.357982635498047,
+        "srmr_score": 9.805094621950483
+      }
+    }
+  ],
+  "summary": {
+    "average_wer": 11.513157894736842,
+    "average_overall_score": 6.5,
+    "average_stt_latency_ms": 5160.71,
+    "average_tts_latency_ms": 636.535,
+    "average_total_latency_ms": 20001.995,
+    "by_category": {
+      "general": {
+        "count": 2,
+        "avg_wer": 11.513157894736842,
+        "avg_score": 6.5,
+        "avg_stt_latency_ms": 5160.71,
+        "avg_tts_latency_ms": 636.535
+      }
+    }
+  },
+  "stt_model": "Deepgram Nova 2",
+  "stt_service_id": "deepgram_nova2",
+  "tts_model": "Groq",
+  "tts_service_id": "groq"
+}

@@ -335,9 +335,9 @@ class VoiceAssistantRunner:
         agent = build_conversation_agent(model_id="au.anthropic.claude-haiku-4-5-20251001-v1:0", tts_service=tts)
         llm = StrandsAgentsProcessor(agent=agent)
         
-        # Setup context with timeout from config if specified
+        # Setup context with longer timeout to wait for complete STT
         context = AWSBedrockLLMContext()
-        aggregation_timeout = self.stt_config.get("aggregation_timeout", 6.0) if self.stt_config else 6.0
+        aggregation_timeout = self.stt_config.get("aggregation_timeout", 20.0) if self.stt_config else 20.0
         from pipecat.processors.aggregators.llm_response import LLMUserAggregatorParams
         user_params = LLMUserAggregatorParams(aggregation_timeout=aggregation_timeout)
         tma_in = LLMUserContextAggregator(context=context, params=user_params)
@@ -390,8 +390,8 @@ class VoiceAssistantRunner:
         runner = PipelineRunner()
         run_task = asyncio.create_task(runner.run(task))
         
-        # Wait for processing - use config-driven timeout (default 25s for longer responses)
-        pipeline_timeout = self.stt_config.get("pipeline_timeout", 25.0) if self.stt_config else 25.0
+        # Wait for debounced LLM and TTS to complete
+        pipeline_timeout = self.stt_config.get("pipeline_timeout", 20.0) if self.stt_config else 20.0
         await asyncio.sleep(pipeline_timeout)
         
         # Force TTS disconnect if configured
@@ -418,10 +418,10 @@ class VoiceAssistantRunner:
         
         # Collect results
         stt_output = " ".join(stt_texts)
+        llm_response = "".join(llm_texts)
         
-        # Post-process LLM responses: use only the final/most complete response
-        full_llm_text = "".join(llm_texts)
-        llm_response = self._extract_final_response(full_llm_text)
+        print(f"DEBUG: LLM response length: {len(llm_response)}")
+        print(f"DEBUG: LLM response: {llm_response[:200]}...")
         
         # Save TTS audio from transport
         tts_audio_path = None

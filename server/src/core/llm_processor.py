@@ -64,11 +64,11 @@ class StrandsAgentsProcessor(FrameProcessor):
         self.graph = graph
         self.graph_exit_node = graph_exit_node
         
-        # Deduplication state
-        self.pending_invocation = None
-        self.last_content = None
+        # Debouncing state
         self.invocation_count = 0
-        self.debounce_delay = 1.0  # Wait 1 second for more frames
+        self.debounce_task = None
+        self.latest_text = None
+        self.debounce_timeout = 3.0  # Wait 3 seconds for complete STT
 
         assert self.agent or self.graph, "Either agent or graph must be provided"
 
@@ -92,56 +92,44 @@ class StrandsAgentsProcessor(FrameProcessor):
             logger.debug(f"DEBUG: Received OpenAILLMContextFrame #{self.invocation_count}")
             
             content = frame.context.messages[-1]["content"]
-            logger.debug(f"DEBUG: Raw content type: {type(content)}")
-            logger.debug(f"DEBUG: Raw content: {content}")
             
             # Extract text from content
             if isinstance(content, list):
-                logger.debug(f"DEBUG: Content is list with {len(content)} items")
                 text_parts = []
-                for i, item in enumerate(content):
-                    logger.debug(f"DEBUG: Item {i}: {item} (type: {type(item)})")
+                for item in content:
                     if isinstance(item, dict) and "text" in item:
                         text_parts.append(item["text"])
                     elif isinstance(item, str):
                         text_parts.append(item)
                 text = " ".join(text_parts).strip()
-                logger.debug(f"DEBUG: Concatenated text: '{text}'")
             else:
                 text = str(content).strip()
-                logger.debug(f"DEBUG: Content as string: '{text}'")
             
-            # Check if this is the same content as before
-            if text == self.last_content:
-                logger.debug(f"DEBUG: Duplicate content detected, ignoring")
-                return
+            # Update latest text and restart debounce timer
+            self.latest_text = text
+            logger.debug(f"DEBUG: Updated latest_text to: '{text}', restarting debounce timer")
             
-            self.last_content = text
-            logger.debug(f"DEBUG: New content detected: '{text}'")
+            # Cancel existing debounce task
+            if self.debounce_task:
+                self.debounce_task.cancel()
             
-            # Cancel any pending invocation
-            if self.pending_invocation:
-                logger.debug(f"DEBUG: Cancelling previous pending invocation")
-                self.pending_invocation.cancel()
-            
-            # Schedule new invocation with debounce
-            logger.debug(f"DEBUG: Scheduling invocation with {self.debounce_delay}s debounce")
-            self.pending_invocation = asyncio.create_task(self._debounced_invoke(text))
+            # Start new debounce task
+            self.debounce_task = asyncio.create_task(self._debounced_invoke())
             
         else:
             await self.push_frame(frame, direction)
     
-    async def _debounced_invoke(self, text: str):
-        """Invoke after debounce delay to avoid multiple calls."""
-        try:
-            logger.debug(f"DEBUG: Starting debounce wait for '{text}'")
-            await asyncio.sleep(self.debounce_delay)
-            logger.debug(f"DEBUG: Debounce complete, invoking LLM with: '{text}'")
-            await self._ainvoke(text)
-        except asyncio.CancelledError:
-            logger.debug(f"DEBUG: Debounced invocation cancelled for: '{text}'")
-            raise
 
+
+    async def _debounced_invoke(self):
+        """Wait for debounce timeout then invoke LLM with latest text."""
+        try:
+            await asyncio.sleep(self.debounce_timeout)
+            logger.debug(f"DEBUG: Debounce timeout reached, invoking LLM with: '{self.latest_text}'")
+            await self._ainvoke(self.latest_text)
+        except asyncio.CancelledError:
+            logger.debug(f"DEBUG: Debounce task cancelled")
+    
     async def _ainvoke(self, text: str):
         """Invoke the Strands agent with the provided text and stream results as Pipecat frames.
 
@@ -151,9 +139,6 @@ class StrandsAgentsProcessor(FrameProcessor):
         logger.debug(f"DEBUG: _ainvoke called with text: '{text}'")
         logger.debug(f"DEBUG: Text length: {len(text)} characters")
         logger.debug(f"DEBUG: Using agent: {self.agent is not None}, Using graph: {self.graph is not None}")
-        
-        # Clear pending invocation since we're now executing
-        self.pending_invocation = None
         try:
             await self.push_frame(LLMFullResponseStartFrame())
             await self.start_processing_metrics()

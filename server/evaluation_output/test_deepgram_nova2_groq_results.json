@@ -1,0 +1,39 @@
+{
+  "stt_model": "Deepgram Nova 2",
+  "stt_service_id": "deepgram_nova2",
+  "tts_model": "Groq",
+  "tts_service_id": "groq",
+  "summary": {
+    "total_files": 2,
+    "successful": 2,
+    "failed": 0,
+    "skipped": 0,
+    "success_rate": 100.0
+  },
+  "results": [
+    {
+      "question_id": "listening_general_0",
+      "audio_file": "evaluation_data/voiceassistant_eval_new/audio_input/listening_general_0.wav",
+      "stt_output": "Does the music sound more like something from today? Or does it sound like it is from the past?",
+      "ground_truth": "Does the music sound more like something from today, or does it sound like it is from the past?",
+      "llm_response": "I don't have any audio to listen to, so I'm not able to hear what music you're referring to. If you could describe the song or tell me more about it\u2014like the instruments, style, or any lyrics you remember\u2014I'd be happy to help you figure out whether it sounds contemporary or from an earlier era!I still don't have access to any audio or music to listen to, so I'm unable to hear what you're referring to. Could you describe the music to me\u2014for example, what instruments are playing, what the vocals sound like, or what genre it seems to be\u2014and I'd be glad to help you figure out whether it sounds modern or from an earlier time period!",
+      "tts_audio_path": "evaluation_output/tts_audio/deepgram_nova2_groq/listening_general_0_response.wav",
+      "stt_latency_ms": 5092.97,
+      "tts_latency_ms": 854.56,
+      "total_latency_ms": 20002.62,
+      "status": "success"
+    },
+    {
+      "question_id": "listening_general_1",
+      "audio_file": "evaluation_data/voiceassistant_eval_new/audio_input/listening_general_1.wav",
+      "stt_output": "Which bowing technique is the fiddler probably using to create create the rhythmic melody in the music.",
+      "ground_truth": "Which bowing technique is the fiddler probably using to create the rhythmic melody in the music?",
+      "llm_response": "It looks like your question got cut off! You started askingWhich bowing technique is...\" but didn't finish. Could you complete your question? Are you asking about a specific bowing technique for violin cello, or another stringed instrument, or are you curious about something else related to bowing?It seems your question got cut off again! You're asking about a bowing technique a fiddler is using to create something but II'd be happy to help, but I don't have any audio or video to listen to, so I can't tell you what specific bowing technique is being used. However, for creating rhythmic melodies on fiddle, fiddlers commonly use techniques like short, crisp bow strokes called detach\u00e9, or they might use a sawing motion with longer strokes to emphasize rhythm and drive If you can describe what the music sounds like or share more details about the piece I'd have a better idea of which technique might be at play!",
+      "tts_audio_path": "evaluation_output/tts_audio/deepgram_nova2_groq/listening_general_1_response.wav",
+      "stt_latency_ms": 5228.45,
+      "tts_latency_ms": 418.51,
+      "total_latency_ms": 20001.37,
+      "status": "success"
+    }
+  ]
+}

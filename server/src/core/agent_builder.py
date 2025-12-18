@@ -11,7 +11,7 @@ def build_conversation_agent(model_id, tts_service=None):
             region_name="ap-southeast-2",
             temperature=0.7,
             cache_prompt="default",
-            max_tokens=1000
+            max_tokens=2000
         ),
         system_prompt="""You are a helpful AI assistant that answers questions clearly and concisely.
 
