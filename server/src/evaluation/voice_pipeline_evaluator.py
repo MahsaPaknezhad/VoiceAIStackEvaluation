@@ -167,6 +167,9 @@ class VoiceAssistantRunner:
         if "elevenlabs" in module_name:
             return service_class(api_key=os.getenv("ELEVENLABS_API_KEY"), **config)
         if "cartesia" in module_name:
+            # Force new connection for each request to avoid WebSocket reuse issues
+            config["connection_timeout"] = 10
+            config["read_timeout"] = 30
             return service_class(api_key=os.getenv("CARTESIA_API_KEY"), **config)
         if "riva" in module_name:
             return service_class(api_key=os.getenv("RIVA_API_KEY"), **config)
@@ -405,6 +408,9 @@ class VoiceAssistantRunner:
         
         # Wait for VAD-triggered LLM and TTS to complete
         pipeline_timeout = self.stt_config.get("pipeline_timeout", 18.0) if self.stt_config else 18.0
+        # Add extra time for Cartesia to complete
+        if self.tts_config and "cartesia" in self.tts_config.get("tts_service_id", "").lower():
+            pipeline_timeout += 5.0
         await asyncio.sleep(pipeline_timeout)
         
         # Clean shutdown of services
@@ -412,15 +418,19 @@ class VoiceAssistantRunner:
             # Stop STT service cleanly
             if hasattr(stt, 'disconnect'):
                 await stt.disconnect()
-        except:
-            pass
+        except Exception as e:
+            logger.debug(f"STT disconnect error (expected): {e}")
         
         try:
             # Stop TTS service cleanly  
             if hasattr(tts, 'stop'):
                 await tts.stop(EndFrame())
-        except:
-            pass
+        except Exception as e:
+            # Ignore WebSocket close errors for Cartesia
+            if "sent 1000 (OK); then received 1000 (OK)" in str(e):
+                pass  # Normal WebSocket close
+            else:
+                logger.debug(f"TTS stop error: {e}")
         
         # Cancel task
         await task.cancel()
