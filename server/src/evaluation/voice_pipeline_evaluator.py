@@ -10,6 +10,8 @@ import time
 import random
 from typing import Dict, List
 from loguru import logger
+import warnings
+warnings.filterwarnings("ignore", message="Dangling tasks detected")
 import argparse
 from pathlib import Path
 import re
@@ -52,6 +54,9 @@ from src.evaluation.frame_processor import (
 
 load_dotenv(override=True)
 
+# Suppress Pipecat cleanup warnings
+logger.disable("pipecat.pipeline.task")
+
 
 class VoiceAssistantRunner:
     def __init__(self, dataset_path: str, audio_dir: str, stt_config: str = None, 
@@ -75,6 +80,23 @@ class VoiceAssistantRunner:
         with open(config_path, 'r') as f:
             return json.load(f)
     
+    def _substitute_env_vars(self, config: Dict) -> Dict:
+        """Substitute environment variables in config values"""
+        result = config.copy()
+        for key, value in result.items():
+            if isinstance(value, str) and value.startswith('${') and value.endswith('}'):
+                env_var = value[2:-1]  # Remove ${ and }
+                if ':' in env_var:  # Handle ${VAR}:port format
+                    env_var, suffix = env_var.split(':', 1)
+                    env_value = os.getenv(env_var)
+                    if env_value:
+                        result[key] = f"{env_value}:{suffix}"
+                else:
+                    env_value = os.getenv(env_var)
+                    if env_value:
+                        result[key] = env_value
+        return result
+    
     def _create_stt_service(self):
         """Create STT service from config"""
         if not self.stt_config:
@@ -97,8 +119,8 @@ class VoiceAssistantRunner:
         module = __import__(module_name, fromlist=[class_name])
         service_class = getattr(module, class_name)
         
-        # Get config params
-        config = self.stt_config.get("config", {})
+        # Get config params and substitute environment variables
+        config = self._substitute_env_vars(self.stt_config.get("config", {}))
         
         # Create service
         if "deepgram" in module_name:
@@ -111,6 +133,9 @@ class VoiceAssistantRunner:
                 api_key=os.getenv("OPENAI_API_KEY"),
                 **config
             )
+        elif "aws" in module_name:
+            # AWS services use default credential chain
+            return service_class(**config)
         else:
             return service_class(**config)
     
@@ -131,21 +156,7 @@ class VoiceAssistantRunner:
         service_class = getattr(module, class_name)
         
         # Get config params and substitute environment variables
-        config = self.tts_config.get("config", {})
-        
-        # Substitute environment variables in config values
-        for key, value in config.items():
-            if isinstance(value, str) and value.startswith('${') and value.endswith('}'):
-                env_var = value[2:-1]  # Remove ${ and }
-                if ':' in env_var:  # Handle ${VAR}:port format
-                    env_var, suffix = env_var.split(':', 1)
-                    env_value = os.getenv(env_var)
-                    if env_value:
-                        config[key] = f"{env_value}:{suffix}"
-                else:
-                    env_value = os.getenv(env_var)
-                    if env_value:
-                        config[key] = env_value
+        config = self._substitute_env_vars(self.tts_config.get("config", {}))
         
         # Determine API key based on service
         api_key = None
@@ -167,6 +178,8 @@ class VoiceAssistantRunner:
             return service_class(api_key=os.getenv("PLAYHT_API_KEY"), **config)
         elif "rime" in module_name:
             api_key = os.getenv("RIME_API_KEY")
+        elif "groq" in module_name:
+            api_key = os.getenv("GROQ_API_KEY")
         
         logger.info(f"Using API key: {'***' if api_key else 'None'}")
         logger.info(f"Final config after env substitution: {config}")
@@ -181,15 +194,18 @@ class VoiceAssistantRunner:
                     return LiveKitPatakeetAdapter(**config)
                 else:
                     # Generic LiveKit adapter fallback
-                    from src.core.nvidia.livekit_tts_adapter import LiveKitTTSAdapter
+                    from src.core.livekit_tts_adapter import LiveKitTTSAdapter
                     return LiveKitTTSAdapter(**config)
             elif "nvidia" in module_name or "riva" in module_name:
                 # NVIDIA services don't use api_key parameter
+                return service_class(**config)
+            elif "aws" in module_name:
                 return service_class(**config)
             elif api_key:
                 return service_class(api_key=api_key, **config)
             else:
                 return service_class(**config)
+
         except Exception as e:
             logger.error(f"Failed to create {class_name} with config {config}: {e}")
             raise
@@ -198,6 +214,58 @@ class VoiceAssistantRunner:
         """Load the evaluation dataset"""
         with open(self.dataset_path, 'r') as f:
             return json.load(f)
+    
+    def _extract_final_response(self, full_text: str) -> str:
+        """Extract the final/most complete response from concatenated LLM outputs.
+        
+        Strategy: Split on common response patterns and take the last complete response.
+        """
+        if not full_text:
+            return ""
+        
+        # Common patterns that indicate start of new responses
+        response_starters = [
+            "I notice your question",
+            "I'd be happy to help", 
+            "I'm not quite sure",
+            "I see your question",
+            "I'm still not",
+            "I'm getting closer",
+            "I appreciate",
+            "I still can't",
+            "I'm not able"
+        ]
+        
+        # Find all potential response boundaries
+        boundaries = [0]  # Start of text
+        for starter in response_starters:
+            pos = 0
+            while True:
+                pos = full_text.find(starter, pos)
+                if pos == -1:
+                    break
+                boundaries.append(pos)
+                pos += 1
+        
+        # Sort boundaries and split text
+        boundaries = sorted(set(boundaries))
+        responses = []
+        
+        for i in range(len(boundaries)):
+            start = boundaries[i]
+            end = boundaries[i + 1] if i + 1 < len(boundaries) else len(full_text)
+            response = full_text[start:end].strip()
+            if response:
+                responses.append(response)
+        
+        if not responses:
+            return full_text.strip()
+        
+        # Return the longest response (most complete)
+        final_response = max(responses, key=len)
+        print(f"DEBUG: Found {len(responses)} responses, selected longest ({len(final_response)} chars)")
+        
+        return final_response
     
     async def process_audio_file(self, audio_path: str, question_id: str) -> Dict:
         """
@@ -234,19 +302,13 @@ class VoiceAssistantRunner:
                 audio_data = (audio_array * 32768.0).astype(np.int16).tobytes()
                 sample_rate = target_rate
         
-        # Create transport params with VAD if required by STT config
-        params = None
-        if self.stt_config and self.stt_config.get("requires_vad"):
-            vad_config = self.stt_config.get("vad_config", {})
-            vad_module = vad_config.get("module", "pipecat.audio.vad.silero")
-            vad_class = vad_config.get("class", "SileroVADAnalyzer")
-            
-            module = __import__(vad_module, fromlist=[vad_class])
-            vad_analyzer_class = getattr(module, vad_class)
-            vad_analyzer = vad_analyzer_class(**vad_config.get("config", {}))
-            
-            from pipecat.transports.base_transport import TransportParams
-            params = TransportParams(audio_in_enabled=True, vad_analyzer=vad_analyzer)
+        # Always use VAD for batch evaluation to detect speech end
+        from pipecat.audio.vad.silero import SileroVADAnalyzer
+        from pipecat.audio.vad.vad_analyzer import VADParams
+        from pipecat.transports.base_transport import TransportParams
+        
+        vad_analyzer = SileroVADAnalyzer(params=VADParams(stop_secs=1.0))  # 1 second silence = speech end
+        params = TransportParams(audio_in_enabled=True, vad_analyzer=vad_analyzer)
         
         transport = EvaluationTransport(
             audio_data, 
@@ -267,11 +329,21 @@ class VoiceAssistantRunner:
         agent = build_conversation_agent(model_id="au.anthropic.claude-haiku-4-5-20251001-v1:0", tts_service=tts)
         llm = StrandsAgentsProcessor(agent=agent)
         
-        # Setup context with timeout from config if specified
+        # Setup context - use timeout for Whisper (batch STT), VAD for streaming STT
         context = AWSBedrockLLMContext()
-        aggregation_timeout = self.stt_config.get("aggregation_timeout", 3.0) if self.stt_config else 3.0
         from pipecat.processors.aggregators.llm_response import LLMUserAggregatorParams
-        user_params = LLMUserAggregatorParams(aggregation_timeout=aggregation_timeout)
+        
+        # Check if using Whisper (batch processing)
+        is_whisper = self.stt_config and 'whisper' in self.stt_config.get('stt_service_id', '').lower()
+        if is_whisper:
+            # Use timeout for Whisper since it sends single transcription
+            user_params = LLMUserAggregatorParams(aggregation_timeout=5.0)
+            print(f"DEBUG: Using timeout-based aggregation for Whisper (5s)")
+        else:
+            # Use VAD for streaming STT
+            user_params = LLMUserAggregatorParams(aggregation_timeout=None)
+            print(f"DEBUG: Using VAD-based aggregation for streaming STT")
+            
         tma_in = LLMUserContextAggregator(context=context, params=user_params)
         tma_out = LLMAssistantContextAggregator(context=context)
         
@@ -285,7 +357,6 @@ class VoiceAssistantRunner:
         tts_timing_end = TTSTimingProcessor(timing_collector)
         stt_collector = STTCollector(timing_collector, stt_texts)
         llm_collector = LLMCollector(timing_collector, llm_texts)
-        
 
         
         # Build pipeline: STT -> Context -> LLM -> TTS (bypass output context aggregator)
@@ -323,20 +394,30 @@ class VoiceAssistantRunner:
         runner = PipelineRunner()
         run_task = asyncio.create_task(runner.run(task))
         
-        # Wait for processing - use config-driven timeout (default 15s)
-        pipeline_timeout = self.stt_config.get("pipeline_timeout", 15.0) if self.stt_config else 15.0
+        # Wait for VAD-triggered LLM and TTS to complete
+        pipeline_timeout = self.stt_config.get("pipeline_timeout", 18.0) if self.stt_config else 18.0
         await asyncio.sleep(pipeline_timeout)
         
-        # Force TTS disconnect if configured
-        force_tts_stop = self.tts_config.get("force_stop_on_cancel", False) if self.tts_config else False
-        if force_tts_stop:
-            try:
+        # Clean shutdown of services
+        try:
+            # Stop STT service cleanly
+            if hasattr(stt, 'disconnect'):
+                await stt.disconnect()
+        except:
+            pass
+        
+        try:
+            # Stop TTS service cleanly  
+            if hasattr(tts, 'stop'):
                 await tts.stop(EndFrame())
-            except:
-                pass
+        except:
+            pass
         
         # Cancel task
         await task.cancel()
+        
+        # Give time for cleanup
+        await asyncio.sleep(0.1)
         
         # Wait for run_task to complete cancellation with config-driven timeout
         # cleanup_timeout = self.stt_config.get("cleanup_timeout", 2.0) if self.stt_config else 2.0
@@ -351,7 +432,10 @@ class VoiceAssistantRunner:
         
         # Collect results
         stt_output = " ".join(stt_texts)
-        llm_response = "".join(llm_texts)  # Concatenate without spaces to avoid word breaks
+        llm_response = "".join(llm_texts)
+        
+        print(f"DEBUG: LLM response length: {len(llm_response)}")
+        print(f"DEBUG: LLM response: {llm_response[:200]}...")
         
         # Save TTS audio from transport
         tts_audio_path = None

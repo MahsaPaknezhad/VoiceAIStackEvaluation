@@ -14,6 +14,7 @@ from pipecat.frames.frames import (
     LLMFullResponseEndFrame,
     LLMFullResponseStartFrame,
     LLMTextFrame,
+    TextFrame,
     FunctionCallInProgressFrame,
     FunctionCallResultFrame,
 )
@@ -62,6 +63,8 @@ class StrandsAgentsProcessor(FrameProcessor):
         self.agent = agent
         self.graph = graph
         self.graph_exit_node = graph_exit_node
+        
+        pass  # No state needed with VAD
 
         assert self.agent or self.graph, "Either agent or graph must be provided"
 
@@ -72,18 +75,41 @@ class StrandsAgentsProcessor(FrameProcessor):
             self.agent.hooks.add_hook(FunctionCallingHook(self.push_frame))
 
     async def process_frame(self, frame: Frame, direction: FrameDirection):
-        """Process incoming frames and handle LLM message frames.
+        """Process incoming frames with deduplication logic.
 
         Args:
             frame: The incoming frame to process.
             direction: The direction of frame flow in the pipeline.
         """
         await super().process_frame(frame, direction)
+        
         if isinstance(frame, OpenAILLMContextFrame):
-            text = frame.context.messages[-1]["content"]
-            await self._ainvoke(str(text).strip())
+            logger.debug(f"DEBUG: Received OpenAILLMContextFrame")
+            print(f"DEBUG: LLM Context Frame received with {len(frame.context.messages)} messages")
+            
+            content = frame.context.messages[-1]["content"]
+            
+            # Extract text from content
+            if isinstance(content, list):
+                text_parts = []
+                for item in content:
+                    if isinstance(item, dict) and "text" in item:
+                        text_parts.append(item["text"])
+                    elif isinstance(item, str):
+                        text_parts.append(item)
+                text = " ".join(text_parts).strip()
+            else:
+                text = str(content).strip()
+            
+            # VAD ensures single invocation with complete transcript
+            print(f"DEBUG: About to invoke LLM with text: '{text}'")
+            await self._ainvoke(text)
+            
         else:
             await self.push_frame(frame, direction)
+    
+
+
 
     async def _ainvoke(self, text: str):
         """Invoke the Strands agent with the provided text and stream results as Pipecat frames.
@@ -91,7 +117,9 @@ class StrandsAgentsProcessor(FrameProcessor):
         Args:
             text: The user input text to process through the agent or graph.
         """
-        logger.debug(f"Invoking Strands agent with: {text}")
+        logger.debug(f"DEBUG: _ainvoke called with text: '{text}'")
+        logger.debug(f"DEBUG: Text length: {len(text)} characters")
+        logger.debug(f"DEBUG: Using agent: {self.agent is not None}, Using graph: {self.graph is not None}")
         try:
             await self.push_frame(LLMFullResponseStartFrame())
             await self.start_processing_metrics()

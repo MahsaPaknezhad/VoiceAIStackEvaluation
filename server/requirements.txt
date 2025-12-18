@@ -3,7 +3,7 @@ fastapi
 uvicorn
 python-dotenv
 pipecat-ai[aws,webrtc,deepgram,local-smart-turn-v3]
-pipecat-ai[riva,cartesia]
+pipecat-ai[riva,cartesia,groq]
 pipecat-ai-small-webrtc-prebuilt
 pipecat-ai-whisker
 strands-agents
@@ -12,11 +12,16 @@ jiwer
 datasets
 librosa
 matplotlib
+museval
+scipy
+gammatone
+git+https://github.com/jfsantos/SRMRpy.git
 pytest
 pytest-asyncio
 openai-whisper
 faster-whisper
 huggingface_hub
+tensorflow
 
 # PyTorch FIRST (before NeMo)
 --extra-index-url https://download.pytorch.org/whl/cu118

@@ -73,11 +73,12 @@ def load_evaluation_results(results_dir: str) -> List[Dict]:
     
     return results
 
-def extract_metrics(results: List[Dict]) -> Tuple[Dict, Dict, Dict]:
-    """Extract STT and TTS metrics with statistics."""
+def extract_metrics(results: List[Dict]) -> Tuple[Dict, Dict, Dict, Dict]:
+    """Extract STT, TTS, and combination metrics with statistics."""
     stt_metrics = {}
     tts_metrics = {}
     quality_metrics = {}
+    combination_metrics = {}
     
     for result in results:
         stt_model = result['stt_model']
@@ -274,7 +275,75 @@ def extract_metrics(results: List[Dict]) -> Tuple[Dict, Dict, Dict]:
             'srmr_score_std': np.mean(quality_metrics[model]['srmr_score_std']) if quality_metrics[model]['srmr_score_std'] else 0
         }
     
-    return stt_metrics, tts_metrics, quality_metrics
+    # Extract combination metrics
+    for result in results:
+        stt_model = result['stt_model']
+        tts_model = result['tts_model']
+        combo_key = f"{stt_model}+{tts_model}"
+        
+        if combo_key not in combination_metrics:
+            combination_metrics[combo_key] = {
+                'stt_model': stt_model,
+                'tts_model': tts_model,
+                'stt_latency': [], 'tts_latency': [], 'total_latency': [],
+                'wer': [], 'overall_score': [],
+                'stt_latency_std': [], 'tts_latency_std': [], 'total_latency_std': [],
+                'wer_std': [], 'overall_score_std': []
+            }
+        
+        stt_latencies = []
+        tts_latencies = []
+        total_latencies = []
+        wers = []
+        scores = []
+        
+        for eval_item in result.get('evaluations', []):
+            if eval_item.get('stt_latency_ms') is not None:
+                stt_latencies.append(eval_item['stt_latency_ms'])
+            if eval_item.get('tts_latency_ms') is not None:
+                tts_latencies.append(eval_item['tts_latency_ms'])
+            if eval_item.get('total_latency_ms') is not None:
+                total_latencies.append(eval_item['total_latency_ms'])
+            if eval_item.get('wer') is not None:
+                wers.append(eval_item['wer'])
+            judge_scores = eval_item.get('judge_scores', {})
+            if judge_scores.get('overall') is not None:
+                scores.append(judge_scores['overall'])
+        
+        if stt_latencies:
+            combination_metrics[combo_key]['stt_latency'].append(np.mean(stt_latencies))
+            combination_metrics[combo_key]['stt_latency_std'].append(np.std(stt_latencies))
+        if tts_latencies:
+            combination_metrics[combo_key]['tts_latency'].append(np.mean(tts_latencies))
+            combination_metrics[combo_key]['tts_latency_std'].append(np.std(tts_latencies))
+        if total_latencies:
+            combination_metrics[combo_key]['total_latency'].append(np.mean(total_latencies))
+            combination_metrics[combo_key]['total_latency_std'].append(np.std(total_latencies))
+        if wers:
+            combination_metrics[combo_key]['wer'].append(np.mean(wers))
+            combination_metrics[combo_key]['wer_std'].append(np.std(wers))
+        if scores:
+            combination_metrics[combo_key]['overall_score'].append(np.mean(scores))
+            combination_metrics[combo_key]['overall_score_std'].append(np.std(scores))
+    
+    # Aggregate combination metrics
+    for combo in combination_metrics:
+        combination_metrics[combo] = {
+            'stt_model': combination_metrics[combo]['stt_model'],
+            'tts_model': combination_metrics[combo]['tts_model'],
+            'stt_latency': np.mean(combination_metrics[combo]['stt_latency']) if combination_metrics[combo]['stt_latency'] else None,
+            'tts_latency': np.mean(combination_metrics[combo]['tts_latency']) if combination_metrics[combo]['tts_latency'] else None,
+            'total_latency': np.mean(combination_metrics[combo]['total_latency']) if combination_metrics[combo]['total_latency'] else None,
+            'wer': np.mean(combination_metrics[combo]['wer']) if combination_metrics[combo]['wer'] else None,
+            'overall_score': np.mean(combination_metrics[combo]['overall_score']) if combination_metrics[combo]['overall_score'] else None,
+            'stt_latency_std': np.mean(combination_metrics[combo]['stt_latency_std']) if combination_metrics[combo]['stt_latency_std'] else 0,
+            'tts_latency_std': np.mean(combination_metrics[combo]['tts_latency_std']) if combination_metrics[combo]['tts_latency_std'] else 0,
+            'total_latency_std': np.mean(combination_metrics[combo]['total_latency_std']) if combination_metrics[combo]['total_latency_std'] else 0,
+            'wer_std': np.mean(combination_metrics[combo]['wer_std']) if combination_metrics[combo]['wer_std'] else 0,
+            'overall_score_std': np.mean(combination_metrics[combo]['overall_score_std']) if combination_metrics[combo]['overall_score_std'] else 0
+        }
+    
+    return stt_metrics, tts_metrics, quality_metrics, combination_metrics
 
 def confidence_ellipse(x, y, ax, n_std=1.0, facecolor='none', **kwargs):
     """Draw confidence ellipse."""
@@ -494,6 +563,206 @@ def plot_quality_metrics(quality_metrics: Dict, output_dir: str):
         print(f"Saved: {output_dir}/{filename}")
         plt.close()
 
+def plot_combination_matrix(combination_metrics: Dict, output_dir: str):
+    """Plot STT+TTS combination performance matrix."""
+    if not combination_metrics:
+        return
+    
+    # Create performance matrix heatmap
+    fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(2, 2, figsize=(16, 12))
+    
+    # Get unique STT and TTS models
+    stt_models = sorted(set(combo['stt_model'] for combo in combination_metrics.values()))
+    tts_models = sorted(set(combo['tts_model'] for combo in combination_metrics.values()))
+    
+    # Create matrices for different metrics
+    wer_matrix = np.full((len(stt_models), len(tts_models)), np.nan)
+    score_matrix = np.full((len(stt_models), len(tts_models)), np.nan)
+    stt_latency_matrix = np.full((len(stt_models), len(tts_models)), np.nan)
+    tts_latency_matrix = np.full((len(stt_models), len(tts_models)), np.nan)
+    
+    for combo_key, metrics in combination_metrics.items():
+        stt_idx = stt_models.index(metrics['stt_model'])
+        tts_idx = tts_models.index(metrics['tts_model'])
+        
+        if metrics['wer'] is not None:
+            wer_matrix[stt_idx, tts_idx] = metrics['wer']
+        if metrics['overall_score'] is not None:
+            score_matrix[stt_idx, tts_idx] = metrics['overall_score']
+        if metrics['stt_latency'] is not None:
+            stt_latency_matrix[stt_idx, tts_idx] = metrics['stt_latency']
+        if metrics['tts_latency'] is not None:
+            tts_latency_matrix[stt_idx, tts_idx] = metrics['tts_latency']
+    
+    # Plot WER heatmap
+    im1 = ax1.imshow(wer_matrix, cmap='Reds', aspect='auto')
+    ax1.set_title('Word Error Rate by STT+TTS Combination', fontweight='bold', pad=15)
+    ax1.set_xlabel('TTS Service', fontweight='normal')
+    ax1.set_ylabel('STT Service', fontweight='normal')
+    ax1.set_xticks(range(len(tts_models)))
+    ax1.set_yticks(range(len(stt_models)))
+    ax1.set_xticklabels(tts_models, rotation=45, ha='right')
+    ax1.set_yticklabels(stt_models)
+    plt.colorbar(im1, ax=ax1, label='WER')
+    
+    # Add text annotations
+    for i in range(len(stt_models)):
+        for j in range(len(tts_models)):
+            if not np.isnan(wer_matrix[i, j]):
+                ax1.text(j, i, f'{wer_matrix[i, j]:.1f}', ha='center', va='center', 
+                        color='white' if wer_matrix[i, j] > np.nanmean(wer_matrix) else 'black')
+    
+    # Plot Overall Score heatmap
+    im2 = ax2.imshow(score_matrix, cmap='Greens', aspect='auto')
+    ax2.set_title('Overall Quality Score by STT+TTS Combination', fontweight='bold', pad=15)
+    ax2.set_xlabel('TTS Service', fontweight='normal')
+    ax2.set_ylabel('STT Service', fontweight='normal')
+    ax2.set_xticks(range(len(tts_models)))
+    ax2.set_yticks(range(len(stt_models)))
+    ax2.set_xticklabels(tts_models, rotation=45, ha='right')
+    ax2.set_yticklabels(stt_models)
+    plt.colorbar(im2, ax=ax2, label='Score (0-10)')
+    
+    for i in range(len(stt_models)):
+        for j in range(len(tts_models)):
+            if not np.isnan(score_matrix[i, j]):
+                ax2.text(j, i, f'{score_matrix[i, j]:.1f}', ha='center', va='center',
+                        color='white' if score_matrix[i, j] < np.nanmean(score_matrix) else 'black')
+    
+    # Plot STT Latency heatmap
+    im3 = ax3.imshow(stt_latency_matrix, cmap='Blues', aspect='auto')
+    ax3.set_title('STT Latency by STT+TTS Combination', fontweight='bold', pad=15)
+    ax3.set_xlabel('TTS Service', fontweight='normal')
+    ax3.set_ylabel('STT Service', fontweight='normal')
+    ax3.set_xticks(range(len(tts_models)))
+    ax3.set_yticks(range(len(stt_models)))
+    ax3.set_xticklabels(tts_models, rotation=45, ha='right')
+    ax3.set_yticklabels(stt_models)
+    plt.colorbar(im3, ax=ax3, label='Latency (ms)')
+    
+    for i in range(len(stt_models)):
+        for j in range(len(tts_models)):
+            if not np.isnan(stt_latency_matrix[i, j]):
+                ax3.text(j, i, f'{stt_latency_matrix[i, j]:.0f}', ha='center', va='center',
+                        color='white' if stt_latency_matrix[i, j] > np.nanmean(stt_latency_matrix) else 'black')
+    
+    # Plot TTS Latency heatmap
+    im4 = ax4.imshow(tts_latency_matrix, cmap='Purples', aspect='auto')
+    ax4.set_title('TTS Latency by STT+TTS Combination', fontweight='bold', pad=15)
+    ax4.set_xlabel('TTS Service', fontweight='normal')
+    ax4.set_ylabel('STT Service', fontweight='normal')
+    ax4.set_xticks(range(len(tts_models)))
+    ax4.set_yticks(range(len(stt_models)))
+    ax4.set_xticklabels(tts_models, rotation=45, ha='right')
+    ax4.set_yticklabels(stt_models)
+    plt.colorbar(im4, ax=ax4, label='Latency (ms)')
+    
+    for i in range(len(stt_models)):
+        for j in range(len(tts_models)):
+            if not np.isnan(tts_latency_matrix[i, j]):
+                ax4.text(j, i, f'{tts_latency_matrix[i, j]:.0f}', ha='center', va='center',
+                        color='white' if tts_latency_matrix[i, j] > np.nanmean(tts_latency_matrix) else 'black')
+    
+    plt.tight_layout()
+    plt.savefig(f"{output_dir}/combination_performance_matrix.png", dpi=300, bbox_inches='tight', facecolor='white')
+    print(f"Saved: {output_dir}/combination_performance_matrix.png")
+    plt.close()
+
+def plot_combination_scatter(combination_metrics: Dict, output_dir: str):
+    """Plot simplified STT+TTS combination scatter plots."""
+    if not combination_metrics:
+        return
+    
+    # Use tab10 colormap for distinct combinations
+    combinations = list(combination_metrics.keys())
+    colors = plt.cm.tab10(np.linspace(0, 1, len(combinations)))
+    
+    # Plot 1: Accuracy vs Quality Trade-off
+    fig, ax = plt.subplots(figsize=(10, 7))
+    
+    for i, (combo_key, metrics) in enumerate(combination_metrics.items()):
+        if metrics['wer'] is None or metrics['overall_score'] is None:
+            continue
+        
+        color = colors[i]
+        combo_label = f"{metrics['stt_model']}+{metrics['tts_model']}"
+        
+        x = metrics['wer']
+        y = metrics['overall_score']
+        x_std = metrics['wer_std']
+        y_std = metrics['overall_score_std']
+        
+        # Error ellipse
+        ellipse = Ellipse((x, y), width=x_std*1.2, height=y_std*1.2,
+                         facecolor=color, alpha=0.1, 
+                         edgecolor=color, linewidth=1.5, linestyle='--')
+        ax.add_patch(ellipse)
+        
+        # Data point
+        ax.scatter(x, y, s=150, color=color, edgecolors='white', linewidth=2, 
+                  alpha=0.8, label=combo_label)
+    
+    ax.set_xlabel('Word Error Rate (%)', fontweight='normal', fontsize=13)
+    ax.set_ylabel('Overall Quality Score (0-10)', fontweight='normal', fontsize=13)
+    ax.set_title('Accuracy vs Quality Trade-off by STT+TTS Combination', fontweight='bold', pad=15, fontsize=14)
+    ax.grid(True, alpha=0.3, linestyle='--')
+    
+    # Add note about error ellipses
+    ax.text(0.02, 0.98, 'Ellipses show ±1 standard deviation', 
+           transform=ax.transAxes, fontsize=10, verticalalignment='top',
+           bbox=dict(boxstyle='round,pad=0.4', facecolor='white', 
+                    edgecolor='gray', alpha=0.95, linewidth=0.8))
+    
+    ax.legend(loc='best', fontsize=10)
+    
+    plt.tight_layout()
+    plt.savefig(f"{output_dir}/combination_accuracy_vs_quality.png", dpi=300, bbox_inches='tight', facecolor='white')
+    print(f"Saved: {output_dir}/combination_accuracy_vs_quality.png")
+    plt.close()
+    
+    # Plot 2: Speed vs Quality Trade-off
+    fig, ax = plt.subplots(figsize=(10, 7))
+    
+    for i, (combo_key, metrics) in enumerate(combination_metrics.items()):
+        if metrics['total_latency'] is None or metrics['overall_score'] is None:
+            continue
+        
+        color = colors[i]
+        combo_label = f"{metrics['stt_model']}+{metrics['tts_model']}"
+        
+        x = metrics['total_latency']
+        y = metrics['overall_score']
+        x_std = metrics['total_latency_std']
+        y_std = metrics['overall_score_std']
+        
+        # Error ellipse
+        ellipse = Ellipse((x, y), width=x_std*1.2, height=y_std*1.2,
+                         facecolor=color, alpha=0.1,
+                         edgecolor=color, linewidth=1.5, linestyle='--')
+        ax.add_patch(ellipse)
+        
+        # Data point
+        ax.scatter(x, y, s=150, color=color, edgecolors='white', linewidth=2,
+                  alpha=0.8, label=combo_label)
+    
+    ax.set_xlabel('Total Latency (ms)', fontweight='normal', fontsize=13)
+    ax.set_ylabel('Overall Quality Score (0-10)', fontweight='normal', fontsize=13)
+    ax.set_title('Speed vs Quality Trade-off by STT+TTS Combination', fontweight='bold', pad=15, fontsize=14)
+    ax.grid(True, alpha=0.3, linestyle='--')
+    
+    # Add note about error ellipses
+    ax.text(0.02, 0.98, 'Ellipses show ±1 standard deviation', 
+           transform=ax.transAxes, fontsize=10, verticalalignment='top',
+           bbox=dict(boxstyle='round,pad=0.4', facecolor='white', 
+                    edgecolor='gray', alpha=0.95, linewidth=0.8))
+    
+    ax.legend(loc='best', fontsize=10)
+    
+    plt.tight_layout()
+    plt.savefig(f"{output_dir}/combination_speed_vs_quality.png", dpi=300, bbox_inches='tight', facecolor='white')
+    print(f"Saved: {output_dir}/combination_speed_vs_quality.png")
+    plt.close()
+
 def plot_metric_comparison(data: Dict, metric_key: str, title: str, xlabel: str, output_path: str, xlim=None):
     """Generic bar chart comparing models on a single metric."""
     filtered = {k: v for k, v in data.items() if v.get(metric_key) is not None}
@@ -570,13 +839,18 @@ def main():
         return
     
     print("Extracting metrics...")
-    stt_metrics, tts_metrics, quality_metrics = extract_metrics(results)
-    print(f"STT models: {len(stt_metrics)}, TTS models: {len(tts_metrics)}")
+    stt_metrics, tts_metrics, quality_metrics, combination_metrics = extract_metrics(results)
+    print(f"STT models: {len(stt_metrics)}, TTS models: {len(tts_metrics)}, Combinations: {len(combination_metrics)}")
     
     print("Generating plots...")
     plot_stt_metrics(stt_metrics, str(output_dir / "stt_latency_vs_wer.png"))
     plot_tts_metrics(tts_metrics, str(output_dir / "tts_latency_vs_quality.png"))
     plot_quality_metrics(quality_metrics, str(output_dir))
+    
+    # Generate combination analysis plots
+    print("Generating combination analysis plots...")
+    plot_combination_matrix(combination_metrics, str(output_dir))
+    plot_combination_scatter(combination_metrics, str(output_dir))
     
     # Individual metric comparisons
     print("Generating metric comparison plots...")
