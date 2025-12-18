@@ -302,19 +302,13 @@ class VoiceAssistantRunner:
                 audio_data = (audio_array * 32768.0).astype(np.int16).tobytes()
                 sample_rate = target_rate
         
-        # Create transport params with VAD if required by STT config
-        params = None
-        if self.stt_config and self.stt_config.get("requires_vad"):
-            vad_config = self.stt_config.get("vad_config", {})
-            vad_module = vad_config.get("module", "pipecat.audio.vad.silero")
-            vad_class = vad_config.get("class", "SileroVADAnalyzer")
-            
-            module = __import__(vad_module, fromlist=[vad_class])
-            vad_analyzer_class = getattr(module, vad_class)
-            vad_analyzer = vad_analyzer_class(**vad_config.get("config", {}))
-            
-            from pipecat.transports.base_transport import TransportParams
-            params = TransportParams(audio_in_enabled=True, vad_analyzer=vad_analyzer)
+        # Always use VAD for batch evaluation to detect speech end
+        from pipecat.audio.vad.silero import SileroVADAnalyzer
+        from pipecat.audio.vad.vad_analyzer import VADParams
+        from pipecat.transports.base_transport import TransportParams
+        
+        vad_analyzer = SileroVADAnalyzer(params=VADParams(stop_secs=1.0))  # 1 second silence = speech end
+        params = TransportParams(audio_in_enabled=True, vad_analyzer=vad_analyzer)
         
         transport = EvaluationTransport(
             audio_data, 
@@ -335,11 +329,10 @@ class VoiceAssistantRunner:
         agent = build_conversation_agent(model_id="au.anthropic.claude-haiku-4-5-20251001-v1:0", tts_service=tts)
         llm = StrandsAgentsProcessor(agent=agent)
         
-        # Setup context with longer timeout to wait for complete STT
+        # Setup context with VAD-based aggregation (no timeout, wait for speech end)
         context = AWSBedrockLLMContext()
-        aggregation_timeout = self.stt_config.get("aggregation_timeout", 20.0) if self.stt_config else 20.0
         from pipecat.processors.aggregators.llm_response import LLMUserAggregatorParams
-        user_params = LLMUserAggregatorParams(aggregation_timeout=aggregation_timeout)
+        user_params = LLMUserAggregatorParams(aggregation_timeout=None)  # Disable timeout, use VAD
         tma_in = LLMUserContextAggregator(context=context, params=user_params)
         tma_out = LLMAssistantContextAggregator(context=context)
         
@@ -390,8 +383,8 @@ class VoiceAssistantRunner:
         runner = PipelineRunner()
         run_task = asyncio.create_task(runner.run(task))
         
-        # Wait for debounced LLM and TTS to complete
-        pipeline_timeout = self.stt_config.get("pipeline_timeout", 20.0) if self.stt_config else 20.0
+        # Wait for VAD-triggered LLM and TTS to complete
+        pipeline_timeout = self.stt_config.get("pipeline_timeout", 18.0) if self.stt_config else 18.0
         await asyncio.sleep(pipeline_timeout)
         
         # Force TTS disconnect if configured

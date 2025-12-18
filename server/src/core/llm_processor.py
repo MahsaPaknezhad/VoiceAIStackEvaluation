@@ -64,11 +64,7 @@ class StrandsAgentsProcessor(FrameProcessor):
         self.graph = graph
         self.graph_exit_node = graph_exit_node
         
-        # Debouncing state
-        self.invocation_count = 0
-        self.debounce_task = None
-        self.latest_text = None
-        self.debounce_timeout = 3.0  # Wait 3 seconds for complete STT
+        pass  # No state needed with VAD
 
         assert self.agent or self.graph, "Either agent or graph must be provided"
 
@@ -88,8 +84,7 @@ class StrandsAgentsProcessor(FrameProcessor):
         await super().process_frame(frame, direction)
         
         if isinstance(frame, OpenAILLMContextFrame):
-            self.invocation_count += 1
-            logger.debug(f"DEBUG: Received OpenAILLMContextFrame #{self.invocation_count}")
+            logger.debug(f"DEBUG: Received OpenAILLMContextFrame")
             
             content = frame.context.messages[-1]["content"]
             
@@ -105,31 +100,15 @@ class StrandsAgentsProcessor(FrameProcessor):
             else:
                 text = str(content).strip()
             
-            # Update latest text and restart debounce timer
-            self.latest_text = text
-            logger.debug(f"DEBUG: Updated latest_text to: '{text}', restarting debounce timer")
-            
-            # Cancel existing debounce task
-            if self.debounce_task:
-                self.debounce_task.cancel()
-            
-            # Start new debounce task
-            self.debounce_task = asyncio.create_task(self._debounced_invoke())
+            # VAD ensures single invocation with complete transcript
+            await self._ainvoke(text)
             
         else:
             await self.push_frame(frame, direction)
     
 
 
-    async def _debounced_invoke(self):
-        """Wait for debounce timeout then invoke LLM with latest text."""
-        try:
-            await asyncio.sleep(self.debounce_timeout)
-            logger.debug(f"DEBUG: Debounce timeout reached, invoking LLM with: '{self.latest_text}'")
-            await self._ainvoke(self.latest_text)
-        except asyncio.CancelledError:
-            logger.debug(f"DEBUG: Debounce task cancelled")
-    
+
     async def _ainvoke(self, text: str):
         """Invoke the Strands agent with the provided text and stream results as Pipecat frames.
 

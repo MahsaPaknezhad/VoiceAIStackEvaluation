@@ -133,7 +133,6 @@ class LLMCollector(FrameProcessor):
         await super().process_frame(frame, direction)
         
         if isinstance(frame, LLMFullResponseStartFrame):
-            print(f"DEBUG: LLMCollector - LLM response starting")
             await self.push_frame(frame, direction)
             
         elif isinstance(frame, TextFrame):
