@@ -1,0 +1,39 @@
+{
+  "stt_model": "NVIDIA Riva STT",
+  "stt_service_id": "nvidia_riva",
+  "tts_model": "Groq",
+  "tts_service_id": "groq",
+  "summary": {
+    "total_files": 2,
+    "successful": 2,
+    "failed": 0,
+    "skipped": 0,
+    "success_rate": 100.0
+  },
+  "results": [
+    {
+      "question_id": "listening_general_0",
+      "audio_file": "evaluation_data/voiceassistant_eval_new/audio_input/listening_general_0.wav",
+      "stt_output": "Does the music sound more like something from today? Or does it sound like it is from the past?",
+      "ground_truth": "Does the music sound more like something from today, or does it sound like it is from the past?",
+      "llm_response": "I don't hear any music playing right now, so I'm not able to compare it for you. If you'd like to share a song or describe what you're listening to, I'd be happy to help you figure out whether it sounds more contemporary or vintage based on the production style instruments and overall sound.",
+      "tts_audio_path": "evaluation_output/tts_audio/nvidia_riva_groq/listening_general_0_response.wav",
+      "stt_latency_ms": 0.27,
+      "tts_latency_ms": 657.43,
+      "total_latency_ms": 18104.51,
+      "status": "success"
+    },
+    {
+      "question_id": "listening_general_1",
+      "audio_file": "evaluation_data/voiceassistant_eval_new/audio_input/listening_general_1.wav",
+      "stt_output": "Which bowing technique is the fiddler probably using to create create the rhythmic melody in the music?",
+      "ground_truth": "Which bowing technique is the fiddler probably using to create the rhythmic melody in the music?",
+      "llm_response": "Id be happy to help but I don't have any audio or context about which specific piece of music you're referring to. Could you tell me more about what you're hearinglike whether the rhythm sounds smooth and flowing, or short and choppy, or if there's a particular style of fiddle music you're asking about? That would help me identify whether they're using techniques like long sustained bows, rapid short strokes, or something like a shuffle or tremolo bow pattern",
+      "tts_audio_path": "evaluation_output/tts_audio/nvidia_riva_groq/listening_general_1_response.wav",
+      "stt_latency_ms": 0.33,
+      "tts_latency_ms": 827.57,
+      "total_latency_ms": 18102.19,
+      "status": "success"
+    }
+  ]
+}

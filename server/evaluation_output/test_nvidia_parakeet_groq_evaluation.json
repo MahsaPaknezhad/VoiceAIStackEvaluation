@@ -1,0 +1,95 @@
+{
+  "timestamp": "2025-12-18T03:16:18.418984",
+  "dataset": "evaluation_data/voiceassistant_eval_new/test_2samples.json",
+  "total_questions": 2,
+  "evaluations": [
+    {
+      "question_id": "listening_general_0",
+      "category": "general",
+      "ground_truth": "Does the music sound more like something from today, or does it sound like it is from the past?",
+      "stt_output": "Does the music sound more like something from today? Or does it sound like it is from the past?",
+      "wer": 10.526315789473683,
+      "llm_response": "I don't hear any music playing right now, so I'm not able to compare it for you. If you'd like to share a song or describe what you're listening to, I'd be happy to help you figure out whether it sounds more contemporary or vintage based on the production style instruments and overall sound.",
+      "judge_scores": {
+        "correctness": 10,
+        "relevance": 10,
+        "completeness": 10,
+        "clarity": 10,
+        "overall": 10,
+        "reasoning": "The assistant correctly identifies that no music is audible in the conversation and appropriately explains this limitation. It relevantly addresses why it cannot answer the question and provides a helpful, clear offer to assist if the user provides the necessary context (shares a song or describes the music). The response is complete in acknowledging the constraint and offering a constructive path forward."
+      },
+      "stt_latency_ms": 0.27,
+      "tts_latency_ms": 657.43,
+      "total_latency_ms": 18104.51,
+      "voice_quality": {
+        "llm_fluency": 5,
+        "llm_naturalness": 5,
+        "llm_tone": 5,
+        "llm_overall": 5,
+        "llm_reasoning": "# Audio Quality Analysis Report\n\n## Executive Summary\nThis is a **high-quality synthetic/TTS (Text-to-Speech) audio sample** with good technical characteristics but clear artificial markers.\n\n---\n\n## Key Findings\n\n### \u2705 **Strengths**\n\n| Metric | Value | Assessment |\n|--------|-------|-----------|\n| **Speech Rate** | 6.50 onsets/sec | Natural conversational pace |\n| **Pitch Variation** | CV: 0.333 | Good prosodic variation (avoids monotone) |\n| **Spectral Centroid** | 1733 Hz | Warm, natural frequency balance |\n| **Harmonic-to-Noise Ratio** | 0.92 dB | Clean voice with minimal artifacts |\n\n### \u26a0\ufe0f **Limitations (Synthetic Indicators)**\n\n| Metric | Value | Concern |\n|--------|-------|---------|\n| **Energy Consistency** | 0.441 | Somewhat rigid; human speech more variable |\n| **Spectral Flatness** | 0.0309 | Very low = highly synthetic (natural: 0.15-0.40) |\n| **Dynamic Range** | 2.5B | Extremely high; suggests processing artifacts |\n| **Zero Crossing Rate** | 0.1477 | Low breathiness; lacks natural vocal texture |\n\n---\n\n## Detailed Analysis\n\n### **Fluency** (8/10)\n- Speech rate is natural and conversational\n- Pitch variation prevents monotony\n- Tempo (110.3 BPM) feels organic\n\n### **Naturalness** (6/10)\n- Spectral profile is reasonable\n- **Major issue**: Spectral flatness indicates synthetic generation\n- Lacks natural vocal imperfections and breathing patterns\n\n### **Tone Quality** (7/10)\n- Good spectral contrast (25.1) = clear articulation\n- Low zero-crossing rate suggests over-smoothing\n- Harmonic content is clean but somewhat artificial\n\n---\n\n## Conclusion\n\n**Classification**: Premium TTS/Synthetic Speech (likely modern AI-generated)\n\n**Use Case Suitability**:",
+        "mos": 4.497992038726807,
+        "noisiness": 4.143928050994873,
+        "coloration": 4.161130428314209,
+        "discontinuity": 4.308333873748779,
+        "loudness": 4.2839131355285645,
+        "overall_quality": 4.497992038726807,
+        "mosnet_score": 3.5226883769035338,
+        "srmr_score": 12.43051133961725
+      }
+    },
+    {
+      "question_id": "listening_general_1",
+      "category": "general",
+      "ground_truth": "Which bowing technique is the fiddler probably using to create the rhythmic melody in the music?",
+      "stt_output": "Which bowing technique is the fiddler probably using to create create the rhythmic melody in the music?",
+      "wer": 6.25,
+      "llm_response": "Id be happy to help but I don't have any audio or context about which specific piece of music you're referring to. Could you tell me more about what you're hearinglike whether the rhythm sounds smooth and flowing, or short and choppy, or if there's a particular style of fiddle music you're asking about? That would help me identify whether they're using techniques like long sustained bows, rapid short strokes, or something like a shuffle or tremolo bow pattern",
+      "judge_scores": {
+        "correctness": 10,
+        "relevance": 10,
+        "completeness": 9,
+        "clarity": 10,
+        "overall": 9.5,
+        "reasoning": "The assistant correctly acknowledges the lack of audio context and appropriately explains it cannot identify specific bowing techniques without hearing the music. The response is highly relevant, asking the user for descriptive details that would enable analysis. It's clear and well-structured. The completeness is very strong as it provides examples of common fiddle bowing techniques (long sustained bows, rapid short strokes, shuffle, tremolo) to guide the user's description. The minor deduction from perfect scores reflects that while the response invites description, it could have briefly explained what makes certain bow techniques create 'rhythmic' effects specifically, though this omission is understandable given the lack of actual audio."
+      },
+      "stt_latency_ms": 0.33,
+      "tts_latency_ms": 827.57,
+      "total_latency_ms": 18102.19,
+      "voice_quality": {
+        "llm_fluency": 5,
+        "llm_naturalness": 5,
+        "llm_tone": 5,
+        "llm_overall": 5,
+        "llm_reasoning": "# Audio Quality Analysis Report\n\n## Executive Summary\nThis is a **synthetic/AI-generated speech sample** with generally acceptable technical quality but several indicators of artificial origin.\n\n---\n\n## Key Findings\n\n### \u2705 **Strengths**\n\n| Metric | Value | Assessment |\n|--------|-------|-----------|\n| **Speech Rate** | 6.39 onsets/sec | Natural conversational pace |\n| **Pitch Variation** | CV: 0.331 | Good prosodic variation (natural range) |\n| **Spectral Centroid** | 1790.5 Hz | Appropriate brightness for speech |\n| **Harmonic-to-Noise Ratio** | 1.00 dB | Acceptable voice clarity |\n\n### \u26a0\ufe0f **Concerns**\n\n| Metric | Value | Issue |\n|--------|-------|-------|\n| **Energy Consistency** | 0.431 | Relatively **low variation** - suggests mechanical delivery |\n| **Spectral Flatness** | 0.0409 | **Very low** - indicates synthetic characteristics |\n| **Zero Crossing Rate** | 0.1623 | Low breathiness/texture - lacks natural vocal artifacts |\n| **Dynamic Range** | 2.63e9 | Extremely high - suggests processing artifacts |\n\n---\n\n## Naturalness Assessment\n\n**Rating: 6.5/10 - Moderately Synthetic**\n\n### Why It Sounds Artificial:\n1. **Flat energy profile** - Real speech has more dynamic emphasis shifts\n2. **Low spectral flatness** - Indicates formant shaping typical of TTS\n3. **Minimal vocal texture** - Lacks natural breathing, swallowing, or micro-pauses\n4. **Consistent pitch modulation** - Too regular/predictable\n\n### Why It Works:\n- Intelligible and clear\n- Appropriate pacing and rhythm\n- Contextually relevant responses\n- No obvious robotic artifacts\n\n---\n\n## Recommendations for Improvement\n\n1. **Increase energy variation** - Add more dynamic emphasis to key words\n2. **Add natural artifacts** - Subtle breathing, micro-pauses between clauses\n3. **",
+        "mos": 4.632863998413086,
+        "noisiness": 4.321256160736084,
+        "coloration": 4.447200775146484,
+        "discontinuity": 4.5429816246032715,
+        "loudness": 4.517913341522217,
+        "overall_quality": 4.632863998413086,
+        "mosnet_score": 3.5203864323465446,
+        "srmr_score": 10.510661115434766
+      }
+    }
+  ],
+  "summary": {
+    "average_wer": 8.388157894736842,
+    "average_overall_score": 9.75,
+    "average_stt_latency_ms": 0.30000000000000004,
+    "average_tts_latency_ms": 742.5,
+    "average_total_latency_ms": 18103.35,
+    "by_category": {
+      "general": {
+        "count": 2,
+        "avg_wer": 8.388157894736842,
+        "avg_score": 9.75,
+        "avg_stt_latency_ms": 0.30000000000000004,
+        "avg_tts_latency_ms": 742.5
+      }
+    }
+  },
+  "stt_model": "NVIDIA Riva STT",
+  "stt_service_id": "nvidia_riva",
+  "tts_model": "Groq",
+  "tts_service_id": "groq"
+}
