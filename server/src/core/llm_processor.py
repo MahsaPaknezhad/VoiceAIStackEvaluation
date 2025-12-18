@@ -85,6 +85,7 @@ class StrandsAgentsProcessor(FrameProcessor):
         
         if isinstance(frame, OpenAILLMContextFrame):
             logger.debug(f"DEBUG: Received OpenAILLMContextFrame")
+            print(f"DEBUG: LLM Context Frame received with {len(frame.context.messages)} messages")
             
             content = frame.context.messages[-1]["content"]
             
@@ -101,6 +102,7 @@ class StrandsAgentsProcessor(FrameProcessor):
                 text = str(content).strip()
             
             # VAD ensures single invocation with complete transcript
+            print(f"DEBUG: About to invoke LLM with text: '{text}'")
             await self._ainvoke(text)
             
         else:

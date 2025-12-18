@@ -115,6 +115,7 @@ class STTCollector(FrameProcessor):
             
             # Collect transcribed text for evaluation
             self.text_collector.append(frame.text)
+            print(f"DEBUG: STTCollector received transcription: '{frame.text}'")
             
         await self.push_frame(frame, direction)
 

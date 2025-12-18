@@ -329,10 +329,21 @@ class VoiceAssistantRunner:
         agent = build_conversation_agent(model_id="au.anthropic.claude-haiku-4-5-20251001-v1:0", tts_service=tts)
         llm = StrandsAgentsProcessor(agent=agent)
         
-        # Setup context with VAD-based aggregation (no timeout, wait for speech end)
+        # Setup context - use timeout for Whisper (batch STT), VAD for streaming STT
         context = AWSBedrockLLMContext()
         from pipecat.processors.aggregators.llm_response import LLMUserAggregatorParams
-        user_params = LLMUserAggregatorParams(aggregation_timeout=None)  # Disable timeout, use VAD
+        
+        # Check if using Whisper (batch processing)
+        is_whisper = self.stt_config and 'whisper' in self.stt_config.get('stt_service_id', '').lower()
+        if is_whisper:
+            # Use timeout for Whisper since it sends single transcription
+            user_params = LLMUserAggregatorParams(aggregation_timeout=5.0)
+            print(f"DEBUG: Using timeout-based aggregation for Whisper (5s)")
+        else:
+            # Use VAD for streaming STT
+            user_params = LLMUserAggregatorParams(aggregation_timeout=None)
+            print(f"DEBUG: Using VAD-based aggregation for streaming STT")
+            
         tma_in = LLMUserContextAggregator(context=context, params=user_params)
         tma_out = LLMAssistantContextAggregator(context=context)
         
