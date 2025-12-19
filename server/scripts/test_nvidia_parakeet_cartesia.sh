@@ -4,7 +4,7 @@ set -e
 
 DATASET="evaluation_data/voiceassistant_eval_new/voiceassistant_eval_dataset.json"
 AUDIO_DIR="evaluation_data/voiceassistant_eval_new/audio_input"
-STT_CONFIG="evaluation_data/stt_bot_configs/nvidia_parakeet_config.json"
+STT_CONFIG="evaluation_data/stt_bot_configs/nvidia_riva_config.json"
 TTS_CONFIG="evaluation_data/tts_bot_configs/cartesia_config.json"
 OUTPUT="evaluation_output/test_nvidia_parakeet_cartesia_results.json"
 EVAL_OUTPUT="evaluation_output/test_nvidia_parakeet_cartesia_evaluation.json"
