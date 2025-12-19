@@ -149,7 +149,6 @@ This evaluation framework measures voice assistant performance across accuracy, 
 | NVIDIA Parakeet | OpenAI TTS HD | ❌ **Missing** | `test_nvidia_parakeet_openai_tts_hd.sh` |
 | NVIDIA Parakeet | PlayHT | ❌ **Missing** | `test_nvidia_parakeet_playht.sh` |
 | NVIDIA Parakeet | Rime | ❌ **Missing** | `test_nvidia_parakeet_rime.sh` |
-
 | **AssemblyAI** | AWS Polly | ❌ **Missing** | `test_assemblyai_polly.sh` |
 | AssemblyAI | Cartesia | ❌ **Missing** | `test_assemblyai_cartesia.sh` |
 | AssemblyAI | Deepgram Aura | ❌ **Missing** | `test_assemblyai_deepgram_aura.sh` |
