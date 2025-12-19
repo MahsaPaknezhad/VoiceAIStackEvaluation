@@ -43,6 +43,17 @@ This evaluation framework measures voice assistant performance across accuracy, 
 - **LLM Tone**: AI-assessed pleasantness (0-10 scale)
 - **LLM Overall**: AI-assessed overall quality (0-10 scale)
 
+### 🏆 TTS Voice Quality (NISQA - Neural Speech Quality Assessment)
+- **MOS**: Mean Opinion Score for overall quality (1-5 scale, higher = better)
+- **Noisiness**: Background noise and artifacts (1-5 scale, lower = better)
+- **Coloration**: Spectral distortions and tonal quality (1-5 scale, lower = better)
+- **Discontinuity**: Speech interruptions and glitches (1-5 scale, lower = better)
+- **Loudness**: Volume appropriateness (1-5 scale, optimal ~3)
+
+### 📊 TTS Voice Quality (SpeechMetrics - Objective Measures)
+- **MOSNet Score**: Neural MOS prediction (1-5 scale, higher = better)
+- **SRMR Score**: Speech-to-Reverberation Modulation energy Ratio (higher = cleaner)
+
 ### ⚡ Performance Metrics
 - **STT Latency**: Speech-to-text processing time (ms)
 - **TTS Latency**: Text-to-speech generation time (ms)
@@ -53,8 +64,8 @@ This evaluation framework measures voice assistant performance across accuracy, 
 **Progress**: 22 of 101 combinations complete (22% coverage)
 - ✅ **Available Scripts**: 22
 - ❌ **Missing Scripts**: 79
-- 🎯 **Groq TTS Evaluation**: Complete (8 STT services tested)
-- 🎯 **Cartesia TTS Evaluation**: Complete (6 STT services tested)
+- ✅ **Groq TTS Evaluation**: Complete (8 STT services tested)
+- ✅ **Cartesia TTS Evaluation**: Complete (8 STT services tested)
 
 *Note: This table reflects current service configurations. Update counts when new STT/TTS service configs are added to `evaluation_data/` directories.*
 
@@ -138,6 +149,7 @@ This evaluation framework measures voice assistant performance across accuracy, 
 | NVIDIA Parakeet | OpenAI TTS HD | ❌ **Missing** | `test_nvidia_parakeet_openai_tts_hd.sh` |
 | NVIDIA Parakeet | PlayHT | ❌ **Missing** | `test_nvidia_parakeet_playht.sh` |
 | NVIDIA Parakeet | Rime | ❌ **Missing** | `test_nvidia_parakeet_rime.sh` |
+
 | **AssemblyAI** | AWS Polly | ❌ **Missing** | `test_assemblyai_polly.sh` |
 | AssemblyAI | Cartesia | ❌ **Missing** | `test_assemblyai_cartesia.sh` |
 | AssemblyAI | Deepgram Aura | ❌ **Missing** | `test_assemblyai_deepgram_aura.sh` |
