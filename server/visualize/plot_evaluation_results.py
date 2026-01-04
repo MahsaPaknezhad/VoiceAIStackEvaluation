@@ -673,18 +673,55 @@ def plot_combination_scatter(combination_metrics: Dict, output_dir: str):
     if not combination_metrics:
         return
     
-    # Use tab10 colormap for distinct combinations
-    combinations = list(combination_metrics.keys())
-    colors = plt.cm.tab10(np.linspace(0, 1, len(combinations)))
+    # Define distinct symbols and colors by provider
+    stt_colors = {
+        'aws_transcribe': '#1f77b4',  # Blue
+        'deepgram_nova2': '#ff7f0e',  # Orange  
+        'deepgram_nova3': '#2ca02c',  # Green
+        'whisper_large': '#d62728',   # Red
+        'whisper_small': '#9467bd',   # Purple
+        'whisper_turbo': '#8c564b',   # Brown
+        'nvidia_parakeet': '#e377c2', # Pink
+        'assemblyai': '#7f7f7f',      # Gray
+        'gladia': '#bcbd22'           # Olive
+    }
+    
+    tts_symbols = {
+        'aws_polly': 'o',
+        'cartesia': 's', 
+        'deepgram': '^',
+        'groq': 'D',
+        'elevenlabs': 'v',
+        'openai': '<',
+        'nvidia': '>',
+        'lmnt': 'p',
+        'playht': '*',
+        'rime': 'h'
+    }
     
     # Plot 1: Accuracy vs Quality Trade-off
     fig, ax = plt.subplots(figsize=(10, 7))
     
-    for i, (combo_key, metrics) in enumerate(combination_metrics.items()):
+    for combo_key, metrics in combination_metrics.items():
         if metrics['wer'] is None or metrics['overall_score'] is None:
             continue
         
-        color = colors[i]
+        # Determine STT color based on specific model
+        stt_model = metrics['stt_model'].lower()
+        color = '#17becf'  # default cyan
+        for stt_key, stt_color in stt_colors.items():
+            if stt_key.replace('_', '') in stt_model.replace('_', ''):
+                color = stt_color
+                break
+        
+        # Determine TTS symbol
+        tts_model = metrics['tts_model']
+        symbol = 'o'  # default
+        for tts_key, tts_symbol in tts_symbols.items():
+            if tts_key in tts_model.lower():
+                symbol = tts_symbol
+                break
+        
         combo_label = f"{metrics['stt_model']}+{metrics['tts_model']}"
         
         x = metrics['wer']
@@ -698,8 +735,8 @@ def plot_combination_scatter(combination_metrics: Dict, output_dir: str):
                          edgecolor=color, linewidth=1.5, linestyle='--')
         ax.add_patch(ellipse)
         
-        # Data point
-        ax.scatter(x, y, s=150, color=color, edgecolors='white', linewidth=2, 
+        # Data point with distinct symbol
+        ax.scatter(x, y, s=150, marker=symbol, color=color, edgecolors='white', linewidth=2, 
                   alpha=0.8, label=combo_label)
     
     ax.set_xlabel('Word Error Rate (%)', fontweight='normal', fontsize=13)
@@ -723,11 +760,26 @@ def plot_combination_scatter(combination_metrics: Dict, output_dir: str):
     # Plot 2: Speed vs Quality Trade-off
     fig, ax = plt.subplots(figsize=(10, 7))
     
-    for i, (combo_key, metrics) in enumerate(combination_metrics.items()):
+    for combo_key, metrics in combination_metrics.items():
         if metrics['total_latency'] is None or metrics['overall_score'] is None:
             continue
         
-        color = colors[i]
+        # Determine STT color based on specific model
+        stt_model = metrics['stt_model'].lower()
+        color = '#17becf'  # default cyan
+        for stt_key, stt_color in stt_colors.items():
+            if stt_key.replace('_', '') in stt_model.replace('_', ''):
+                color = stt_color
+                break
+        
+        # Determine TTS symbol
+        tts_model = metrics['tts_model']
+        symbol = 'o'  # default
+        for tts_key, tts_symbol in tts_symbols.items():
+            if tts_key in tts_model.lower():
+                symbol = tts_symbol
+                break
+        
         combo_label = f"{metrics['stt_model']}+{metrics['tts_model']}"
         
         x = metrics['total_latency']
@@ -741,8 +793,8 @@ def plot_combination_scatter(combination_metrics: Dict, output_dir: str):
                          edgecolor=color, linewidth=1.5, linestyle='--')
         ax.add_patch(ellipse)
         
-        # Data point
-        ax.scatter(x, y, s=150, color=color, edgecolors='white', linewidth=2,
+        # Data point with distinct symbol
+        ax.scatter(x, y, s=150, marker=symbol, color=color, edgecolors='white', linewidth=2,
                   alpha=0.8, label=combo_label)
     
     ax.set_xlabel('Total Latency (ms)', fontweight='normal', fontsize=13)

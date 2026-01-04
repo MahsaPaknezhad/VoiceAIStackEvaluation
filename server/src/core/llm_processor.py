@@ -121,10 +121,11 @@ class StrandsAgentsProcessor(FrameProcessor):
         logger.debug(f"DEBUG: Text length: {len(text)} characters")
         logger.debug(f"DEBUG: Using agent: {self.agent is not None}, Using graph: {self.graph is not None}")
         try:
+            
             await self.push_frame(LLMFullResponseStartFrame())
             await self.start_processing_metrics()
             await self.start_ttfb_metrics()
-
+            logger.debug(f"Invoking Strands agent with: {text}")
             if self.graph:
                 # Graph does not stream; await full result then emit assistant text
                 graph_result = await self.graph.invoke_async(text)

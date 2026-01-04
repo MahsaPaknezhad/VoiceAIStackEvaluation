@@ -92,6 +92,7 @@ class EvaluationInput(FrameProcessor):
                 silence_duration = 2.0
                 silence_bytes = int(self._sample_rate * silence_duration * 2)
                 silence_chunk = b'\x00' * silence_bytes
+                silence_chunk_count = 0
                 for i in range(0, len(silence_chunk), chunk_size):
                     chunk = silence_chunk[i:i+chunk_size]
                     frame = AudioRawFrame(

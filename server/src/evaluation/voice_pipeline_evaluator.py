@@ -162,19 +162,22 @@ class VoiceAssistantRunner:
         api_key = None
         if "deepgram" in module_name:
             return service_class(api_key=os.getenv("DEEPGRAM_API_KEY"), **config)
-        elif "openai" in module_name:
+        if "openai" in module_name:
             return service_class(api_key=os.getenv("OPENAI_API_KEY"), **config)
-        elif "elevenlabs" in module_name:
+        if "elevenlabs" in module_name:
             return service_class(api_key=os.getenv("ELEVENLABS_API_KEY"), **config)
-        elif "cartesia" in module_name:
+        if "cartesia" in module_name:
+            # Force new connection for each request to avoid WebSocket reuse issues
+            config["connection_timeout"] = 10
+            config["read_timeout"] = 30
             return service_class(api_key=os.getenv("CARTESIA_API_KEY"), **config)
-        elif "riva" in module_name:
+        if "riva" in module_name:
             return service_class(api_key=os.getenv("RIVA_API_KEY"), **config)
-        elif "fish" in module_name:
+        if "fish" in module_name:
             return service_class(api_key=os.getenv("FISH_AUDIO_API_KEY"), **config)
-        elif "lmnt" in module_name:
+        if "lmnt" in module_name:
             return service_class(api_key=os.getenv("LMNT_API_KEY"), **config)
-        elif "playht" in module_name:
+        if "playht" in module_name:
             return service_class(api_key=os.getenv("PLAYHT_API_KEY"), **config)
         elif "rime" in module_name:
             api_key = os.getenv("RIME_API_KEY")
@@ -274,6 +277,11 @@ class VoiceAssistantRunner:
         Returns:
             Dict with stt_output, bot_response, and latencies
         """
+        print("=== PROCESSING FILE ===")
+        print(f"Question ID: {question_id}")
+        print(f"Audio file path: {audio_path}")
+        print(f"File exists: {os.path.exists(audio_path)}")
+        
         logger.info(f"Processing {question_id}: {audio_path}")
         
         # Get the ground truth transcript from dataset (for WER comparison)
@@ -287,6 +295,10 @@ class VoiceAssistantRunner:
         with wave.open(audio_path, 'rb') as wf:
             sample_rate = wf.getframerate()
             audio_data = wf.readframes(wf.getnframes())
+            duration_seconds = len(audio_data) / (sample_rate * 2)  # 2 bytes per sample
+            print(f"Audio sample rate: {sample_rate}Hz")
+            print(f"Audio data size: {len(audio_data)} bytes")
+            print(f"Audio duration: {duration_seconds:.2f} seconds")
         
         # Handle audio resampling if required by STT config
         if self.stt_config and self.stt_config.get("audio_requirements"):
@@ -396,6 +408,9 @@ class VoiceAssistantRunner:
         
         # Wait for VAD-triggered LLM and TTS to complete
         pipeline_timeout = self.stt_config.get("pipeline_timeout", 18.0) if self.stt_config else 18.0
+        # Add extra time for Cartesia to complete
+        if self.tts_config and "cartesia" in self.tts_config.get("tts_service_id", "").lower():
+            pipeline_timeout += 5.0
         await asyncio.sleep(pipeline_timeout)
         
         # Clean shutdown of services
@@ -403,15 +418,19 @@ class VoiceAssistantRunner:
             # Stop STT service cleanly
             if hasattr(stt, 'disconnect'):
                 await stt.disconnect()
-        except:
-            pass
+        except Exception as e:
+            logger.debug(f"STT disconnect error (expected): {e}")
         
         try:
             # Stop TTS service cleanly  
             if hasattr(tts, 'stop'):
                 await tts.stop(EndFrame())
-        except:
-            pass
+        except Exception as e:
+            # Ignore WebSocket close errors for Cartesia
+            if "sent 1000 (OK); then received 1000 (OK)" in str(e):
+                pass  # Normal WebSocket close
+            else:
+                logger.debug(f"TTS stop error: {e}")
         
         # Cancel task
         await task.cancel()
