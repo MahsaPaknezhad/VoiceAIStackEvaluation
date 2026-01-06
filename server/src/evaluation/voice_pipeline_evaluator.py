@@ -11,7 +11,6 @@ import os
 import random
 import time
 import warnings
-from abc import ABC, abstractmethod
 from typing import Dict, List, Optional, Any
 
 # Third-party imports
@@ -20,7 +19,6 @@ import numpy as np
 import wave
 from dotenv import load_dotenv
 from loguru import logger
-from pydantic import BaseModel
 
 # Pipecat imports
 from pipecat.audio.vad.silero import SileroVADAnalyzer
@@ -37,258 +35,37 @@ from pipecat.processors.aggregators.llm_response import (
     LLMUserAggregatorParams
 )
 from pipecat.services.aws.llm import AWSBedrockLLMContext
-from pipecat.services.deepgram.stt import DeepgramSTTService, LiveOptions
 from pipecat.transports.base_transport import TransportParams
 
 from src.core.agent_builder import build_conversation_agent
 from src.core.llm_processor import StrandsAgentsProcessor
-from src.core.nvidia.livekit_tts_adapter import LiveKitTTSAdapter
 from src.evaluation.frame_processor import (
-    TimingCollector, STTTimingProcessor, TTSTimingProcessor,
-    STTCollector, LLMCollector
+    TimingCollector,
+    STTTimingProcessor,
+    TTSTimingProcessor,
+    STTCollector,
+    LLMCollector
 )
-from src.evaluation.models import PipelineResult
+from src.evaluation.config.configuration_manager import ConfigurationManager
+from src.evaluation.factories.stt_factory import STTServiceFactory
+from src.evaluation.factories.tts_factory import TTSServiceFactory
+
+from src.evaluation.models import (
+    PipelineResult,
+    PipelineCollectors,
+    PipelineComponents,
+    PipelineConfig,
+    ExecutionResults,
+    EvaluationSummary,
+    EvaluationOutput
+)
 from src.transport.batch_audio_transport import EvaluationTransport
-from tts import DeepgramTTSService
 
 
 # Configuration
 warnings.filterwarnings("ignore", message="Dangling tasks detected")
 load_dotenv(override=True)
 logger.disable("pipecat.pipeline.task")
-
-
-# Pydantic Data Classes
-class PipelineCollectors(BaseModel):
-    """Container for pipeline data collectors."""
-    timing: Any  # TimingCollector
-    stt_texts: List[str] = []
-    llm_texts: List[str] = []
-
-
-class PipelineComponents(BaseModel):
-    """Container for pipeline components."""
-    transport: Any
-    pipeline: Any
-    collectors: PipelineCollectors
-
-
-class PipelineConfig(BaseModel):
-    """Pipeline configuration parameters."""
-    allow_interruptions: bool = True
-    enable_metrics: bool = False
-    enable_usage_metrics: bool = False
-    report_only_initial_ttfb: bool = True
-    timeout: float = 18.0
-
-
-class ExecutionResults(BaseModel):
-    """Results from pipeline execution."""
-    stt_output: str
-    llm_response: str
-    stt_latency_ms: Optional[float] = None
-    tts_latency_ms: Optional[float] = None
-    total_latency_ms: float
-    output_audio: Optional[bytes] = None
-
-
-class EvaluationSummary(BaseModel):
-    """Summary statistics for evaluation results."""
-    total_files: int
-    successful: int
-    failed: int
-    skipped: int
-    success_rate: float
-
-
-class EvaluationOutput(BaseModel):
-    """Complete evaluation output structure."""
-    stt_model: Optional[str] = None
-    stt_service_id: Optional[str] = None
-    tts_model: Optional[str] = None
-    tts_service_id: Optional[str] = None
-    summary: EvaluationSummary
-    results: List[PipelineResult]
-
-
-class ConfigurationManager:
-    """
-    Manages loading and processing of service configuration files.
-
-    Responsibilities:
-    - Load JSON configuration files
-    - Substitute environment variables in config values
-    - Validate configuration structure
-    """
-
-    def __init__(self):
-        """Initialize the configuration manager."""
-        pass
-
-    def load_config(self, config_path: str) -> Dict:
-        """
-        Load service configuration from JSON file.
-
-        Args:
-            config_path: Path to the JSON configuration file
-
-        Returns:
-            Dict containing the loaded configuration
-
-        Raises:
-            FileNotFoundError: If config file doesn't exist
-            json.JSONDecodeError: If config file contains invalid JSON
-        """
-        try:
-            with open(config_path, 'r') as f:
-                return json.load(f)
-        except FileNotFoundError:
-            raise FileNotFoundError(
-                "Configuration file not found: {config_path}"
-            )
-        except json.JSONDecodeError as e:
-            raise json.JSONDecodeError(
-                f"Invalid JSON in config file {config_path}: {e}"
-            )
-
-    def substitute_env_vars(self, config: Dict) -> Dict:
-        """
-        Substitute environment variables in configuration values.
-
-        Supports formats:
-        - ${VAR_NAME} - Simple variable substitution
-        - ${VAR_NAME}:suffix - Variable with suffix (e.g., for ports)
-
-        Args:
-            config: Configuration dictionary to process
-
-        Returns:
-            Dict with environment variables substituted
-        """
-        result = config.copy()
-        for key, value in result.items():
-            if isinstance(value, str) and \
-                    value.startswith('${') and value.endswith('}'):
-                env_var = value[2:-1]  # Remove ${ and }
-                if ':' in env_var:  # Handle ${VAR}:port format
-                    env_var, suffix = env_var.split(':', 1)
-                    env_value = os.getenv(env_var)
-                    if env_value:
-                        result[key] = f"{env_value}:{suffix}"
-                else:
-                    env_value = os.getenv(env_var)
-                    if env_value:
-                        result[key] = env_value
-        return result
-
-
-class BaseServiceFactory(ABC):
-    """Abstract base class for service factories."""
-
-    def __init__(self, config_manager: ConfigurationManager):
-        self.config_manager = config_manager
-
-    @abstractmethod
-    def create_service(self, config: Dict = None):
-        """Create service from configuration."""
-        pass
-
-    def _get_api_key_for_provider(self, service_id: str) -> str:
-        """
-        Get API key based on service_id: deepgram_aura -> DEEPGRAM_API_KEY
-        """
-        provider = service_id.split('_')[0].upper() if service_id else ''
-        return os.getenv(f"{provider}_API_KEY")
-
-    def _needs_api_key(self, provider: str, module_name: str) -> bool:
-        """Check if service needs API key."""
-        return provider not in {"AWS", "NVIDIA"} and "riva" not in module_name
-
-
-class TTSServiceFactory(BaseServiceFactory):
-    """Factory for creating TTS services."""
-
-    def create_service(self, config: Dict = None):
-        """Create TTS service from configuration."""
-        if not config:
-            return DeepgramTTSService(
-                api_key=os.getenv("DEEPGRAM_API_KEY"),
-                voice="aura-2-delia-en"
-            )
-
-        # Handle LiveKit special cases
-        if "livekit" in config["module"]:
-            return self._create_livekit_service(config)
-
-        # Standard service creation
-        return self._create_standard_service(config)
-
-    def _create_livekit_service(self, config: Dict):
-        """Create LiveKit adapter services."""
-        module_name = config["module"]
-        service_config = self.config_manager.substitute_env_vars(
-            config.get("config", {})
-        )
-
-        if "nvidia" in module_name:
-            return LiveKitTTSAdapter(**service_config)
-        else:
-            # Fallback to standard service creation for other LiveKit services
-            module = __import__(config["module"], fromlist=[config["class"]])
-            service_class = getattr(module, config["class"])
-            return service_class(**service_config)
-
-    def _create_standard_service(self, config: Dict):
-        """Create standard TTS service."""
-        module = __import__(config["module"], fromlist=[config["class"]])
-        service_class = getattr(module, config["class"])
-        service_config = self.config_manager.substitute_env_vars(
-            config.get("config", {})
-        )
-
-        service_id = config.get("tts_service_id", "")
-        provider = service_id.split('_')[0].upper()
-
-        if self._needs_api_key(provider, config["module"]):
-            api_key = self._get_api_key_for_provider(service_id)
-            return service_class(api_key=api_key, **service_config)
-        else:
-            return service_class(**service_config)
-
-
-class STTServiceFactory(BaseServiceFactory):
-    """Factory for creating STT services."""
-
-    def create_service(self, config: Dict = None):
-        """Create STT service from configuration."""
-        if not config:
-            return DeepgramSTTService(
-                api_key=os.getenv("DEEPGRAM_API_KEY"),
-                live_options=LiveOptions(
-                    model="nova-3",
-                    language="en",
-                    smart_format=True)
-            )
-
-        # Standard service creation
-        return self._create_standard_service(config)
-
-    def _create_standard_service(self, config: Dict):
-        """Create standard STT service."""
-        module = __import__(config["module"], fromlist=[config["class"]])
-        service_class = getattr(module, config["class"])
-        service_config = self.config_manager.substitute_env_vars(
-            config.get("config", {})
-        )
-
-        service_id = config.get("stt_service_id", "")
-        provider = service_id.split('_')[0].upper()
-
-        if self._needs_api_key(provider, config["module"]):
-            api_key = self._get_api_key_for_provider(service_id)
-            return service_class(api_key=api_key, **service_config)
-        else:
-            return service_class(**service_config)
 
 
 class PipelineBuilder:
