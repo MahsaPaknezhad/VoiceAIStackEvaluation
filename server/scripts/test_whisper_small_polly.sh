@@ -10,7 +10,7 @@ OUTPUT="evaluation_output/test_whisper_small_polly_results.json"
 EVAL_OUTPUT="evaluation_output/test_whisper_small_polly_evaluation.json"
 
 # echo "Step 1: Running bot on dataset..."
-# python src/evaluation/voice_pipeline_evaluator.py \
+# python3 -m src.evaluation.voice_pipeline_evaluator \
 #     --dataset "$DATASET" \
 #     --audio-dir "$AUDIO_DIR" \
 #     --stt-config "$STT_CONFIG" \
@@ -18,7 +18,7 @@ EVAL_OUTPUT="evaluation_output/test_whisper_small_polly_evaluation.json"
 #     --output "$OUTPUT"
 
 echo "Step 2: Evaluating results (WER + LLM judge)..."
-python src/evaluation/metrics_calculator.py \
+python3 -m src.evaluation.metrics_calculator \
     --dataset "$DATASET" \
     --audio-dir "$AUDIO_DIR" \
     --results "$OUTPUT" \

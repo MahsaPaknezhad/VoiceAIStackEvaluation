@@ -10,7 +10,7 @@ OUTPUT="evaluation_output/test_whisper_turbo_cartesia_results.json"
 EVAL_OUTPUT="evaluation_output/test_whisper_turbo_cartesia_evaluation.json"
 
 echo "Step 1: Running bot on dataset..."
-python3 src/evaluation/voice_pipeline_evaluator.py \
+python3 -m src.evaluation.voice_pipeline_evaluator \
     --dataset "$DATASET" \
     --audio-dir "$AUDIO_DIR" \
     --stt-config "$STT_CONFIG" \
@@ -18,7 +18,7 @@ python3 src/evaluation/voice_pipeline_evaluator.py \
     --output "$OUTPUT"
 
 echo "Step 2: Evaluating results (WER + LLM judge)..."
-python3 src/evaluation/metrics_calculator.py \
+python3 -m src.evaluation.metrics_calculator \
     --dataset "$DATASET" \
     --audio-dir "$AUDIO_DIR" \
     --results "$OUTPUT" \
