@@ -163,9 +163,9 @@ Evaluate the actual response."""
                 # Get NISQA and speechmetrics evaluation
                 technical_voice_metrics = self.voice_evaluator.evaluate(tts_audio_path)
                 
-                # Combine both sets of metrics
-                voice_metrics = {**llm_voice_metrics, **technical_voice_metrics}
-                result.voice_quality = VoiceQuality.model_validate(voice_metrics)
+                # Merge the two VoiceQuality models
+                combined_data = {**technical_voice_metrics.model_dump(), **llm_voice_metrics.model_dump()}
+                result.voice_quality = VoiceQuality.model_validate(combined_data)
             except Exception as e:
                 logger.error(f"Voice quality evaluation failed for {question_id}: {e}")
             

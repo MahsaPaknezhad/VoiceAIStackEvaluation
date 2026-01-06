@@ -19,6 +19,7 @@ import boto3
 import re
 import tempfile
 import subprocess
+from models import VoiceQuality
 
 try:
     # Add NISQA to path and import
@@ -148,7 +149,7 @@ Return ONLY valid JSON:
 }"""
         )
     
-    async def evaluate_with_llm_judge(self, audio_path: str, transcript: str = "") -> Dict:
+    async def evaluate_with_llm_judge(self, audio_path: str, transcript: str = "") -> VoiceQuality:
         """
         Evaluate voice quality using Claude 3 Haiku with librosa metrics.
         
@@ -157,7 +158,7 @@ Return ONLY valid JSON:
             transcript: Optional transcript of what's being said
             
         Returns:
-            Dict with LLM evaluation scores
+            VoiceQuality Pydantic model with LLM evaluation scores
         """
         try:
             # Extract comprehensive audio features
@@ -273,30 +274,30 @@ OVERALL QUALITY METRICS:
                 print(f"Claude response (not JSON): {response_text}")
                 result = {"fluency": 5, "naturalness": 5, "tone": 5, "overall": 5, "reasoning": response_text}
             
-            return {
-                "llm_fluency": result.get("fluency", 0),
-                "llm_naturalness": result.get("naturalness", 0),
-                "llm_tone": result.get("tone", 0),
-                "llm_overall": result.get("overall", 0),
-                "llm_reasoning": result.get("reasoning", "")
-            }
+            return VoiceQuality(
+                llm_fluency=result.get("fluency", 0),
+                llm_naturalness=result.get("naturalness", 0),
+                llm_tone=result.get("tone", 0),
+                llm_overall=result.get("overall", 0),
+                llm_reasoning=result.get("reasoning", "")
+            )
             
         except Exception as e:
             logger.error(f"LLM evaluation failed: {e}")
-            return {
-                "llm_fluency": 0,
-                "llm_naturalness": 0,
-                "llm_tone": 0,
-                "llm_overall": 0,
-                "llm_reasoning": f"Error: {str(e)}"
-            }
+            return VoiceQuality(
+                llm_fluency=0,
+                llm_naturalness=0,
+                llm_tone=0,
+                llm_overall=0,
+                llm_reasoning=f"Error: {str(e)}"
+            )
     
-    def evaluate(self, audio_path: str) -> Dict:
+    def evaluate(self, audio_path: str) -> VoiceQuality:
         """
         Evaluate voice quality metrics using NISQA and SpeechMetrics (synchronous).
         
         Returns:
-            Dict with NISQA and SpeechMetrics scores
+            VoiceQuality Pydantic model with validated scores
         """
         results = {}
         
@@ -310,14 +311,13 @@ OVERALL QUALITY METRICS:
             speechmetrics_results = self._evaluate_with_speechmetrics(audio_path)
             results.update(speechmetrics_results)
         
-        # Fallback to basic acoustic measures if no advanced metrics available
-        if not self.use_nisqa and not self.use_speechmetrics:
-            results = {
-                "overall_quality": -1,  # Default neutral score
-                "note": "No advanced metrics available - use --llm for detailed analysis"
-            }
+        # Ensure overall_quality is always present
+        if 'overall_quality' not in results:
+            # Use MOS as fallback, or default to 0
+            results['overall_quality'] = results.get('mos', 0.0)
         
-        return results
+        # Return validated Pydantic model
+        return VoiceQuality.model_validate(results)
     
     def _evaluate_with_nisqa(self, audio_path: str) -> Dict:
         """
@@ -451,32 +451,27 @@ if __name__ == "__main__":
     print("VOICE QUALITY EVALUATION")
     print("="*60)
     print(f"Audio: {audio_path}")
-    print(f"\nOverall Quality: {results['overall_quality']:.2f}/10")
-    
-    if 'note' in results:
-        print(f"Note: {results['note']}")
+    print(f"\nOverall Quality: {results.overall_quality:.2f}/5" if results.overall_quality else "Overall Quality: N/A")
     
     # Show NISQA scores if available
-    if 'mos' in results:
+    if results.mos:
         print(f"\n--- NISQA SCORES ---")
-        print(f"MOS: {results['mos']:.2f}/5")
-        print(f"Noisiness: {results['noisiness']:.2f}")
-        print(f"Coloration: {results['coloration']:.2f}")
-        print(f"Discontinuity: {results['discontinuity']:.2f}")
-        print(f"Loudness: {results['loudness']:.2f}")
+        print(f"MOS: {results.mos:.2f}/5")
+        print(f"Noisiness: {results.noisiness:.2f}" if results.noisiness else "")
+        print(f"Coloration: {results.coloration:.2f}" if results.coloration else "")
+        print(f"Discontinuity: {results.discontinuity:.2f}" if results.discontinuity else "")
+        print(f"Loudness: {results.loudness:.2f}" if results.loudness else "")
     
     # Show SpeechMetrics scores if available
-    if 'mosnet_score' in results:
+    if results.mosnet_score:
         print(f"\n--- SPEECHMETRICS SCORES ---")
-        print(f"MOSNet: {results['mosnet_score']:.2f}/5")
-        print(f"SRMR: {results['srmr_score']:.2f}")
+        print(f"MOSNet: {results.mosnet_score:.2f}/5")
+        print(f"SRMR: {results.srmr_score:.2f}" if results.srmr_score else "")
     
-    if use_llm and 'llm_overall' in results:
+    if use_llm and results.llm_overall:
         print(f"\n--- CLAUDE HAIKU 4.5 SCORES ---")
-        print(f"Fluency: {results['llm_fluency']:.2f}/10")
-        print(f"Naturalness: {results['llm_naturalness']:.2f}/10")
-        print(f"Tone: {results['llm_tone']:.2f}/10")
-        print(f"Overall: {results['llm_overall']:.2f}/10")
-        print(f"Reasoning: {results['llm_reasoning']}")
-    
-    print("="*60)
+        print(f"Fluency: {results.llm_fluency:.2f}/10" if results.llm_fluency else "")
+        print(f"Naturalness: {results.llm_naturalness:.2f}/10" if results.llm_naturalness else "")
+        print(f"Tone: {results.llm_tone:.2f}/10" if results.llm_tone else "")
+        print(f"Overall: {results.llm_overall:.2f}/10" if results.llm_overall else "")
+        print(f"Reasoning: {results.llm_reasoning}" if results.llm_reasoning else "")
