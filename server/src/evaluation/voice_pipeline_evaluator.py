@@ -41,6 +41,7 @@ from src.core.agent_builder import build_conversation_agent
 from src.core.llm_processor import StrandsAgentsProcessor
 from tts import DeepgramTTSService
 from src.evaluation.audio_quality_analyzer import VoiceQualityEvaluator
+from src.evaluation.models import PipelineResult
 from src.transport.batch_audio_transport import EvaluationTransport
 
 # frame processing
@@ -270,7 +271,7 @@ class VoiceAssistantRunner:
         
         return final_response
     
-    async def process_audio_file(self, audio_path: str, question_id: str) -> Dict:
+    async def process_audio_file(self, audio_path: str, question_id: str) -> PipelineResult:
         """
         Process a single audio file through the bot pipeline.
         
@@ -486,21 +487,21 @@ class VoiceAssistantRunner:
         print(f'TTS END TIME: {timing_collector.tts_end_time}')
         tts_latency = timing_collector.get_tts_latency_ms()
         
-        result = {
-            "question_id": question_id,
-            "audio_file": audio_path,
-            "stt_output": stt_output,
-            "ground_truth": ground_truth,
-            "llm_response": llm_response,
-            "tts_audio_path": tts_audio_path,
-            "stt_latency_ms": round(stt_latency, 2) if stt_latency is not None else None,
-            "tts_latency_ms": round(tts_latency, 2) if tts_latency is not None else None,
-            "total_latency_ms": round(total_latency, 2) if total_latency is not None else None
-        }
+        result = PipelineResult(
+            question_id=question_id,
+            audio_file=audio_path,
+            stt_output=stt_output,
+            ground_truth=ground_truth,
+            llm_response=llm_response,
+            tts_audio_path=tts_audio_path,
+            stt_latency_ms=round(stt_latency, 2) if stt_latency is not None else None,
+            tts_latency_ms=round(tts_latency, 2) if tts_latency is not None else None,
+            total_latency_ms=round(total_latency, 2) if total_latency is not None else None
+        )
         
         return result
     
-    async def run_all(self, output_path: str = None) -> List[Dict]:
+    async def run_all(self, output_path: str = None) -> List[PipelineResult]:
         """Run bot on all audio files in dataset"""
         results = []
         total_files = len(self.dataset['questions'])
@@ -531,13 +532,13 @@ class VoiceAssistantRunner:
                     result = await self.process_audio_file(audio_path, question_id)
                     
                     # Check if TTS actually worked (if TTS config is provided)
-                    if self.tts_config and result.get("tts_audio_path") is None:
+                    if self.tts_config and result.tts_audio_path is None:
                         # TTS was expected but failed
-                        result["status"] = "failed"
-                        result["error"] = "TTS failed - no audio generated"
+                        result.status = "failed"
+                        result.error = "TTS failed - no audio generated"
                         error_count += 1
                     else:
-                        result["status"] = "success"
+                        result.status = "success"
                         processed_count += 1
                     
                     results.append(result)
@@ -571,14 +572,14 @@ class VoiceAssistantRunner:
                     else:
                         logger.error(f"Error processing {question_id} (final attempt): {e}")
                         error_count += 1
-                        results.append({
-                            "question_id": question_id,
-                            "audio_file": audio_path,
-                            "stt_output": "",
-                            "llm_response": "",
-                            "error": str(e),
-                            "status": "failed"
-                        })
+                        results.append(PipelineResult(
+                            question_id=question_id,
+                            audio_file=audio_path,
+                            stt_output="",
+                            llm_response="",
+                            error=str(e),
+                            status="failed"
+                        ))
                         
                         # Save results even on error
                         if output_path:
@@ -604,13 +605,13 @@ class VoiceAssistantRunner:
         
         return results
     
-    def save_results(self, results: List[Dict], output_path: str):
+    def save_results(self, results: List[PipelineResult], output_path: str):
         """Save results to JSON"""
         os.makedirs(os.path.dirname(output_path), exist_ok=True)
         
         # Calculate summary statistics
-        successful = len([r for r in results if r.get('status') == 'success'])
-        failed = len([r for r in results if r.get('status') == 'failed'])
+        successful = len([r for r in results if r.status == 'success'])
+        failed = len([r for r in results if r.status == 'failed'])
         
         # Add metadata about STT and TTS models
         output_data = {
@@ -625,7 +626,7 @@ class VoiceAssistantRunner:
                 "skipped": len(results) - successful - failed,
                 "success_rate": round((successful/len(results))*100, 1) if results else 0
             },
-            "results": results
+            "results": [result.model_dump() for result in results]
         }
         
         # Write atomically to prevent corruption
@@ -662,8 +663,8 @@ async def main():
     runner.save_results(results, args.output)
     
     # Count successful vs failed results
-    successful = len([r for r in results if r.get('status') == 'success'])
-    failed = len([r for r in results if r.get('status') == 'failed'])
+    successful = len([r for r in results if r.status == 'success'])
+    failed = len([r for r in results if r.status == 'failed'])
     
     print(f"\n{'='*60}")
     print(f"FINAL RESULTS SUMMARY")
