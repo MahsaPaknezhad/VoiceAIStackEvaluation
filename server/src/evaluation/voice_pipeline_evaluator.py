@@ -3,89 +3,151 @@ Run the Q&A bot on VoiceAssistant-Eval dataset audio files.
 Collects STT outputs and bot responses for evaluation.
 """
 
+# Standard library imports
+import argparse
+import asyncio
 import json
 import os
-import asyncio
-import time
 import random
-from typing import Dict, List
-from loguru import logger
+import time
 import warnings
-warnings.filterwarnings("ignore", message="Dangling tasks detected")
-import argparse
-from pathlib import Path
-import re
+from abc import ABC, abstractmethod
+from typing import Dict, List, Optional, Any
 
-# Import Pipecat components
-from pipecat.services.deepgram.stt import DeepgramSTTService, LiveOptions
+# Third-party imports
+import librosa
+import numpy as np
+import wave
+from dotenv import load_dotenv
+from loguru import logger
+from pydantic import BaseModel
+
+# Pipecat imports
 from pipecat.audio.vad.silero import SileroVADAnalyzer
-from pipecat.frames.frames import AudioRawFrame, EndFrame, StartFrame, TranscriptionFrame, TextFrame, LLMFullResponseStartFrame, TTSAudioRawFrame
+from pipecat.audio.vad.vad_analyzer import VADParams
+from pipecat.frames.frames import (
+    EndFrame,
+    StartFrame
+)
 from pipecat.pipeline.pipeline import Pipeline
 from pipecat.pipeline.runner import PipelineRunner
 from pipecat.pipeline.task import PipelineTask, PipelineParams
+from pipecat.processors.aggregators.llm_response import (
+    LLMUserContextAggregator,
+    LLMUserAggregatorParams
+)
+from pipecat.services.aws.llm import AWSBedrockLLMContext
+from pipecat.services.deepgram.stt import DeepgramSTTService, LiveOptions
 from pipecat.transports.base_transport import TransportParams
-from pipecat.processors.frame_processor import FrameProcessor
-from pipecat.processors.aggregators.openai_llm_context import OpenAILLMContext
-from pipecat.services.aws.llm import AWSBedrockLLMContext
-from pipecat.services.aws.llm import AWSBedrockLLMContext
-from pipecat.processors.aggregators.llm_response import LLMUserContextAggregator, LLMAssistantContextAggregator
-from dotenv import load_dotenv
-import wave
-import numpy as np
-
-import sys
-import os
-sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..'))
 
 from src.core.agent_builder import build_conversation_agent
 from src.core.llm_processor import StrandsAgentsProcessor
-from tts import DeepgramTTSService
-from src.evaluation.audio_quality_analyzer import VoiceQualityEvaluator
+from src.evaluation.frame_processor import (
+    TimingCollector, STTTimingProcessor, TTSTimingProcessor,
+    STTCollector, LLMCollector
+)
 from src.evaluation.models import PipelineResult
 from src.transport.batch_audio_transport import EvaluationTransport
+from tts import DeepgramTTSService
 
-# frame processing
-from src.evaluation.frame_processor import (
-    TimingCollector,
-    STTTimingProcessor,
-    TTSTimingProcessor,
-    STTCollector,
-    LLMCollector
-)
-
+# Configuration
+warnings.filterwarnings("ignore", message="Dangling tasks detected")
 load_dotenv(override=True)
-
-# Suppress Pipecat cleanup warnings
 logger.disable("pipecat.pipeline.task")
 
 
-class VoiceAssistantRunner:
-    def __init__(self, dataset_path: str, audio_dir: str, stt_config: str = None, 
-                 tts_config: str = None, evaluate_voice_quality: bool = True, 
-                 use_llm_judge: bool = False):
-        self.dataset_path = dataset_path
-        self.audio_dir = audio_dir
-        self.evaluate_voice_quality = evaluate_voice_quality
-        self.dataset = self._load_dataset()
-        
-        # Load configs
-        self.stt_config = self._load_config(stt_config) if stt_config else None
-        self.tts_config = self._load_config(tts_config) if tts_config else None
-        
-        if evaluate_voice_quality:
-            self.voice_evaluator = VoiceQualityEvaluator(use_llm_judge=use_llm_judge)
-            self.use_llm_judge = use_llm_judge
-    
-    def _load_config(self, config_path: str) -> Dict:
-        """Load service config from JSON file"""
-        with open(config_path, 'r') as f:
-            return json.load(f)
-    
-    def _substitute_env_vars(self, config: Dict) -> Dict:
-        """Substitute environment variables in config values"""
+# Pydantic Data Classes
+class PipelineCollectors(BaseModel):
+    """Container for pipeline data collectors."""
+    timing: Any  # TimingCollector
+    stt_texts: List[str] = []
+    llm_texts: List[str] = []
+
+
+class PipelineComponents(BaseModel):
+    """Container for pipeline components."""
+    transport: Any
+    pipeline: Any
+    collectors: PipelineCollectors
+
+
+class PipelineConfig(BaseModel):
+    """Pipeline configuration parameters."""
+    allow_interruptions: bool = True
+    enable_metrics: bool = False
+    enable_usage_metrics: bool = False
+    report_only_initial_ttfb: bool = True
+    timeout: float = 18.0
+
+
+class ExecutionResults(BaseModel):
+    """Results from pipeline execution."""
+    stt_output: str
+    llm_response: str
+    stt_latency_ms: Optional[float] = None
+    tts_latency_ms: Optional[float] = None
+    total_latency_ms: float
+    output_audio: Optional[bytes] = None
+
+
+class ConfigurationManager:
+    """
+    Manages loading and processing of service configuration files.
+
+    Responsibilities:
+    - Load JSON configuration files
+    - Substitute environment variables in config values
+    - Validate configuration structure
+    """
+
+    def __init__(self):
+        """Initialize the configuration manager."""
+        pass
+
+    def load_config(self, config_path: str) -> Dict:
+        """
+        Load service configuration from JSON file.
+
+        Args:
+            config_path: Path to the JSON configuration file
+
+        Returns:
+            Dict containing the loaded configuration
+
+        Raises:
+            FileNotFoundError: If config file doesn't exist
+            json.JSONDecodeError: If config file contains invalid JSON
+        """
+        try:
+            with open(config_path, 'r') as f:
+                return json.load(f)
+        except FileNotFoundError:
+            raise FileNotFoundError(
+                "Configuration file not found: {config_path}"
+            )
+        except json.JSONDecodeError as e:
+            raise json.JSONDecodeError(
+                f"Invalid JSON in config file {config_path}: {e}"
+            )
+
+    def substitute_env_vars(self, config: Dict) -> Dict:
+        """
+        Substitute environment variables in configuration values.
+
+        Supports formats:
+        - ${VAR_NAME} - Simple variable substitution
+        - ${VAR_NAME}:suffix - Variable with suffix (e.g., for ports)
+
+        Args:
+            config: Configuration dictionary to process
+
+        Returns:
+            Dict with environment variables substituted
+        """
         result = config.copy()
         for key, value in result.items():
-            if isinstance(value, str) and value.startswith('${') and value.endswith('}'):
+            if isinstance(value, str) and \
+                    value.startswith('${') and value.endswith('}'):
                 env_var = value[2:-1]  # Remove ${ and }
                 if ':' in env_var:  # Handle ${VAR}:port format
                     env_var, suffix = env_var.split(':', 1)
@@ -97,410 +159,610 @@ class VoiceAssistantRunner:
                     if env_value:
                         result[key] = env_value
         return result
+
+
+class BaseServiceFactory(ABC):
+    """Abstract base class for service factories."""
     
-    def _create_stt_service(self):
-        """Create STT service from config"""
-        if not self.stt_config:
-            # Default
-            return DeepgramSTTService(
-                api_key=os.getenv("DEEPGRAM_API_KEY"),
-                live_options=LiveOptions(model="nova-3", language="en", smart_format=True)
-            )
-        
-        # Import the service class dynamically
-        module_name = self.stt_config["module"]
-        class_name = self.stt_config["class"]
-        
-        # Special handling for NVIDIA/LiveKit STT services
-        if "livekit" in module_name and "nvidia" in module_name:
-            from src.core.livekit_stt_adapter import LiveKitSTTAdapter
-            config = self.stt_config.get("config", {})
-            return LiveKitSTTAdapter(**config)
-        
-        module = __import__(module_name, fromlist=[class_name])
-        service_class = getattr(module, class_name)
-        
-        # Get config params and substitute environment variables
-        config = self._substitute_env_vars(self.stt_config.get("config", {}))
-        
-        # Create service
-        if "deepgram" in module_name:
-            return service_class(
-                api_key=os.getenv("DEEPGRAM_API_KEY"),
-                live_options=LiveOptions(**config)
-            )
-        elif "openai" in module_name:
-            return service_class(
-                api_key=os.getenv("OPENAI_API_KEY"),
-                **config
-            )
-        elif "aws" in module_name:
-            # AWS services use default credential chain
-            return service_class(**config)
-        else:
-            return service_class(**config)
+    def __init__(self, config_manager: ConfigurationManager):
+        self.config_manager = config_manager
     
-    def _create_tts_service(self):
-        """Create TTS service from config"""
-        if not self.tts_config:
-            # Default
+    @abstractmethod
+    def create_service(self, config: Dict = None):
+        """Create service from configuration."""
+        pass
+    
+    def _get_api_key_for_provider(self, service_id: str) -> str:
+        """Get API key based on service_id: deepgram_aura -> DEEPGRAM_API_KEY"""
+        provider = service_id.split('_')[0].upper() if service_id else ''
+        return os.getenv(f"{provider}_API_KEY")
+    
+    def _needs_api_key(self, provider: str, module_name: str) -> bool:
+        """Check if service needs API key."""
+        return provider not in {"AWS", "NVIDIA"} and "riva" not in module_name
+
+
+class TTSServiceFactory(BaseServiceFactory):
+    """Factory for creating TTS services."""
+    
+    def create_service(self, config: Dict = None):
+        """Create TTS service from configuration."""
+        if not config:
             return DeepgramTTSService(
                 api_key=os.getenv("DEEPGRAM_API_KEY"),
                 voice="aura-2-delia-en"
             )
         
-        # Import the service class dynamically
-        module_name = self.tts_config["module"]
-        class_name = self.tts_config["class"]
+        # Handle LiveKit special cases
+        if "livekit" in config["module"]:
+            return self._create_livekit_service(config)
         
-        module = __import__(module_name, fromlist=[class_name])
-        service_class = getattr(module, class_name)
-        
-        # Get config params and substitute environment variables
-        config = self._substitute_env_vars(self.tts_config.get("config", {}))
-        
-        # Determine API key based on service
-        api_key = None
-        if "deepgram" in module_name:
-            return service_class(api_key=os.getenv("DEEPGRAM_API_KEY"), **config)
-        if "openai" in module_name:
-            return service_class(api_key=os.getenv("OPENAI_API_KEY"), **config)
-        if "elevenlabs" in module_name:
-            return service_class(api_key=os.getenv("ELEVENLABS_API_KEY"), **config)
-        if "cartesia" in module_name:
-            # Force new connection for each request to avoid WebSocket reuse issues
-            config["connection_timeout"] = 10
-            config["read_timeout"] = 30
-            return service_class(api_key=os.getenv("CARTESIA_API_KEY"), **config)
-        if "riva" in module_name:
-            return service_class(api_key=os.getenv("RIVA_API_KEY"), **config)
-        if "fish" in module_name:
-            return service_class(api_key=os.getenv("FISH_AUDIO_API_KEY"), **config)
-        if "lmnt" in module_name:
-            return service_class(api_key=os.getenv("LMNT_API_KEY"), **config)
-        if "playht" in module_name:
-            return service_class(api_key=os.getenv("PLAYHT_API_KEY"), **config)
-        elif "rime" in module_name:
-            api_key = os.getenv("RIME_API_KEY")
-        elif "groq" in module_name:
-            api_key = os.getenv("GROQ_API_KEY")
-        
-        logger.info(f"Using API key: {'***' if api_key else 'None'}")
-        logger.info(f"Final config after env substitution: {config}")
-        
-        try:
-            if "livekit" in module_name:
-                if "nvidia" in module_name:
-                    from src.core.nvidia.livekit_tts_adapter import LiveKitTTSAdapter
-                    return LiveKitTTSAdapter(**config)
-                elif "patakeet" in module_name:
-                    from src.core.livekit_patakeet_adapter import LiveKitPatakeetAdapter
-                    return LiveKitPatakeetAdapter(**config)
-                else:
-                    # Generic LiveKit adapter fallback
-                    from src.core.livekit_tts_adapter import LiveKitTTSAdapter
-                    return LiveKitTTSAdapter(**config)
-            elif "nvidia" in module_name or "riva" in module_name:
-                # NVIDIA services don't use api_key parameter
-                return service_class(**config)
-            elif "aws" in module_name:
-                return service_class(**config)
-            elif api_key:
-                return service_class(api_key=api_key, **config)
-            else:
-                return service_class(**config)
-
-        except Exception as e:
-            logger.error(f"Failed to create {class_name} with config {config}: {e}")
-            raise
-        
-    def _load_dataset(self) -> Dict:
-        """Load the evaluation dataset"""
-        with open(self.dataset_path, 'r') as f:
-            return json.load(f)
+        # Standard service creation
+        return self._create_standard_service(config)
     
-    def _extract_final_response(self, full_text: str) -> str:
-        """Extract the final/most complete response from concatenated LLM outputs.
+    def _create_livekit_service(self, config: Dict):
+        """Create LiveKit adapter services."""
+        module_name = config["module"]
+        service_config = self.config_manager.substitute_env_vars(config.get("config", {}))
         
-        Strategy: Split on common response patterns and take the last complete response.
-        """
-        if not full_text:
-            return ""
-        
-        # Common patterns that indicate start of new responses
-        response_starters = [
-            "I notice your question",
-            "I'd be happy to help", 
-            "I'm not quite sure",
-            "I see your question",
-            "I'm still not",
-            "I'm getting closer",
-            "I appreciate",
-            "I still can't",
-            "I'm not able"
-        ]
-        
-        # Find all potential response boundaries
-        boundaries = [0]  # Start of text
-        for starter in response_starters:
-            pos = 0
-            while True:
-                pos = full_text.find(starter, pos)
-                if pos == -1:
-                    break
-                boundaries.append(pos)
-                pos += 1
-        
-        # Sort boundaries and split text
-        boundaries = sorted(set(boundaries))
-        responses = []
-        
-        for i in range(len(boundaries)):
-            start = boundaries[i]
-            end = boundaries[i + 1] if i + 1 < len(boundaries) else len(full_text)
-            response = full_text[start:end].strip()
-            if response:
-                responses.append(response)
-        
-        if not responses:
-            return full_text.strip()
-        
-        # Return the longest response (most complete)
-        final_response = max(responses, key=len)
-        print(f"DEBUG: Found {len(responses)} responses, selected longest ({len(final_response)} chars)")
-        
-        return final_response
-    
-    async def process_audio_file(self, audio_path: str, question_id: str) -> PipelineResult:
-        """
-        Process a single audio file through the bot pipeline.
-        
-        Returns:
-            Dict with stt_output, bot_response, and latencies
-        """
-        print("=== PROCESSING FILE ===")
-        print(f"Question ID: {question_id}")
-        print(f"Audio file path: {audio_path}")
-        print(f"File exists: {os.path.exists(audio_path)}")
-        
-        logger.info(f"Processing {question_id}: {audio_path}")
-        
-        # Get the ground truth transcript from dataset (for WER comparison)
-        question_data = next((q for q in self.dataset['questions'] if q['id'] == question_id), None)
-        if not question_data:
-            raise ValueError(f"Question {question_id} not found in dataset")
-        
-        ground_truth = question_data['text']
-        
-        # Read audio file
-        with wave.open(audio_path, 'rb') as wf:
-            sample_rate = wf.getframerate()
-            audio_data = wf.readframes(wf.getnframes())
-            duration_seconds = len(audio_data) / (sample_rate * 2)  # 2 bytes per sample
-            print(f"Audio sample rate: {sample_rate}Hz")
-            print(f"Audio data size: {len(audio_data)} bytes")
-            print(f"Audio duration: {duration_seconds:.2f} seconds")
-        
-        # Handle audio resampling if required by STT config
-        if self.stt_config and self.stt_config.get("audio_requirements"):
-            audio_reqs = self.stt_config["audio_requirements"]
-            required_rates = audio_reqs.get("sample_rates", [])
-            target_rate = audio_reqs.get("resample_to")
-            
-            if required_rates and sample_rate not in required_rates and target_rate:
-                import librosa
-                import numpy as np
-                audio_array = np.frombuffer(audio_data, dtype=np.int16).astype(np.float32) / 32768.0
-                audio_array = librosa.resample(audio_array, orig_sr=sample_rate, target_sr=target_rate)
-                audio_data = (audio_array * 32768.0).astype(np.int16).tobytes()
-                sample_rate = target_rate
-        
-        # Always use VAD for batch evaluation to detect speech end
-        from pipecat.audio.vad.silero import SileroVADAnalyzer
-        from pipecat.audio.vad.vad_analyzer import VADParams
-        from pipecat.transports.base_transport import TransportParams
-        
-        vad_analyzer = SileroVADAnalyzer(params=VADParams(stop_secs=1.0))  # 1 second silence = speech end
-        params = TransportParams(audio_in_enabled=True, vad_analyzer=vad_analyzer)
-        
-        transport = EvaluationTransport(
-            audio_data, 
-            sample_rate, 
-            params=params,
-            stt_model=self.stt_config.get("config", {}).get("model", "default") if self.stt_config else "default"
-        )
-        
-        # Create services
-        stt = self._create_stt_service()
-        
-        # For batch STT, transcribe the file first
-        if hasattr(stt, 'transcribe_file'):
-            transcription = stt.transcribe_file(audio_path)
-            stt.set_transcription(transcription)
-        
-        tts = self._create_tts_service()
-        agent = build_conversation_agent(model_id="au.anthropic.claude-haiku-4-5-20251001-v1:0", tts_service=tts)
-        llm = StrandsAgentsProcessor(agent=agent)
-        
-        # Setup context - use timeout for Whisper (batch STT), VAD for streaming STT
-        context = AWSBedrockLLMContext()
-        from pipecat.processors.aggregators.llm_response import LLMUserAggregatorParams
-        
-        # Check if using Whisper (batch processing)
-        is_whisper = self.stt_config and 'whisper' in self.stt_config.get('stt_service_id', '').lower()
-        if is_whisper:
-            # Use timeout for Whisper since it sends single transcription
-            user_params = LLMUserAggregatorParams(aggregation_timeout=5.0)
-            print(f"DEBUG: Using timeout-based aggregation for Whisper (5s)")
+        if "nvidia" in module_name:
+            from src.core.nvidia.livekit_tts_adapter import LiveKitTTSAdapter
+            return LiveKitTTSAdapter(**service_config)
         else:
-            # Use VAD for streaming STT
-            user_params = LLMUserAggregatorParams(aggregation_timeout=None)
-            print(f"DEBUG: Using VAD-based aggregation for streaming STT")
-            
-        tma_in = LLMUserContextAggregator(context=context, params=user_params)
-        tma_out = LLMAssistantContextAggregator(context=context)
+            # Fallback to standard service creation for other LiveKit services
+            module = __import__(config["module"], fromlist=[config["class"]])
+            service_class = getattr(module, config["class"])
+            return service_class(**service_config)
+    
+    def _create_standard_service(self, config: Dict):
+        """Create standard TTS service."""
+        module = __import__(config["module"], fromlist=[config["class"]])
+        service_class = getattr(module, config["class"])
+        service_config = self.config_manager.substitute_env_vars(config.get("config", {}))
         
-        # Collectors
-        stt_texts = []
-        llm_texts = []
+        service_id = config.get("tts_service_id", "")
+        provider = service_id.split('_')[0].upper()
         
-        # Start frame processing
-        timing_collector = TimingCollector()
-        stt_timing_start = STTTimingProcessor(timing_collector)
-        tts_timing_end = TTSTimingProcessor(timing_collector)
-        stt_collector = STTCollector(timing_collector, stt_texts)
-        llm_collector = LLMCollector(timing_collector, llm_texts)
+        if self._needs_api_key(provider, config["module"]):
+            api_key = self._get_api_key_for_provider(service_id)
+            return service_class(api_key=api_key, **service_config)
+        else:
+            return service_class(**service_config)
 
+
+class STTServiceFactory(BaseServiceFactory):
+    """Factory for creating STT services."""
+    
+    def create_service(self, config: Dict = None):
+        """Create STT service from configuration."""
+        if not config:
+            return DeepgramSTTService(
+                api_key=os.getenv("DEEPGRAM_API_KEY"),
+                live_options=LiveOptions(model="nova-3", language="en", smart_format=True)
+            )
         
-        # Build pipeline: STT -> Context -> LLM -> TTS (bypass output context aggregator)
+        # Handle special cases first
+        if "livekit" in config["module"] and "nvidia" in config["module"]:
+            from src.core.livekit_stt_adapter import LiveKitSTTAdapter
+            return LiveKitSTTAdapter(**config.get("config", {}))
+        
+        # Standard service creation
+        return self._create_standard_service(config)
+    
+    def _create_standard_service(self, config: Dict):
+        """Create standard STT service."""
+        module = __import__(config["module"], fromlist=[config["class"]])
+        service_class = getattr(module, config["class"])
+        service_config = self.config_manager.substitute_env_vars(config.get("config", {}))
+        
+        service_id = config.get("stt_service_id", "")
+        provider = service_id.split('_')[0].upper()
+        
+        if self._needs_api_key(provider, config["module"]):
+            api_key = self._get_api_key_for_provider(service_id)
+            return service_class(api_key=api_key, **service_config)
+        else:
+            return service_class(**service_config)
+
+
+class PipelineBuilder:
+    """
+    Handles pipeline construction and component assembly.
+
+    Responsibilities:
+    - Create pipeline components (transport, collectors, aggregators)
+    - Assemble complete pipeline from services
+    """
+
+    def __init__(self, stt_config: Dict = None):
+        """Initialize pipeline builder."""
+        self.stt_config = stt_config or {}
+
+    def create_transport(self, audio_data: bytes, sample_rate: int) -> Any:
+        """Create evaluation transport with VAD."""
+        vad_analyzer = SileroVADAnalyzer(params=VADParams(stop_secs=1.0))
+        params = TransportParams(
+            audio_in_enabled=True,
+            vad_analyzer=vad_analyzer)
+
+        return EvaluationTransport(
+            audio_data,
+            sample_rate,
+            params=params,
+            stt_model=self.stt_config.get("config", {}).get("model", "default")
+        )
+
+    def create_collectors(self) -> PipelineCollectors:
+        """Create pipeline data collectors."""
+        return PipelineCollectors(
+            timing=TimingCollector(),
+            stt_texts=[],
+            llm_texts=[]
+        )
+
+    def create_context_aggregator(self) -> Any:
+        """Create LLM context aggregator based on STT type."""
+        context = AWSBedrockLLMContext()
+        stt_service_id = self.stt_config.get('stt_service_id', '').lower()
+        is_whisper = 'whisper' in stt_service_id
+
+        if is_whisper:
+            user_params = LLMUserAggregatorParams(aggregation_timeout=5.0)
+            logger.info("Using timeout-based aggregation for Whisper (5s)")
+        else:
+            user_params = LLMUserAggregatorParams(aggregation_timeout=None)
+            logger.info("Using VAD-based aggregation for streaming STT")
+
+        return LLMUserContextAggregator(context=context, params=user_params)
+
+    def build_pipeline(
+            self,
+            audio_data: bytes,
+            sample_rate: int,
+            stt_service,
+            tts_service,
+            llm_service) -> PipelineComponents:
+        """Build complete pipeline with all components."""
+        transport = self.create_transport(audio_data, sample_rate)
+        collectors = self.create_collectors()
+        context_aggregator = self.create_context_aggregator()
+
         pipeline = Pipeline([
             transport.input(),
-            stt_timing_start,
-            stt,
-            stt_collector,
-            tma_in,  # Convert TranscriptionFrame to OpenAILLMContextFrame
-            llm,
-            llm_collector,
-            # tma_out,  # Skip output aggregator - TextFrames go directly to TTS
-            tts,
-            tts_timing_end,
+            STTTimingProcessor(collectors.timing),
+            stt_service,
+            STTCollector(collectors.timing, collectors.stt_texts),
+            context_aggregator,
+            llm_service,
+            LLMCollector(collectors.timing, collectors.llm_texts),
+            tts_service,
+            TTSTimingProcessor(collectors.timing),
             transport.output()
         ])
-        
-        # Get pipeline params from config (with defaults)
-        pipeline_params_config = self.stt_config.get("pipeline_params", {}) if self.stt_config else {}
-        pipeline_params = PipelineParams(
-            allow_interruptions=pipeline_params_config.get("allow_interruptions", True),
-            enable_metrics=pipeline_params_config.get("enable_metrics", False),
-            enable_usage_metrics=pipeline_params_config.get("enable_usage_metrics", False),
-            report_only_initial_ttfb=pipeline_params_config.get("report_only_initial_ttfb", True)
+
+        return PipelineComponents(
+            transport=transport,
+            pipeline=pipeline,
+            collectors=collectors
         )
-        
-        task = PipelineTask(pipeline, params=pipeline_params)
-        
-        # Process audio
+
+
+class PipelineExecutor:
+    """
+    Handles pipeline execution and result collection.
+
+    Responsibilities:
+    - Execute pipeline with proper configuration
+    - Handle batch STT setup
+    - Collect and format execution results
+    """
+
+    def _prepare_batch_stt(self, stt_service, audio_path: str) -> None:
+        """Handle batch STT transcription setup."""
+        if hasattr(stt_service, 'transcribe_file'):
+            transcription = stt_service.transcribe_file(audio_path)
+            stt_service.set_transcription(transcription)
+
+    def _create_pipeline_config(
+            self,
+            stt_config: Dict = None) -> PipelineConfig:
+        """Create pipeline configuration from STT config."""
+        if not stt_config:
+            return PipelineConfig()
+
+        pipeline_params = stt_config.get("pipeline_params", {})
+        return PipelineConfig(
+            allow_interruptions=pipeline_params.get(
+                "allow_interruptions", True
+            ),
+            enable_metrics=pipeline_params.get("enable_metrics", False),
+            enable_usage_metrics=pipeline_params.get("enable_usage_metrics", False),
+            report_only_initial_ttfb=pipeline_params.get(
+                "report_only_initial_ttfb", True
+            ),
+            timeout=stt_config.get("pipeline_timeout", 18.0)
+        )
+
+    async def _run_pipeline(
+            self,
+            pipeline_components: PipelineComponents,
+            config: PipelineConfig) -> float:
+        """Execute the pipeline and return total latency."""
+        pipeline_params = PipelineParams(
+            allow_interruptions=config.allow_interruptions,
+            enable_metrics=config.enable_metrics,
+            enable_usage_metrics=config.enable_usage_metrics,
+            report_only_initial_ttfb=config.report_only_initial_ttfb
+        )
+
+        task = PipelineTask(
+            pipeline_components.pipeline,
+            params=pipeline_params)
         start_time = time.time()
-        
+
         await task.queue_frames([StartFrame(), EndFrame()])
-        
-        # Run pipeline in background
         runner = PipelineRunner()
-        run_task = asyncio.create_task(runner.run(task))
+        await asyncio.create_task(runner.run(task))
+        await asyncio.sleep(config.timeout)
+        await task.cancel()
+        await asyncio.sleep(0.1)
+
+        return (time.time() - start_time) * 1000
+
+    async def execute_pipeline(
+            self,
+            pipeline_components: PipelineComponents,
+            stt_service,
+            audio_path: str, 
+            stt_config: Dict = None) -> ExecutionResults:
+        """Execute pipeline and return structured results."""
+        self._prepare_batch_stt(stt_service, audio_path)
+        config = self._create_pipeline_config(stt_config)
+        total_latency = await self._run_pipeline(pipeline_components, config)
+
+        collectors = pipeline_components.collectors
+        timing = collectors.timing
+        transport = pipeline_components.transport
+
+        return ExecutionResults(
+            stt_output=" ".join(collectors.stt_texts),
+            llm_response="".join(collectors.llm_texts),
+            stt_latency_ms=timing.get_stt_latency_ms(),
+            tts_latency_ms=timing.get_tts_latency_ms(),
+            total_latency_ms=total_latency,
+            output_audio=transport.get_output_audio()
+        )
+
+
+class AudioProcessor:
+    """
+    Handles audio file processing and pipeline execution.
+
+    Responsibilities:
+    - Load and preprocess audio files
+    - Set up and execute Pipecat pipeline
+    - Collect timing and output data
+    """
+
+    def __init__(
+            self,
+            stt_config: Dict = None,
+            pipeline_builder=PipelineBuilder,
+            pipeline_executor=PipelineExecutor):
+        """Initialize audio processor."""
+        self.stt_config = stt_config or {}
+        self.sample_rate = None
+        self.audio_data = None
+        self.pipeline_builder = pipeline_builder(stt_config=self.stt_config)
+        self.pipeline_executor = PipelineExecutor()
+
+    def load_audio_file(self, audio_path: str) -> None:
+        """Load audio file and store in instance variables."""
+        with wave.open(audio_path, 'rb') as wf:
+            self.sample_rate = wf.getframerate()
+            self.audio_data = wf.readframes(wf.getnframes())
+            duration_seconds = len(self.audio_data) / (self.sample_rate * 2)
+            logger.info(f"Audio sample rate: {self.sample_rate}Hz")
+            logger.info(f"Audio data size: {len(self.audio_data)} bytes")
+            logger.info(f"Audio duration: {duration_seconds:.2f} seconds")
+
+    def resample_if_needed(self) -> None:
+        """Resample audio if required by STT config."""
+        if not self.stt_config.get("audio_requirements"):
+            return
         
-        # Wait for VAD-triggered LLM and TTS to complete
-        pipeline_timeout = self.stt_config.get("pipeline_timeout", 18.0) if self.stt_config else 18.0
-        # Add extra time for Cartesia to complete
-        if self.tts_config and "cartesia" in self.tts_config.get("tts_service_id", "").lower():
-            pipeline_timeout += 5.0
-        await asyncio.sleep(pipeline_timeout)
+        audio_reqs = self.stt_config["audio_requirements"]
+        required_rates = audio_reqs.get("sample_rates", [])
+        target_rate = audio_reqs.get("resample_to")
         
-        # Clean shutdown of services
+        if required_rates and self.sample_rate not in required_rates and target_rate:
+            logger.info(f"Resampling audio from {self.sample_rate}Hz to {target_rate}Hz")
+            audio_array = np.frombuffer(self.audio_data, dtype=np.int16).astype(np.float32) / 32768.0
+            audio_array = librosa.resample(audio_array, orig_sr=self.sample_rate, target_sr=target_rate)
+            self.audio_data = (audio_array * 32768.0).astype(np.int16).tobytes()
+            self.sample_rate = target_rate
+
+    def process_audio_file(self, audio_path: str) -> None:
+        """Process audio file completely."""
+        self.load_audio_file(audio_path)
+        self.resample_if_needed()
+
+    def create_transport(self) -> Any:
+        """Create evaluation transport with VAD."""
+        vad_analyzer = SileroVADAnalyzer(params=VADParams(stop_secs=1.0))
+        params = TransportParams(audio_in_enabled=True, vad_analyzer=vad_analyzer)
+        
+        return EvaluationTransport(
+            self.audio_data,
+            self.sample_rate,
+            params=params,
+            stt_model=self.stt_config.get("config", {}).get("model", "default")
+        )
+
+    def create_collectors(self) -> PipelineCollectors:
+        """Create pipeline data collectors."""
+        return PipelineCollectors(
+            timing=TimingCollector(),
+            stt_texts=[],
+            llm_texts=[]
+        )
+
+    def create_context_aggregator(self) -> Any:
+        """Create LLM context aggregator based on STT type."""
+        context = AWSBedrockLLMContext()
+        is_whisper = 'whisper' in self.stt_config.get('stt_service_id', '').lower()
+        
+        if is_whisper:
+            user_params = LLMUserAggregatorParams(aggregation_timeout=5.0)
+            logger.info("Using timeout-based aggregation for Whisper (5s)")
+        else:
+            user_params = LLMUserAggregatorParams(aggregation_timeout=None)
+            logger.info("Using VAD-based aggregation for streaming STT")
+        
+        return LLMUserContextAggregator(context=context, params=user_params)
+
+    def build_pipeline(
+            self,
+            stt_service,
+            tts_service,
+            llm_service) -> PipelineComponents:
+        """Build complete pipeline using PipelineBuilder."""
+        return self.pipeline_builder.build_pipeline(
+            self.audio_data,
+            self.sample_rate,
+            stt_service,
+            tts_service,
+            llm_service
+        )
+
+    async def execute_pipeline(
+            self,
+            pipeline_components: PipelineComponents, 
+            stt_service,
+            audio_path: str,
+            stt_config: Dict = None) -> ExecutionResults:
+        """Execute pipeline using PipelineExecutor."""
+        return await self.pipeline_executor.execute_pipeline(
+            pipeline_components, stt_service, audio_path, stt_config
+        )
+
+
+class ServiceManager:
+    """
+    Handles service lifecycle management.
+
+    Responsibilities:
+    - Clean shutdown of STT/TTS services
+    - Handle service-specific cleanup logic
+    """
+
+    async def cleanup_services(self, stt_service, tts_service) -> None:
+        """Clean shutdown of all services."""
+        await self._cleanup_stt_service(stt_service)
+        await self._cleanup_tts_service(tts_service)
+        await asyncio.sleep(0.1)  # Give time for cleanup
+
+    async def _cleanup_stt_service(self, stt_service) -> None:
+        """Clean shutdown of STT service."""
         try:
-            # Stop STT service cleanly
-            if hasattr(stt, 'disconnect'):
-                await stt.disconnect()
+            if hasattr(stt_service, 'disconnect'):
+                await stt_service.disconnect()
         except Exception as e:
             logger.debug(f"STT disconnect error (expected): {e}")
-        
+
+    async def _cleanup_tts_service(self, tts_service) -> None:
+        """Clean shutdown of TTS service."""
         try:
-            # Stop TTS service cleanly  
-            if hasattr(tts, 'stop'):
-                await tts.stop(EndFrame())
+            if hasattr(tts_service, 'stop'):
+                await tts_service.stop(EndFrame())
         except Exception as e:
             # Ignore WebSocket close errors for Cartesia
             if "sent 1000 (OK); then received 1000 (OK)" in str(e):
                 pass  # Normal WebSocket close
             else:
                 logger.debug(f"TTS stop error: {e}")
-        
-        # Cancel task
-        await task.cancel()
-        
-        # Give time for cleanup
-        await asyncio.sleep(0.1)
-        
-        # Wait for run_task to complete cancellation with config-driven timeout
-        # cleanup_timeout = self.stt_config.get("cleanup_timeout", 2.0) if self.stt_config else 2.0
-        # try:
-        #     await asyncio.wait_for(run_task, timeout=cleanup_timeout)
-        # except (asyncio.TimeoutError, asyncio.CancelledError):
-        #     pass
-        
-        logger.info("Pipeline processing complete, continuing...")
-        
-        total_latency = (time.time() - start_time) * 1000
-        
-        # Collect results
-        stt_output = " ".join(stt_texts)
-        llm_response = "".join(llm_texts)
-        
-        print(f"DEBUG: LLM response length: {len(llm_response)}")
-        print(f"DEBUG: LLM response: {llm_response[:200]}...")
-        
-        # Save TTS audio from transport
-        tts_audio_path = None
-        output_audio = transport.get_output_audio()
-        print(f"DEBUG: Output audio length: {len(output_audio) if output_audio else 0}")
-        if output_audio:
-            # Create experiment-specific directory
-            stt_id = self.stt_config.get("stt_service_id") if self.stt_config else "default_stt"
-            tts_id = self.tts_config.get("tts_service_id") if self.tts_config else "default_tts"
-            experiment_name = f"{stt_id}_{tts_id}"
-            output_dir = os.path.join("evaluation_output", "tts_audio", experiment_name)
-            os.makedirs(output_dir, exist_ok=True)
-            tts_audio_path = os.path.join(output_dir, f"{question_id}_response.wav")
-            
-            # Get the actual sample rate from the transport output processor
-            sample_rate = transport.output().sample_rate if hasattr(transport.output(), 'sample_rate') else 16000
-            
-            with wave.open(tts_audio_path, 'wb') as wf:
-                wf.setnchannels(1)
-                wf.setsampwidth(2)
-                wf.setframerate(sample_rate)
-                wf.writeframes(output_audio)
-            print(f"DEBUG: Saved TTS audio to {tts_audio_path} at {sample_rate}Hz")
-        else:
-            print("DEBUG: No output audio collected")
-        # Calculate latencies
-        stt_latency = timing_collector.get_stt_latency_ms()
-        print(f'TTS START TIME: {timing_collector.tts_start_time}')
-        print(f'TTS END TIME: {timing_collector.tts_end_time}')
-        tts_latency = timing_collector.get_tts_latency_ms()
-        
-        result = PipelineResult(
+
+
+class ResultCollector:
+    """
+    Handles result collection and file operations.
+
+    Responsibilities:
+    - Format execution results into PipelineResult
+    - Save TTS audio files
+    - Handle experiment directory creation
+    """
+
+    def __init__(self, stt_config: Dict = None, tts_config: Dict = None):
+        """Initialize result collector."""
+        self.stt_config = stt_config or {}
+        self.tts_config = tts_config or {}
+
+    def _save_tts_audio(
+            self,
+            output_audio: bytes,
+            question_id: str,
+            pipeline_components: PipelineComponents) -> Optional[str]:
+        """Save TTS audio file and return path."""
+        if not output_audio:
+            return None
+
+        # Create experiment-specific directory
+        stt_id = self.stt_config.get("stt_service_id", "default_stt")
+        tts_id = self.tts_config.get("tts_service_id", "default_tts")
+        experiment_name = f"{stt_id}_{tts_id}"
+        output_dir = os.path.join(
+            "evaluation_output", "tts_audio", experiment_name
+        )
+        os.makedirs(output_dir, exist_ok=True)
+        tts_audio_path = os.path.join(
+            output_dir, f"{question_id}_response.wav"
+        )
+
+        # Get sample rate from transport
+        sample_rate = getattr(
+            pipeline_components.transport.output(), 'sample_rate', 16000
+        )
+
+        with wave.open(tts_audio_path, 'wb') as wf:
+            wf.setnchannels(1)
+            wf.setsampwidth(2)
+            wf.setframerate(sample_rate)
+            wf.writeframes(output_audio)
+
+        return tts_audio_path
+
+    def collect_result(
+            self,
+            execution_results: ExecutionResults, 
+            pipeline_components: PipelineComponents,
+            question_id: str,
+            audio_path: str,
+            ground_truth: str) -> PipelineResult:
+        """Collect and format final pipeline result."""
+        # Save TTS audio
+        tts_audio_path = self._save_tts_audio(
+            execution_results.output_audio, question_id, pipeline_components
+        )
+        stt_latency = execution_results.stt_latency_ms
+        tts_latency = execution_results.tts_latency_ms
+
+        return PipelineResult(
             question_id=question_id,
             audio_file=audio_path,
-            stt_output=stt_output,
+            stt_output=execution_results.stt_output,
             ground_truth=ground_truth,
-            llm_response=llm_response,
+            llm_response=execution_results.llm_response,
             tts_audio_path=tts_audio_path,
-            stt_latency_ms=round(stt_latency, 2) if stt_latency is not None else None,
-            tts_latency_ms=round(tts_latency, 2) if tts_latency is not None else None,
-            total_latency_ms=round(total_latency, 2) if total_latency is not None else None
+            stt_latency_ms=(
+                round(stt_latency, 2) if stt_latency is not None else None
+            ),
+            tts_latency_ms=(
+                round(tts_latency, 2) if tts_latency is not None else None
+            ),
+            total_latency_ms=round(execution_results.total_latency_ms, 2)
         )
-        
+
+
+class VoiceAssistantRunner:
+    def __init__(
+            self,
+            dataset_path: str,
+            audio_dir: str,
+            stt_config: str = None,
+            tts_config: str = None):
+        self.dataset_path = dataset_path
+        self.audio_dir = audio_dir
+
+        # Use configuration manager
+        self.config_manager = ConfigurationManager()
+        self.stt_factory = STTServiceFactory(self.config_manager)
+        self.tts_factory = TTSServiceFactory(self.config_manager)
+        self.dataset = self._load_dataset()
+
+        # Load configs using the manager
+        self.stt_config = self.config_manager.load_config(stt_config) if \
+            stt_config else None
+        self.tts_config = self.config_manager.load_config(tts_config) if \
+            tts_config else None
+
+    def _create_stt_service(self):
+        """Create STT service using factory."""
+        return self.stt_factory.create_service(self.stt_config)
+
+    def _create_tts_service(self):
+        """Create TTS service using factory."""
+        return self.tts_factory.create_service(self.tts_config)
+
+    def _load_dataset(self) -> Dict:
+        """Load the evaluation dataset"""
+        with open(self.dataset_path, 'r') as f:
+            return json.load(f)
+
+    async def process_audio_file(
+            self,
+            audio_path: str,
+            question_id: str) -> PipelineResult:
+        """
+        Process a single audio file through the bot pipeline.
+
+        Returns:
+            Dict with stt_output, bot_response, and latencies
+        """
+        logger.info(f"=== PROCESSING FILE: {question_id} ===")
+        logger.info(f"Audio file path: {audio_path}")
+        logger.info(f"File exists: {os.path.exists(audio_path)}")
+        logger.info(f"Processing {question_id}: {audio_path}")
+
+        # Get the ground truth transcript from dataset (for WER comparison)
+        question_data = next(
+            (q for q in self.dataset['questions'] if q['id'] == question_id),
+            None
+        )
+        if not question_data:
+            raise ValueError(f"Question {question_id} not found in dataset")
+
+        ground_truth = question_data['text']
+
+        # Process audio
+        audio_processor = AudioProcessor(self.stt_config)
+        audio_processor.process_audio_file(audio_path)
+
+        # Create services
+        stt = self._create_stt_service()
+        tts = self._create_tts_service()
+        agent = build_conversation_agent(
+            model_id="au.anthropic.claude-haiku-4-5-20251001-v1:0",
+            tts_service=tts)
+        llm = StrandsAgentsProcessor(agent=agent)
+
+        # Setup pipeline
+        pipeline_components = audio_processor.build_pipeline(stt, tts, llm)
+
+        # Execute pipeline using AudioProcessor
+        execution_results = await audio_processor.execute_pipeline(
+            pipeline_components, stt, audio_path, self.stt_config
+        )
+
+        # Create service manager and cleanup
+        service_manager = ServiceManager()
+        await service_manager.cleanup_services(stt, tts)
+
+        logger.info("Pipeline processing complete, continuing...")
+        # Create result collector
+        result_collector = ResultCollector(self.stt_config, self.tts_config)
+
+        # Collect final result
+        result = result_collector.collect_result(
+            execution_results,
+            pipeline_components,
+            question_id,
+            audio_path,
+            ground_truth
+        )
+
         return result
-    
+
     async def run_all(self, output_path: str = None) -> List[PipelineResult]:
         """Run bot on all audio files in dataset"""
         results = []
@@ -508,9 +770,9 @@ class VoiceAssistantRunner:
         processed_count = 0
         error_count = 0
         skipped_count = 0
-        
+
         logger.info(f"Starting evaluation of {total_files} audio files")
-        
+
         for i, question in enumerate(self.dataset['questions']):
             question_id = question['id']
             audio_file = question['audio_file']
@@ -567,7 +829,10 @@ class VoiceAssistantRunner:
                     if attempt < max_retries - 1:  # Retry all errors, not just Bedrock ones
                         wait_time = (3 ** (attempt + 1)) + random.uniform(0, 1)  # Add jitter
                         error_type = "Bedrock" if is_bedrock_error else "General"
-                        logger.warning(f"{error_type} error on {question_id} (attempt {attempt + 1}), retrying in {wait_time}s: {str(e)}")
+                        logger.warning(
+                            f"{error_type} error on {question_id} "
+                            f"(attempt {attempt + 1}), retrying in {wait_time}s: {str(e)}"
+                        )
                         await asyncio.sleep(wait_time)
                     else:
                         logger.error(f"Error processing {question_id} (final attempt): {e}")
