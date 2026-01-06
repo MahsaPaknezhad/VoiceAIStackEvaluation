@@ -8,18 +8,13 @@ import librosa
 import numpy as np
 from typing import Dict
 import soundfile as sf
-import base64
-import asyncio
 from strands import Agent
 from strands.models import BedrockModel
 import json
 from loguru import logger
 import os
-import boto3
-import re
 import tempfile
-import subprocess
-from models import VoiceQuality
+from src.evaluation.models import VoiceQuality
 
 try:
     # Add NISQA to path and import

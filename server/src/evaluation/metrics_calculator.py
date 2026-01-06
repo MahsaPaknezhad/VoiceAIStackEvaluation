@@ -14,10 +14,10 @@ from strands import Agent
 from strands.models import BedrockModel
 from loguru import logger
 import argparse
-from audio_quality_analyzer import VoiceQualityEvaluator
-from models import (
+from src.evaluation.audio_quality_analyzer import VoiceQualityEvaluator
+from src.evaluation.models import (
     JudgeScores, VoiceQuality, TimingMetrics, EvaluationResult,
-    CategoryStats, EvaluationSummary, EvaluationReport, PipelineResult
+    CategoryStats, EvaluationSummary, EvaluationReport
 )
 
 
