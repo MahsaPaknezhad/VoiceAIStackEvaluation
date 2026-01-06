@@ -90,6 +90,25 @@ class ExecutionResults(BaseModel):
     output_audio: Optional[bytes] = None
 
 
+class EvaluationSummary(BaseModel):
+    """Summary statistics for evaluation results."""
+    total_files: int
+    successful: int
+    failed: int
+    skipped: int
+    success_rate: float
+
+
+class EvaluationOutput(BaseModel):
+    """Complete evaluation output structure."""
+    stt_model: Optional[str] = None
+    stt_service_id: Optional[str] = None
+    tts_model: Optional[str] = None
+    tts_service_id: Optional[str] = None
+    summary: EvaluationSummary
+    results: List[PipelineResult]
+
+
 class ConfigurationManager:
     """
     Manages loading and processing of service configuration files.
@@ -163,20 +182,22 @@ class ConfigurationManager:
 
 class BaseServiceFactory(ABC):
     """Abstract base class for service factories."""
-    
+
     def __init__(self, config_manager: ConfigurationManager):
         self.config_manager = config_manager
-    
+
     @abstractmethod
     def create_service(self, config: Dict = None):
         """Create service from configuration."""
         pass
-    
+
     def _get_api_key_for_provider(self, service_id: str) -> str:
-        """Get API key based on service_id: deepgram_aura -> DEEPGRAM_API_KEY"""
+        """
+        Get API key based on service_id: deepgram_aura -> DEEPGRAM_API_KEY
+        """
         provider = service_id.split('_')[0].upper() if service_id else ''
         return os.getenv(f"{provider}_API_KEY")
-    
+
     def _needs_api_key(self, provider: str, module_name: str) -> bool:
         """Check if service needs API key."""
         return provider not in {"AWS", "NVIDIA"} and "riva" not in module_name
@@ -184,7 +205,7 @@ class BaseServiceFactory(ABC):
 
 class TTSServiceFactory(BaseServiceFactory):
     """Factory for creating TTS services."""
-    
+
     def create_service(self, config: Dict = None):
         """Create TTS service from configuration."""
         if not config:
@@ -192,19 +213,21 @@ class TTSServiceFactory(BaseServiceFactory):
                 api_key=os.getenv("DEEPGRAM_API_KEY"),
                 voice="aura-2-delia-en"
             )
-        
+
         # Handle LiveKit special cases
         if "livekit" in config["module"]:
             return self._create_livekit_service(config)
-        
+
         # Standard service creation
         return self._create_standard_service(config)
-    
+
     def _create_livekit_service(self, config: Dict):
         """Create LiveKit adapter services."""
         module_name = config["module"]
-        service_config = self.config_manager.substitute_env_vars(config.get("config", {}))
-        
+        service_config = self.config_manager.substitute_env_vars(
+            config.get("config", {})
+        )
+
         if "nvidia" in module_name:
             from src.core.nvidia.livekit_tts_adapter import LiveKitTTSAdapter
             return LiveKitTTSAdapter(**service_config)
@@ -213,16 +236,18 @@ class TTSServiceFactory(BaseServiceFactory):
             module = __import__(config["module"], fromlist=[config["class"]])
             service_class = getattr(module, config["class"])
             return service_class(**service_config)
-    
+
     def _create_standard_service(self, config: Dict):
         """Create standard TTS service."""
         module = __import__(config["module"], fromlist=[config["class"]])
         service_class = getattr(module, config["class"])
-        service_config = self.config_manager.substitute_env_vars(config.get("config", {}))
-        
+        service_config = self.config_manager.substitute_env_vars(
+            config.get("config", {})
+        )
+
         service_id = config.get("tts_service_id", "")
         provider = service_id.split('_')[0].upper()
-        
+
         if self._needs_api_key(provider, config["module"]):
             api_key = self._get_api_key_for_provider(service_id)
             return service_class(api_key=api_key, **service_config)
@@ -232,32 +257,32 @@ class TTSServiceFactory(BaseServiceFactory):
 
 class STTServiceFactory(BaseServiceFactory):
     """Factory for creating STT services."""
-    
+
     def create_service(self, config: Dict = None):
         """Create STT service from configuration."""
         if not config:
             return DeepgramSTTService(
                 api_key=os.getenv("DEEPGRAM_API_KEY"),
-                live_options=LiveOptions(model="nova-3", language="en", smart_format=True)
+                live_options=LiveOptions(
+                    model="nova-3",
+                    language="en",
+                    smart_format=True)
             )
-        
-        # Handle special cases first
-        if "livekit" in config["module"] and "nvidia" in config["module"]:
-            from src.core.livekit_stt_adapter import LiveKitSTTAdapter
-            return LiveKitSTTAdapter(**config.get("config", {}))
-        
+
         # Standard service creation
         return self._create_standard_service(config)
-    
+
     def _create_standard_service(self, config: Dict):
         """Create standard STT service."""
         module = __import__(config["module"], fromlist=[config["class"]])
         service_class = getattr(module, config["class"])
-        service_config = self.config_manager.substitute_env_vars(config.get("config", {}))
-        
+        service_config = self.config_manager.substitute_env_vars(
+            config.get("config", {})
+        )
+
         service_id = config.get("stt_service_id", "")
         provider = service_id.split('_')[0].upper()
-        
+
         if self._needs_api_key(provider, config["module"]):
             api_key = self._get_api_key_for_provider(service_id)
             return service_class(api_key=api_key, **service_config)
@@ -376,7 +401,9 @@ class PipelineExecutor:
                 "allow_interruptions", True
             ),
             enable_metrics=pipeline_params.get("enable_metrics", False),
-            enable_usage_metrics=pipeline_params.get("enable_usage_metrics", False),
+            enable_usage_metrics=pipeline_params.get(
+                "enable_usage_metrics", False
+            ),
             report_only_initial_ttfb=pipeline_params.get(
                 "report_only_initial_ttfb", True
             ),
@@ -413,7 +440,7 @@ class PipelineExecutor:
             self,
             pipeline_components: PipelineComponents,
             stt_service,
-            audio_path: str, 
+            audio_path: str,
             stt_config: Dict = None) -> ExecutionResults:
         """Execute pipeline and return structured results."""
         self._prepare_batch_stt(stt_service, audio_path)
@@ -470,16 +497,27 @@ class AudioProcessor:
         """Resample audio if required by STT config."""
         if not self.stt_config.get("audio_requirements"):
             return
-        
+
         audio_reqs = self.stt_config["audio_requirements"]
         required_rates = audio_reqs.get("sample_rates", [])
         target_rate = audio_reqs.get("resample_to")
-        
-        if required_rates and self.sample_rate not in required_rates and target_rate:
-            logger.info(f"Resampling audio from {self.sample_rate}Hz to {target_rate}Hz")
-            audio_array = np.frombuffer(self.audio_data, dtype=np.int16).astype(np.float32) / 32768.0
-            audio_array = librosa.resample(audio_array, orig_sr=self.sample_rate, target_sr=target_rate)
-            self.audio_data = (audio_array * 32768.0).astype(np.int16).tobytes()
+
+        if required_rates and \
+                self.sample_rate not in required_rates and target_rate:
+            logger.info(
+                f"Resampling audio from {self.sample_rate}Hz "
+                f"to {target_rate}Hz"
+            )
+            audio_array = np.frombuffer(
+                self.audio_data, dtype=np.int16
+            ).astype(np.float32) / 32768.0
+            audio_array = librosa.resample(
+                audio_array,
+                orig_sr=self.sample_rate,
+                target_sr=target_rate)
+            self.audio_data = (
+                audio_array * 32768.0
+            ).astype(np.int16).tobytes()
             self.sample_rate = target_rate
 
     def process_audio_file(self, audio_path: str) -> None:
@@ -490,8 +528,10 @@ class AudioProcessor:
     def create_transport(self) -> Any:
         """Create evaluation transport with VAD."""
         vad_analyzer = SileroVADAnalyzer(params=VADParams(stop_secs=1.0))
-        params = TransportParams(audio_in_enabled=True, vad_analyzer=vad_analyzer)
-        
+        params = TransportParams(
+            audio_in_enabled=True, vad_analyzer=vad_analyzer
+        )
+
         return EvaluationTransport(
             self.audio_data,
             self.sample_rate,
@@ -510,15 +550,16 @@ class AudioProcessor:
     def create_context_aggregator(self) -> Any:
         """Create LLM context aggregator based on STT type."""
         context = AWSBedrockLLMContext()
-        is_whisper = 'whisper' in self.stt_config.get('stt_service_id', '').lower()
-        
+        stt_service_id = self.stt_config.get('stt_service_id', '').lower()
+        is_whisper = 'whisper' in stt_service_id
+
         if is_whisper:
             user_params = LLMUserAggregatorParams(aggregation_timeout=5.0)
             logger.info("Using timeout-based aggregation for Whisper (5s)")
         else:
             user_params = LLMUserAggregatorParams(aggregation_timeout=None)
             logger.info("Using VAD-based aggregation for streaming STT")
-        
+
         return LLMUserContextAggregator(context=context, params=user_params)
 
     def build_pipeline(
@@ -537,7 +578,7 @@ class AudioProcessor:
 
     async def execute_pipeline(
             self,
-            pipeline_components: PipelineComponents, 
+            pipeline_components: PipelineComponents,
             stt_service,
             audio_path: str,
             stt_config: Dict = None) -> ExecutionResults:
@@ -634,7 +675,7 @@ class ResultCollector:
 
     def collect_result(
             self,
-            execution_results: ExecutionResults, 
+            execution_results: ExecutionResults,
             pipeline_components: PipelineComponents,
             question_id: str,
             audio_path: str,
@@ -662,6 +703,194 @@ class ResultCollector:
             ),
             total_latency_ms=round(execution_results.total_latency_ms, 2)
         )
+
+    def save_results(self, results: List[PipelineResult], output_path: str):
+        """Save results to JSON"""
+        os.makedirs(os.path.dirname(output_path), exist_ok=True)
+
+        # Calculate summary statistics
+        successful = len([r for r in results if r.status == 'success'])
+        failed = len([r for r in results if r.status == 'failed'])
+        skipped = len(results) - successful - failed
+
+        summary = EvaluationSummary(
+            total_files=len(results),
+            successful=successful,
+            failed=failed,
+            skipped=skipped,
+            success_rate=round(
+                (successful/len(results))*100, 1
+            ) if results else 0
+        )
+
+        output_data = EvaluationOutput(
+            stt_model=self.stt_config.get("stt_service_name"),
+            stt_service_id=self.stt_config.get("stt_service_id"),
+            tts_model=self.tts_config.get("tts_service_name"),
+            tts_service_id=self.tts_config.get("tts_service_id"),
+            summary=summary,
+            results=results
+        )
+
+        # Write atomically to prevent corruption
+        temp_path = output_path + '.tmp'
+        with open(temp_path, 'w') as f:
+            json.dump(output_data.model_dump(), f, indent=2)
+
+        logger.info(f"Results saved to {output_path}")
+
+
+class EvaluationOrchestrator:
+    """
+    Orchestrates the evaluation process across all dataset items.
+
+    Responsibilities:
+    - Manage evaluation loop
+    - Handle progress tracking
+    - Coordinate file processing
+    - Manage result collection and saving
+    """
+
+    def __init__(self, runner, output_path: str = None):
+        self.runner = runner
+        self.output_path = output_path
+        self.results = []
+        self.processed_count = 0
+        self.error_count = 0
+        self.skipped_count = 0
+        self.result_collector = ResultCollector(
+            runner.stt_config, runner.tts_config
+        )
+
+    async def run_evaluation(self) -> List[PipelineResult]:
+        """Run evaluation on all dataset items."""
+        total_files = len(self.runner.dataset['questions'])
+        logger.info(f"Starting evaluation of {total_files} audio files")
+
+        for i, question in enumerate(self.runner.dataset['questions']):
+            await self._process_question(question, i)
+            await self._pause_if_needed(i, total_files)
+
+        self._log_summary(total_files)
+        return self.results
+
+    async def _process_question(self, question: Dict, index: int) -> None:
+        """Process a single question from the dataset."""
+        question_id = question['id']
+        audio_file = question['audio_file']
+        audio_path = os.path.join(self.runner.audio_dir, audio_file)
+
+        if not os.path.exists(audio_path):
+            logger.error(f"Audio file not found: {audio_path}")
+            self.skipped_count += 1
+            return
+
+        try:
+            result = await self.retry_operation(
+                lambda: self.runner.process_audio_file(
+                    audio_path,
+                    question_id),
+                question_id
+            )
+            result, is_success = self._process_result(result)
+
+            if is_success:
+                self.processed_count += 1
+            else:
+                self.error_count += 1
+
+            self.results.append(result)
+
+            if self.output_path:
+                self.result_collector.save_results(
+                    self.results,
+                    self.output_path
+                )
+
+        except Exception as e:
+            logger.error(
+                f"Error processing {question_id} (final attempt): {e}"
+            )
+            self.error_count += 1
+            self.results.append(PipelineResult(
+                question_id=question_id,
+                audio_file=audio_path,
+                stt_output="",
+                llm_response="",
+                error=str(e),
+                status="failed"
+            ))
+
+            if self.output_path:
+                self.runner.save_results(self.results, self.output_path)
+
+    async def _pause_if_needed(self, index: int, total_files: int) -> None:
+        """Pause between items to avoid rate limiting."""
+        if index < total_files - 1:
+            logger.info("Pausing 3 seconds to avoid rate limiting...")
+            await asyncio.sleep(3)
+
+    def _log_summary(self, total_files: int) -> None:
+        """Log final evaluation summary."""
+        logger.info(f"\n{'='*60}")
+        logger.info("EVALUATION SUMMARY")
+        logger.info(f"{'='*60}")
+        logger.info(f"Total files in dataset: {total_files}")
+        logger.info(f"Successfully processed: {self.processed_count}")
+        logger.info(f"Failed with errors: {self.error_count}")
+        logger.info(f"Skipped (file not found): {self.skipped_count}")
+        success_rate = (
+            self.processed_count/(self.processed_count + self.error_count)
+        )*100 if (self.processed_count + self.error_count) > 0 else 0
+        logger.info(f"Success rate: {success_rate:.1f}%")
+        logger.info(f"{'='*60}")
+
+    @staticmethod
+    async def retry_operation(
+            operation,
+            question_id: str,
+            max_retries: int = 3):
+        """Execute operation with retry logic and exponential backoff."""
+        last_error = None
+
+        for attempt in range(max_retries):
+            try:
+                if attempt > 0:
+                    logger.info(
+                        f"Retry attempt {attempt + 1}/"
+                        f"{max_retries} for {question_id}"
+                    )
+
+                result = await operation()
+
+                if attempt > 0:
+                    logger.info(f"Retry successful for {question_id}")
+
+                return result
+
+            except Exception as e:
+                last_error = e
+                if attempt < max_retries - 1:
+                    wait_time = (3 ** (attempt + 1)) + random.uniform(0, 1)
+                    logger.warning(
+                        f"Error on {question_id} (attempt {attempt + 1}), "
+                        f"retrying in {wait_time}s: {e}"
+                    )
+                    await asyncio.sleep(wait_time)
+
+        raise last_error
+
+    def _process_result(
+            self,
+            result: PipelineResult) -> tuple[PipelineResult, bool]:
+        """Process result and return (result, is_success)."""
+        if self.runner.tts_config and result.tts_audio_path is None:
+            result.status = "failed"
+            result.error = "TTS failed - no audio generated"
+            return result, False
+        else:
+            result.status = "success"
+            return result, True
 
 
 class VoiceAssistantRunner:
@@ -765,145 +994,14 @@ class VoiceAssistantRunner:
 
     async def run_all(self, output_path: str = None) -> List[PipelineResult]:
         """Run bot on all audio files in dataset"""
-        results = []
-        total_files = len(self.dataset['questions'])
-        processed_count = 0
-        error_count = 0
-        skipped_count = 0
-
-        logger.info(f"Starting evaluation of {total_files} audio files")
-
-        for i, question in enumerate(self.dataset['questions']):
-            question_id = question['id']
-            audio_file = question['audio_file']
-            audio_path = os.path.join(self.audio_dir, audio_file)
-            
-            if not os.path.exists(audio_path):
-                logger.error(f"Audio file not found: {audio_path}")
-                skipped_count += 1
-                continue
-            
-            # Retry logic for Bedrock failures
-            max_retries = 3
-            result = None
-            
-            for attempt in range(max_retries):
-                try:
-                    if attempt > 0:
-                        logger.info(f"Retry attempt {attempt + 1}/{max_retries} for {question_id}")
-                    result = await self.process_audio_file(audio_path, question_id)
-                    
-                    # Check if TTS actually worked (if TTS config is provided)
-                    if self.tts_config and result.tts_audio_path is None:
-                        # TTS was expected but failed
-                        result.status = "failed"
-                        result.error = "TTS failed - no audio generated"
-                        error_count += 1
-                    else:
-                        result.status = "success"
-                        processed_count += 1
-                    
-                    results.append(result)
-                    
-                    # Save results after each sample
-                    if output_path:
-                        self.save_results(results, output_path)
-                    if attempt > 0:
-                        logger.info(f"Retry successful for {question_id}")
-                    break  # Success, exit retry loop
-                        
-                except Exception as e:
-                    error_str = str(e).lower()
-                    is_bedrock_error = any([
-                        "serviceunavailableexception" in error_str,
-                        "bedrock is unable to process" in error_str,
-                        "throttlingexception" in error_str,
-                        "rate limit" in error_str,
-                        "too many requests" in error_str,
-                        "service temporarily unavailable" in error_str,
-                        "eventstreamError" in error_str,
-                        "conversestream operation" in error_str,
-                        "botocore.exceptions.eventstreamerror" in error_str
-                    ])
-                    
-                    if attempt < max_retries - 1:  # Retry all errors, not just Bedrock ones
-                        wait_time = (3 ** (attempt + 1)) + random.uniform(0, 1)  # Add jitter
-                        error_type = "Bedrock" if is_bedrock_error else "General"
-                        logger.warning(
-                            f"{error_type} error on {question_id} "
-                            f"(attempt {attempt + 1}), retrying in {wait_time}s: {str(e)}"
-                        )
-                        await asyncio.sleep(wait_time)
-                    else:
-                        logger.error(f"Error processing {question_id} (final attempt): {e}")
-                        error_count += 1
-                        results.append(PipelineResult(
-                            question_id=question_id,
-                            audio_file=audio_path,
-                            stt_output="",
-                            llm_response="",
-                            error=str(e),
-                            status="failed"
-                        ))
-                        
-                        # Save results even on error
-                        if output_path:
-                            self.save_results(results, output_path)
-                        break
-            
-            # Pause between items (regardless of success/failure)
-            if i < len(self.dataset['questions']) - 1:  # Don't pause after last item
-                logger.info("Pausing 3 seconds to avoid rate limiting...")
-                await asyncio.sleep(3)
-        
-        # Log final summary
-        logger.info(f"\n{'='*60}")
-        logger.info(f"EVALUATION SUMMARY")
-        logger.info(f"{'='*60}")
-        logger.info(f"Total files in dataset: {total_files}")
-        logger.info(f"Successfully processed: {processed_count}")
-        logger.info(f"Failed with errors: {error_count}")
-        logger.info(f"Skipped (file not found): {skipped_count}")
-        success_rate = (processed_count/(processed_count + error_count))*100 if (processed_count + error_count) > 0 else 0
-        logger.info(f"Success rate: {success_rate:.1f}%")
-        logger.info(f"{'='*60}")
-        
-        return results
-    
-    def save_results(self, results: List[PipelineResult], output_path: str):
-        """Save results to JSON"""
-        os.makedirs(os.path.dirname(output_path), exist_ok=True)
-        
-        # Calculate summary statistics
-        successful = len([r for r in results if r.status == 'success'])
-        failed = len([r for r in results if r.status == 'failed'])
-        
-        # Add metadata about STT and TTS models
-        output_data = {
-            "stt_model": self.stt_config.get("stt_service_name") if self.stt_config else None,
-            "stt_service_id": self.stt_config.get("stt_service_id") if self.stt_config else None,
-            "tts_model": self.tts_config.get("tts_service_name") if self.tts_config else None,
-            "tts_service_id": self.tts_config.get("tts_service_id") if self.tts_config else None,
-            "summary": {
-                "total_files": len(results),
-                "successful": successful,
-                "failed": failed,
-                "skipped": len(results) - successful - failed,
-                "success_rate": round((successful/len(results))*100, 1) if results else 0
-            },
-            "results": [result.model_dump() for result in results]
-        }
-        
-        # Write atomically to prevent corruption
-        temp_path = output_path + '.tmp'
-        with open(temp_path, 'w') as f:
-            json.dump(output_data, f, indent=2)
-        os.rename(temp_path, output_path)
-        logger.info(f"Results saved to {output_path}")
+        orchestrator = EvaluationOrchestrator(self, output_path)
+        return await orchestrator.run_evaluation()
 
 
 async def main():
-    parser = argparse.ArgumentParser(description='Run bot on VoiceAssistant-Eval dataset')
+    parser = argparse.ArgumentParser(
+        description='Run bot on VoiceAssistant-Eval dataset'
+    )
     parser.add_argument('--dataset', default='evaluation_data/voiceassistant_eval/voiceassistant_eval_dataset.json',
                        help='Path to dataset JSON')
     parser.add_argument('--audio-dir', default='evaluation_data/voiceassistant_eval/audio_input',
@@ -912,11 +1010,11 @@ async def main():
                        help='Output path for bot results')
     parser.add_argument('--stt-config', help='STT service config (e.g., evaluation_data/bot_configs/deepgram_nova3_config.json)')
     parser.add_argument('--tts-config', help='TTS service config (e.g., evaluation_data/tts_bot_configs/deepgram_aura_config.json)')
-    
+
     args = parser.parse_args()
-    
+
     runner = VoiceAssistantRunner(
-        args.dataset, 
+        args.dataset,
         args.audio_dir,
         stt_config=args.stt_config,
         tts_config=args.tts_config,
