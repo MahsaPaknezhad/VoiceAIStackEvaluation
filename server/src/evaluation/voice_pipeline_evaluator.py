@@ -42,6 +42,7 @@ from pipecat.transports.base_transport import TransportParams
 
 from src.core.agent_builder import build_conversation_agent
 from src.core.llm_processor import StrandsAgentsProcessor
+from src.core.nvidia.livekit_tts_adapter import LiveKitTTSAdapter
 from src.evaluation.frame_processor import (
     TimingCollector, STTTimingProcessor, TTSTimingProcessor,
     STTCollector, LLMCollector
@@ -49,6 +50,7 @@ from src.evaluation.frame_processor import (
 from src.evaluation.models import PipelineResult
 from src.transport.batch_audio_transport import EvaluationTransport
 from tts import DeepgramTTSService
+
 
 # Configuration
 warnings.filterwarnings("ignore", message="Dangling tasks detected")
@@ -229,7 +231,6 @@ class TTSServiceFactory(BaseServiceFactory):
         )
 
         if "nvidia" in module_name:
-            from src.core.nvidia.livekit_tts_adapter import LiveKitTTSAdapter
             return LiveKitTTSAdapter(**service_config)
         else:
             # Fallback to standard service creation for other LiveKit services
@@ -822,7 +823,10 @@ class EvaluationOrchestrator:
             ))
 
             if self.output_path:
-                self.runner.save_results(self.results, self.output_path)
+                self.result_collector.save_results(
+                    self.results,
+                    self.output_path
+                )
 
     async def _pause_if_needed(self, index: int, total_files: int) -> None:
         """Pause between items to avoid rate limiting."""
@@ -998,19 +1002,76 @@ class VoiceAssistantRunner:
         return await orchestrator.run_evaluation()
 
 
-async def main():
+def create_argument_parser() -> argparse.ArgumentParser:
+    """Create and configure argument parser."""
     parser = argparse.ArgumentParser(
         description='Run bot on VoiceAssistant-Eval dataset'
     )
-    parser.add_argument('--dataset', default='evaluation_data/voiceassistant_eval/voiceassistant_eval_dataset.json',
-                       help='Path to dataset JSON')
-    parser.add_argument('--audio-dir', default='evaluation_data/voiceassistant_eval/audio_input',
-                       help='Directory containing audio files')
-    parser.add_argument('--output', default='evaluation_data/voiceassistant_eval/bot_results.json',
-                       help='Output path for bot results')
-    parser.add_argument('--stt-config', help='STT service config (e.g., evaluation_data/bot_configs/deepgram_nova3_config.json)')
-    parser.add_argument('--tts-config', help='TTS service config (e.g., evaluation_data/tts_bot_configs/deepgram_aura_config.json)')
+    parser.add_argument(
+        '--dataset',
+        default='evaluation_data/voiceassistant_eval/'
+        'voiceassistant_eval_dataset.json',
+        help='Path to dataset JSON'
+    )
+    parser.add_argument(
+        '--audio-dir',
+        default='evaluation_data/voiceassistant_eval/audio_input',
+        help='Directory containing audio files'
+    )
+    parser.add_argument(
+        '--output',
+        default='evaluation_data/voiceassistant_eval/bot_results.json',
+        help='Output path for bot results'
+    )
+    parser.add_argument(
+        '--stt-config',
+        help='STT service config (e.g., evaluation_data/bot_configs/'
+        'deepgram_nova3_config.json)'
+    )
+    parser.add_argument(
+        '--tts-config',
+        help='TTS service config (e.g., evaluation_data/tts_bot_configs/'
+        'deepgram_aura_config.json)'
+    )
+    return parser
 
+
+def print_final_summary(
+        results: List[PipelineResult],
+        output_path: str) -> None:
+    """Print final evaluation summary."""
+    successful = len([r for r in results if r.status == 'success'])
+    failed = len([r for r in results if r.status == 'failed'])
+
+    print(f"\n{'='*60}")
+    print("FINAL RESULTS SUMMARY")
+    print(f"{'='*60}")
+    print(f"Total files processed: {len(results)}")
+    print(f"Successful: {successful}")
+    print(f"Failed: {failed}")
+    success_rate = (successful/len(results))*100 if results else 0
+    print(f"Success rate: {success_rate:.1f}%")
+    print(f"Results saved to: {output_path}")
+    print(f"{'='*60}")
+    print("\nNext step: Run evaluation with:")
+    print(f"  python evaluate_voiceassistant.py --results {output_path}")
+
+
+def cleanup_background_tasks() -> None:
+    """Cancel background tasks but not the main task."""
+    try:
+        loop = asyncio.get_running_loop()
+        current_task = asyncio.current_task()
+        pending = asyncio.all_tasks(loop)
+        for task in pending:
+            if task != current_task and not task.done():
+                task.cancel()
+    except Exception:
+        pass
+
+
+async def main():
+    parser = create_argument_parser()
     args = parser.parse_args()
 
     runner = VoiceAssistantRunner(
@@ -1019,38 +1080,15 @@ async def main():
         stt_config=args.stt_config,
         tts_config=args.tts_config,
     )
-    
+
     logger.info("Running bot on all audio files...")
     results = await runner.run_all(args.output)
-    
-    runner.save_results(results, args.output)
-    
-    # Count successful vs failed results
-    successful = len([r for r in results if r.status == 'success'])
-    failed = len([r for r in results if r.status == 'failed'])
-    
-    print(f"\n{'='*60}")
-    print(f"FINAL RESULTS SUMMARY")
-    print(f"{'='*60}")
-    print(f"Total files processed: {len(results)}")
-    print(f"Successful: {successful}")
-    print(f"Failed: {failed}")
-    print(f"Success rate: {(successful/len(results))*100:.1f}%" if results else "No results")
-    print(f"Results saved to: {args.output}")
-    print(f"{'='*60}")
-    print("\nNext step: Run evaluation with:")
-    print(f"  python evaluate_voiceassistant.py --results {args.output}")
-    
-    # Cancel background tasks but not the main task
-    try:
-        loop = asyncio.get_running_loop()
-        current_task = asyncio.current_task()
-        pending = asyncio.all_tasks(loop)
-        for task in pending:
-            if task != current_task and not task.done():
-                task.cancel()
-    except:
-        pass
+
+    result_collector = ResultCollector(runner.stt_config, runner.tts_config)
+    result_collector.save_results(results, args.output)
+
+    print_final_summary(results, args.output)
+    cleanup_background_tasks()
 
 
 if __name__ == "__main__":
