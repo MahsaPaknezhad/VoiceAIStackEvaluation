@@ -498,20 +498,7 @@ class VoiceAssistantRunner:
             "total_latency_ms": round(total_latency, 2) if total_latency is not None else None
         }
         
-        # Add voice quality metrics if enabled
-        if self.evaluate_voice_quality and tts_audio_path:
-            try:
-                if self.use_llm_judge:
-                    voice_metrics = await self.voice_evaluator.evaluate_with_llm_judge(tts_audio_path, result["bot_response"])
-                else:
-                    voice_metrics = self.voice_evaluator.evaluate(tts_audio_path)
-                
-                result["voice_quality"] = voice_metrics
-            except Exception as e:
-                logger.error(f"Voice quality evaluation failed: {e}")
-        
         return result
-    
     
     async def run_all(self, output_path: str = None) -> List[Dict]:
         """Run bot on all audio files in dataset"""
@@ -659,10 +646,6 @@ async def main():
                        help='Output path for bot results')
     parser.add_argument('--stt-config', help='STT service config (e.g., evaluation_data/bot_configs/deepgram_nova3_config.json)')
     parser.add_argument('--tts-config', help='TTS service config (e.g., evaluation_data/tts_bot_configs/deepgram_aura_config.json)')
-    parser.add_argument('--voice-quality', action='store_true',
-                       help='Enable voice quality evaluation')
-    parser.add_argument('--llm-judge', action='store_true',
-                       help='Use LLM judge for voice quality (slower)')
     
     args = parser.parse_args()
     
@@ -671,8 +654,6 @@ async def main():
         args.audio_dir,
         stt_config=args.stt_config,
         tts_config=args.tts_config,
-        evaluate_voice_quality=args.voice_quality,
-        use_llm_judge=args.llm_judge
     )
     
     logger.info("Running bot on all audio files...")
