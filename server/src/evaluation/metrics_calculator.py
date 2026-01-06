@@ -15,6 +15,10 @@ from strands.models import BedrockModel
 from loguru import logger
 import argparse
 from audio_quality_analyzer import VoiceQualityEvaluator
+from .models import (
+    JudgeScores, VoiceQuality, TimingMetrics, EvaluationResult,
+    CategoryStats, EvaluationSummary, EvaluationReport, PipelineResult
+)
 
 
 class VoiceAssistantEvaluator:
@@ -63,7 +67,7 @@ Return ONLY valid JSON with this structure:
 }"""
         )
     
-    async def evaluate_response(self, question: str, llm_response: str) -> Dict:
+    async def evaluate_response(self, question: str, llm_response: str) -> JudgeScores:
         """Use LLM to judge response quality with retry logic"""
         prompt = f"""Question: {question}
 
@@ -88,7 +92,7 @@ Evaluate the actual response."""
                 
                 # Parse JSON from response
                 result_json = json.loads(response.strip())
-                return result_json
+                return JudgeScores.model_validate(result_json)
             except Exception as e:
                 error_str = str(e).lower()
                 is_bedrock_error = any([
@@ -110,14 +114,7 @@ Evaluate the actual response."""
                     await asyncio.sleep(wait_time)
                 else:
                     logger.error(f"Judge evaluation failed after {max_retries} attempts: {e}")
-                    return {
-                        "correctness": 0,
-                        "relevance": 0,
-                        "completeness": 0,
-                        "clarity": 0,
-                        "overall": 0,
-                        "reasoning": f"Evaluation failed: {str(e)}"
-                    }
+                    return JudgeScores(reasoning=f"Evaluation failed: {str(e)}")
     
     def calculate_wer(self, reference: str, hypothesis: str) -> float:
         """Calculate Word Error Rate"""
@@ -127,11 +124,10 @@ Evaluate the actual response."""
     
     async def evaluate_single(self, question_id: str, category: str, stt_output: str, ground_truth: str, llm_response: str, 
                              stt_latency: float = None, tts_latency: float = None, 
-                             total_latency: float = None, tts_audio_path: str = None) -> Dict:
+                             total_latency: float = None, tts_audio_path: str = None) -> EvaluationResult:
 
         """Evaluate a single question"""
         question = stt_output
-        llm_response = llm_response
         
         # Calculate WER for STT
         wer_score = self.calculate_wer(ground_truth, stt_output)
@@ -139,20 +135,24 @@ Evaluate the actual response."""
         # Evaluate response quality
         judge_scores = await self.evaluate_response(question, llm_response)
         
-        result = {
-            "question_id": question_id,
-            "category": category,
-            "ground_truth": ground_truth,
-            "stt_output": stt_output,
-            "wer": wer_score,
-            "llm_response": llm_response,
-            "judge_scores": judge_scores
-        }
+        # Create timing metrics
+        timing = TimingMetrics(
+            stt_latency_ms=stt_latency,
+            tts_latency_ms=tts_latency,
+            total_latency_ms=total_latency
+        )
         
-        # Add latency metrics if available
-        result["stt_latency_ms"] = stt_latency
-        result["tts_latency_ms"] = tts_latency
-        result["total_latency_ms"] = total_latency
+        result = EvaluationResult(
+            question_id=question_id,
+            category=category,
+            ground_truth=ground_truth,
+            stt_output=stt_output,
+            wer=wer_score,
+            llm_response=llm_response,
+            judge_scores=judge_scores,
+            timing=timing,
+            tts_audio_path=tts_audio_path
+        )
         
         # Add voice quality metrics if enabled and TTS audio available
         if self.evaluate_voice_quality and tts_audio_path:
@@ -165,13 +165,13 @@ Evaluate the actual response."""
                 
                 # Combine both sets of metrics
                 voice_metrics = {**llm_voice_metrics, **technical_voice_metrics}
-                result["voice_quality"] = voice_metrics
+                result.voice_quality = VoiceQuality.model_validate(voice_metrics)
             except Exception as e:
                 logger.error(f"Voice quality evaluation failed for {question_id}: {e}")
             
         return result
     
-    async def run_evaluation(self, results_file: str) -> Dict:
+    async def run_evaluation(self, results_file: str) -> EvaluationReport:
         """
         Run evaluation on pre-recorded results.
         
@@ -262,23 +262,16 @@ Evaluate the actual response."""
                     else:
                         logger.error(f"Error evaluating {question_id} (final attempt): {e}")
                         # Add failed evaluation with error info
-                        eval_result = {
-                            "question_id": question_id,
-                            "category": question.get('category',''),
-                            "ground_truth": result.get('ground_truth', ''),
-                            "stt_output": result.get('stt_output', ''),
-                            "wer": 100.0,  # Max error for failed evaluation
-                            "llm_response": result.get('llm_response', ''),
-                            "judge_scores": {
-                                "correctness": 0,
-                                "relevance": 0,
-                                "completeness": 0,
-                                "clarity": 0,
-                                "overall": 0,
-                                "reasoning": f"Evaluation failed: {str(e)}"
-                            },
-                            "error": str(e)
-                        }
+                        eval_result = EvaluationResult(
+                            question_id=question_id,
+                            category=question.get('category',''),
+                            ground_truth=result.get('ground_truth', ''),
+                            stt_output=result.get('stt_output', ''),
+                            wer=100.0,  # Max error for failed evaluation
+                            llm_response=result.get('llm_response', ''),
+                            judge_scores=JudgeScores(reasoning=f"Evaluation failed: {str(e)}"),
+                            error=str(e)
+                        )
                         evaluations.append(eval_result)
                         break
             
@@ -290,85 +283,80 @@ Evaluate the actual response."""
         # Calculate summary statistics
         summary = self._calculate_summary(evaluations)
         
-        output = {
-            "timestamp": datetime.now().isoformat(),
-            "dataset": self.dataset_path,
-            "total_questions": len(evaluations),
-            "evaluations": evaluations,
-            "summary": summary
-        }
+        # Create evaluation report
+        report = EvaluationReport(
+            timestamp=datetime.now().isoformat(),
+            dataset=self.dataset_path,
+            total_questions=len(evaluations),
+            stt_model=stt_model,
+            stt_service_id=stt_service_id,
+            tts_model=tts_model,
+            tts_service_id=tts_service_id,
+            evaluations=evaluations,
+            summary=summary
+        )
         
-        # Add model metadata if available
-        if stt_model:
-            output["stt_model"] = stt_model
-        if stt_service_id:
-            output["stt_service_id"] = stt_service_id
-        if tts_model:
-            output["tts_model"] = tts_model
-        if tts_service_id:
-            output["tts_service_id"] = tts_service_id
-        
-        return output
+        return report
     
-    def _calculate_summary(self, evaluations: List[Dict]) -> Dict:
-        """Calculate summary statistics"""
+    def _calculate_summary(self, evaluations: List[EvaluationResult]) -> EvaluationSummary:
+        """Calculate summary statistics using Pydantic models"""
         if not evaluations:
-            return {}
+            return EvaluationSummary(average_wer=0, average_overall_score=0)
         
-        avg_wer = sum(e['wer'] for e in evaluations) / len(evaluations)
-        avg_overall = sum(e['judge_scores']['overall'] for e in evaluations) / len(evaluations)
+        avg_wer = sum(e.wer for e in evaluations) / len(evaluations)
+        avg_overall = sum(e.judge_scores.overall for e in evaluations) / len(evaluations)
         
         # Calculate average latencies if available - filter out None values
-        stt_latencies = [e['stt_latency_ms'] for e in evaluations if 'stt_latency_ms' in e and e['stt_latency_ms'] is not None]
-        tts_latencies = [e['tts_latency_ms'] for e in evaluations if 'tts_latency_ms' in e and e['tts_latency_ms'] is not None]
-        total_latencies = [e['total_latency_ms'] for e in evaluations if 'total_latency_ms' in e and e['total_latency_ms'] is not None]
+        stt_latencies = [e.timing.stt_latency_ms for e in evaluations if e.timing.stt_latency_ms is not None]
+        tts_latencies = [e.timing.tts_latency_ms for e in evaluations if e.timing.tts_latency_ms is not None]
+        total_latencies = [e.timing.total_latency_ms for e in evaluations if e.timing.total_latency_ms is not None]
         
-        summary = {
-            "average_wer": avg_wer,
-            "average_overall_score": avg_overall
-        }
+        summary = EvaluationSummary(
+            average_wer=avg_wer,
+            average_overall_score=avg_overall
+        )
         
         if stt_latencies:
-            summary["average_stt_latency_ms"] = sum(stt_latencies) / len(stt_latencies)
+            summary.average_stt_latency_ms = sum(stt_latencies) / len(stt_latencies)
         if tts_latencies:
-            summary["average_tts_latency_ms"] = sum(tts_latencies) / len(tts_latencies)
+            summary.average_tts_latency_ms = sum(tts_latencies) / len(tts_latencies)
         if total_latencies:
-            summary["average_total_latency_ms"] = sum(total_latencies) / len(total_latencies)
+            summary.average_total_latency_ms = sum(total_latencies) / len(total_latencies)
         
         # Group by category
         by_category = {}
         for eval in evaluations:
-            cat = eval['category']
+            cat = eval.category
             if cat not in by_category:
                 by_category[cat] = []
             by_category[cat].append(eval)
         
         category_stats = {}
         for cat, evals in by_category.items():
-            cat_stt = [e['stt_latency_ms'] for e in evals if 'stt_latency_ms' in e and e['stt_latency_ms'] is not None]
-            cat_tts = [e['tts_latency_ms'] for e in evals if 'tts_latency_ms' in e and e['tts_latency_ms'] is not None]
+            cat_stt = [e.timing.stt_latency_ms for e in evals if e.timing.stt_latency_ms is not None]
+            cat_tts = [e.timing.tts_latency_ms for e in evals if e.timing.tts_latency_ms is not None]
             
-            stats = {
-                "count": len(evals),
-                "avg_wer": sum(e['wer'] for e in evals) / len(evals),
-                "avg_score": sum(e['judge_scores']['overall'] for e in evals) / len(evals)
-            }
+            stats = CategoryStats(
+                count=len(evals),
+                avg_wer=sum(e.wer for e in evals) / len(evals),
+                avg_score=sum(e.judge_scores.overall for e in evals) / len(evals)
+            )
             
             if cat_stt:
-                stats["avg_stt_latency_ms"] = sum(cat_stt) / len(cat_stt)
+                stats.avg_stt_latency_ms = sum(cat_stt) / len(cat_stt)
             if cat_tts:
-                stats["avg_tts_latency_ms"] = sum(cat_tts) / len(cat_tts)
+                stats.avg_tts_latency_ms = sum(cat_tts) / len(cat_tts)
                 
             category_stats[cat] = stats
         
-        summary["by_category"] = category_stats
+        summary.by_category = category_stats
         return summary
     
-    def save_results(self, results: Dict, output_path: str):
-        """Save evaluation results"""
+    def save_results(self, results: EvaluationReport, output_path: str):
+        """Save evaluation results using Pydantic model"""
         os.makedirs(os.path.dirname(output_path), exist_ok=True)
         with open(output_path, 'w') as f:
-            json.dump(results, f, indent=2, default=float)
+            json.dump(results.model_dump(), f, indent=2, default=float)
         logger.info(f"Results saved to {output_path}")
 
 
@@ -403,24 +391,24 @@ async def main():
     print("\n" + "="*80)
     print("EVALUATION SUMMARY")
     print("="*80)
-    print(f"Total questions: {results['total_questions']}")
-    print(f"Average WER: {results['summary']['average_wer']:.2f}%")
-    print(f"Average Overall Score: {results['summary']['average_overall_score']:.2f}/10")
+    print(f"Total questions: {results.total_questions}")
+    print(f"Average WER: {results.summary.average_wer:.2f}%")
+    print(f"Average Overall Score: {results.summary.average_overall_score:.2f}/10")
     
-    if 'average_stt_latency_ms' in results['summary']:
-        print(f"Average STT Latency: {results['summary']['average_stt_latency_ms']:.2f}ms")
-    if 'average_tts_latency_ms' in results['summary']:
-        print(f"Average TTS Latency: {results['summary']['average_tts_latency_ms']:.2f}ms")
-    if 'average_total_latency_ms' in results['summary']:
-        print(f"Average Total Latency: {results['summary']['average_total_latency_ms']:.2f}ms")
+    if results.summary.average_stt_latency_ms:
+        print(f"Average STT Latency: {results.summary.average_stt_latency_ms:.2f}ms")
+    if results.summary.average_tts_latency_ms:
+        print(f"Average TTS Latency: {results.summary.average_tts_latency_ms:.2f}ms")
+    if results.summary.average_total_latency_ms:
+        print(f"Average Total Latency: {results.summary.average_total_latency_ms:.2f}ms")
     
     print("\nBy Category:")
-    for cat, stats in results['summary']['by_category'].items():
-        print(f"  {cat}: WER={stats['avg_wer']:.2f}%, Score={stats['avg_score']:.2f}/10", end="")
-        if 'avg_stt_latency_ms' in stats:
-            print(f", STT={stats['avg_stt_latency_ms']:.0f}ms", end="")
-        if 'avg_tts_latency_ms' in stats:
-            print(f", TTS={stats['avg_tts_latency_ms']:.0f}ms", end="")
+    for cat, stats in results.summary.by_category.items():
+        print(f"  {cat}: WER={stats.avg_wer:.2f}%, Score={stats.avg_score:.2f}/10", end="")
+        if stats.avg_stt_latency_ms:
+            print(f", STT={stats.avg_stt_latency_ms:.0f}ms", end="")
+        if stats.avg_tts_latency_ms:
+            print(f", TTS={stats.avg_tts_latency_ms:.0f}ms", end="")
         print()
     print("="*80)
 
