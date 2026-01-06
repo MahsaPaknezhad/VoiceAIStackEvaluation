@@ -16,7 +16,7 @@ from loguru import logger
 import argparse
 from src.evaluation.audio_quality_analyzer import VoiceQualityEvaluator
 from src.evaluation.models import (
-    JudgeScores, VoiceQuality, TimingMetrics, EvaluationResult,
+    JudgeScores, VoiceQuality, LatencyMixin, EvaluationResult,
     CategoryStats, EvaluationSummary, EvaluationReport
 )
 
@@ -136,7 +136,7 @@ Evaluate the actual response."""
         judge_scores = await self.evaluate_response(question, llm_response)
         
         # Create timing metrics
-        timing = TimingMetrics(
+        timing = LatencyMixin(
             stt_latency_ms=stt_latency,
             tts_latency_ms=tts_latency,
             total_latency_ms=total_latency
@@ -150,7 +150,9 @@ Evaluate the actual response."""
             wer=wer_score,
             llm_response=llm_response,
             judge_scores=judge_scores,
-            timing=timing,
+            stt_latency_ms=stt_latency,
+            tts_latency_ms=tts_latency,
+            total_latency_ms=total_latency,
             tts_audio_path=tts_audio_path
         )
         
@@ -307,9 +309,9 @@ Evaluate the actual response."""
         avg_overall = sum(e.judge_scores.overall for e in evaluations) / len(evaluations)
         
         # Calculate average latencies if available - filter out None values
-        stt_latencies = [e.timing.stt_latency_ms for e in evaluations if e.timing.stt_latency_ms is not None]
-        tts_latencies = [e.timing.tts_latency_ms for e in evaluations if e.timing.tts_latency_ms is not None]
-        total_latencies = [e.timing.total_latency_ms for e in evaluations if e.timing.total_latency_ms is not None]
+        stt_latencies = [e.stt_latency_ms for e in evaluations if e.stt_latency_ms is not None]
+        tts_latencies = [e.tts_latency_ms for e in evaluations if e.tts_latency_ms is not None]
+        total_latencies = [e.total_latency_ms for e in evaluations if e.total_latency_ms is not None]
         
         summary = EvaluationSummary(
             average_wer=avg_wer,
@@ -333,8 +335,8 @@ Evaluate the actual response."""
         
         category_stats = {}
         for cat, evals in by_category.items():
-            cat_stt = [e.timing.stt_latency_ms for e in evals if e.timing.stt_latency_ms is not None]
-            cat_tts = [e.timing.tts_latency_ms for e in evals if e.timing.tts_latency_ms is not None]
+            cat_stt = [e.stt_latency_ms for e in evals if e.stt_latency_ms is not None]
+            cat_tts = [e.tts_latency_ms for e in evals if e.tts_latency_ms is not None]
             
             stats = CategoryStats(
                 count=len(evals),

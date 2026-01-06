@@ -56,7 +56,7 @@ from src.evaluation.models import (
     PipelineComponents,
     PipelineConfig,
     ExecutionResults,
-    EvaluationSummary,
+    PipelineEvaluationSummary,
     EvaluationOutput
 )
 from src.transport.batch_audio_transport import EvaluationTransport
@@ -491,7 +491,7 @@ class ResultCollector:
         failed = len([r for r in results if r.status == 'failed'])
         skipped = len(results) - successful - failed
 
-        summary = EvaluationSummary(
+        summary = PipelineEvaluationSummary(
             total_files=len(results),
             successful=successful,
             failed=failed,
