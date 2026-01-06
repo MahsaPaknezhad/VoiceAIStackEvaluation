@@ -15,7 +15,7 @@ from strands.models import BedrockModel
 from loguru import logger
 import argparse
 from audio_quality_analyzer import VoiceQualityEvaluator
-from .models import (
+from models import (
     JudgeScores, VoiceQuality, TimingMetrics, EvaluationResult,
     CategoryStats, EvaluationSummary, EvaluationReport, PipelineResult
 )
