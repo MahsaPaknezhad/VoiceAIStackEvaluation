@@ -32,7 +32,7 @@ class TimingCollector:
     
     def get_tts_latency_ms(self) -> Optional[float]:
         """Calculate TTS latency in milliseconds."""
-        if self.stt_start_time is not None and self.stt_end_time is not None:
+        if self.tts_start_time is not None and self.tts_end_time is not None:
             return (self.tts_end_time - self.tts_start_time) * 1000
         return None
 
