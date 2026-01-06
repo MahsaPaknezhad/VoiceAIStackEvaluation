@@ -5,7 +5,64 @@ Provides type safety and validation for evaluation data structures.
 
 from pydantic import BaseModel, Field
 from typing import Optional, List, Dict, Any
-from datetime import datetime
+
+
+class PipelineResult(BaseModel):
+    """Result from voice pipeline processing."""
+    question_id: str
+    audio_file: str
+    stt_output: str = ""
+    ground_truth: str = ""
+    llm_response: str = ""
+    tts_audio_path: Optional[str] = None
+    stt_latency_ms: Optional[float] = None
+    tts_latency_ms: Optional[float] = None
+    total_latency_ms: Optional[float] = None
+    status: str = "success"  # success, failed
+    error: Optional[str] = None
+
+
+class PipelineCollectors(BaseModel):
+    """Container for pipeline data collectors."""
+    timing: Any  # TimingCollector
+    stt_texts: List[str] = []
+    llm_texts: List[str] = []
+
+
+class PipelineComponents(BaseModel):
+    """Container for pipeline components."""
+    transport: Any
+    pipeline: Any
+    collectors: PipelineCollectors
+
+
+class PipelineConfig(BaseModel):
+    """Pipeline configuration parameters."""
+    allow_interruptions: bool = True
+    enable_metrics: bool = False
+    enable_usage_metrics: bool = False
+    report_only_initial_ttfb: bool = True
+    timeout: float = 18.0
+
+
+class ExecutionResults(BaseModel):
+    """Results from pipeline execution."""
+    stt_output: str
+    llm_response: str
+    stt_latency_ms: Optional[float] = None
+    tts_latency_ms: Optional[float] = None
+    total_latency_ms: float
+    output_audio: Optional[bytes] = None
+
+
+class EvaluationOutput(BaseModel):
+    """Complete evaluation output structure."""
+    stt_model: Optional[str] = None
+    stt_service_id: Optional[str] = None
+    tts_model: Optional[str] = None
+    tts_service_id: Optional[str] = None
+    summary: "EvaluationSummary"
+    results: List[PipelineResult]
 
 
 class JudgeScores(BaseModel):
@@ -27,11 +84,11 @@ class VoiceQuality(BaseModel):
     discontinuity: Optional[float] = Field(default=None, ge=0, le=5, description="Discontinuity score (1-5)")
     loudness: Optional[float] = Field(default=None, ge=0, le=5, description="Loudness score (1-5)")
     overall_quality: Optional[float] = Field(default=None, ge=0, le=5, description="Overall NISQA quality (1-5)")
-    
+
     # SpeechMetrics
     mosnet_score: Optional[float] = Field(default=None, description="MOSNet quality score")
     srmr_score: Optional[float] = Field(default=None, description="Speech-to-Reverberation Modulation Ratio")
-    
+
     # LLM judge voice quality (if enabled)
     llm_fluency: Optional[float] = Field(default=None, ge=0, le=10, description="LLM fluency score (0-10)")
     llm_naturalness: Optional[float] = Field(default=None, ge=0, le=10, description="LLM naturalness score (0-10)")
@@ -92,18 +149,3 @@ class EvaluationReport(BaseModel):
     tts_service_id: Optional[str] = Field(default=None, description="TTS service identifier")
     evaluations: List[EvaluationResult] = Field(description="Individual evaluation results")
     summary: EvaluationSummary = Field(description="Aggregated statistics")
-
-
-class PipelineResult(BaseModel):
-    """Result from voice pipeline processing."""
-    question_id: str
-    audio_file: str
-    stt_output: str = ""
-    ground_truth: str = ""
-    llm_response: str = ""
-    tts_audio_path: Optional[str] = None
-    stt_latency_ms: Optional[float] = None
-    tts_latency_ms: Optional[float] = None
-    total_latency_ms: Optional[float] = None
-    status: str = "success"  # success, failed
-    error: Optional[str] = None
