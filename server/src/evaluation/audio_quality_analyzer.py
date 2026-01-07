@@ -237,7 +237,7 @@ OVERALL QUALITY METRICS:
 - Dynamic Range: {dynamic_range:.2f} (energy variation)
 - Spectral Flatness: {spectral_flatness:.4f} (naturalness vs synthetic)
 """
-
+            logger.info(f"LLM Evaluation Metrics Prompt {metrics_text}")
             if transcript:
                 metrics_text += f"\n\nSPEECH CONTENT: {transcript}"
 
