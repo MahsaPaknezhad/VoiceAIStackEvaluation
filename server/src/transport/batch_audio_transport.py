@@ -7,6 +7,7 @@ import uuid
 from pipecat.transports.base_transport import BaseTransport, TransportParams
 from pipecat.frames.frames import AudioRawFrame, Frame, StartFrame, TextFrame, TTSAudioRawFrame, TTSStoppedFrame
 from pipecat.processors.frame_processor import FrameDirection, FrameProcessor
+from pipecat.frames.frames import UserStartedSpeakingFrame, UserStoppedSpeakingFrame
 
 
 class EvaluationTransport(BaseTransport):
@@ -69,11 +70,11 @@ class EvaluationInput(FrameProcessor):
                 
                 # For Whisper evaluation: send single VAD start, all audio, then VAD stop
                 if self._vad_analyzer:
-                    from pipecat.frames.frames import UserStartedSpeakingFrame, UserStoppedSpeakingFrame
+                    
                     await self.push_frame(UserStartedSpeakingFrame(), direction)
                 
                 # Send audio in 100ms chunks for better transcription
-                chunk_size = int(self._sample_rate * 0.1 * 2)
+                chunk_size = int(self._sample_rate * 0.05 * 2)
                 print(f"Sending {len(self._audio_data)} bytes of audio in {len(self._audio_data)//chunk_size} chunks")
                 chunk_count = 0
                 for i in range(0, len(self._audio_data), chunk_size):
@@ -86,13 +87,12 @@ class EvaluationInput(FrameProcessor):
                     audio_frame.id = f"audio_chunk_{chunk_count}"
                     chunk_count += 1
                     await self.push_frame(audio_frame, direction)
-                    await asyncio.sleep(0.1)
+                    await asyncio.sleep(0.05)
                 
                 # Add silence padding
                 silence_duration = 2.0
                 silence_bytes = int(self._sample_rate * silence_duration * 2)
                 silence_chunk = b'\x00' * silence_bytes
-                silence_chunk_count = 0
                 for i in range(0, len(silence_chunk), chunk_size):
                     chunk = silence_chunk[i:i+chunk_size]
                     frame = AudioRawFrame(
@@ -102,20 +102,15 @@ class EvaluationInput(FrameProcessor):
                     )
                     frame.id = str(uuid.uuid4())
                     await self.push_frame(frame, direction)
-                    await asyncio.sleep(0.1)
+                    await asyncio.sleep(0.05)
                 
                 # Send VAD stop - aggregator will wait for transcription via timeout
                 if self._vad_analyzer:
-                    from pipecat.frames.frames import UserStoppedSpeakingFrame
                     await self.push_frame(UserStoppedSpeakingFrame(), direction)
                 
                 # Dynamic wait time based on STT model
-                if "large" in self._stt_model.lower():
-                    wait_time = 30.0  # Whisper Large needs more time
-                    print("All audio chunks sent, waiting 30s for Whisper Large transcription...")
-                else:
-                    wait_time = 15.0  # Whisper Small/Medium
-                    print("All audio chunks sent, waiting 15s for transcription...")
+                wait_time = 30.0  #Whisper Large needs more time
+                print("All audio chunks sent, waiting 30s for Whisper Large transcription...")
                 
                 await asyncio.sleep(wait_time)
         else:

@@ -13,9 +13,6 @@ from loguru import logger
 import warnings
 warnings.filterwarnings("ignore", message="Dangling tasks detected")
 import argparse
-from pathlib import Path
-import re
-
 # Import Pipecat components
 from pipecat.services.deepgram.stt import DeepgramSTTService, LiveOptions
 from pipecat.audio.vad.silero import SileroVADAnalyzer
@@ -29,17 +26,16 @@ from pipecat.processors.aggregators.openai_llm_context import OpenAILLMContext
 from pipecat.services.aws.llm import AWSBedrockLLMContext
 from pipecat.services.aws.llm import AWSBedrockLLMContext
 from pipecat.processors.aggregators.llm_response import LLMUserContextAggregator, LLMAssistantContextAggregator
+from pipecat.processors.aggregators.llm_response import LLMUserAggregatorParams
 from dotenv import load_dotenv
 import wave
 import numpy as np
-
 import sys
 import os
 sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..'))
-
 from src.core.agent_builder import build_conversation_agent
 from src.core.llm_processor import StrandsAgentsProcessor
-from tts import DeepgramTTSService
+from src.core.tts import DeepgramTTSService
 from src.evaluation.audio_quality_analyzer import VoiceQualityEvaluator
 from src.transport.batch_audio_transport import EvaluationTransport
 
@@ -167,9 +163,6 @@ class VoiceAssistantRunner:
         if "elevenlabs" in module_name:
             return service_class(api_key=os.getenv("ELEVENLABS_API_KEY"), **config)
         if "cartesia" in module_name:
-            # Force new connection for each request to avoid WebSocket reuse issues
-            config["connection_timeout"] = 10
-            config["read_timeout"] = 30
             return service_class(api_key=os.getenv("CARTESIA_API_KEY"), **config)
         if "riva" in module_name:
             return service_class(api_key=os.getenv("RIVA_API_KEY"), **config)
@@ -197,7 +190,7 @@ class VoiceAssistantRunner:
                     return LiveKitPatakeetAdapter(**config)
                 else:
                     # Generic LiveKit adapter fallback
-                    from src.core.livekit_tts_adapter import LiveKitTTSAdapter
+                    from src.core.nvidia.livekit_tts_adapter import LiveKitTTSAdapter
                     return LiveKitTTSAdapter(**config)
             elif "nvidia" in module_name or "riva" in module_name:
                 # NVIDIA services don't use api_key parameter
@@ -343,7 +336,7 @@ class VoiceAssistantRunner:
         
         # Setup context - use timeout for Whisper (batch STT), VAD for streaming STT
         context = AWSBedrockLLMContext()
-        from pipecat.processors.aggregators.llm_response import LLMUserAggregatorParams
+        
         
         # Check if using Whisper (batch processing)
         is_whisper = self.stt_config and 'whisper' in self.stt_config.get('stt_service_id', '').lower()

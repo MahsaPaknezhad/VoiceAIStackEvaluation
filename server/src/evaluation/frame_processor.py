@@ -142,10 +142,8 @@ class LLMCollector(FrameProcessor):
                 return
             
             text = frame.text.strip()
-            important_words = ['I', 'A', 'The', 'This', 'That', 'You', 'We', 'It', 'He', 'She']
             
             if (any(c.isalnum() for c in text) or 
-                text in important_words or 
                 len(re.sub(r'[^\w\s]', '', text).strip()) >= 1):
                 
                 # Mark TTS start time when LLM begins outputting text
