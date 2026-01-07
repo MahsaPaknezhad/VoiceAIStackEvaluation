@@ -348,3 +348,92 @@ class EvaluationReport(ServiceIdentificationMixin):
         description="Individual evaluation results"
     )
     summary: EvaluationSummary = Field(description="Aggregated statistics")
+
+
+# =============================================================================
+# Configuration Models
+# =============================================================================
+
+class WERConfig(BaseModel):
+    """
+    Configuration for WER calculation.
+
+    Attributes:
+        return_percentage: Whether to return WER as percentage (0-100) 
+                          or decimal (0-1)
+        handle_empty_strings: How to handle empty reference or hypothesis
+    """
+    return_percentage: bool = Field(
+        default=True,
+        description="Return WER as percentage instead of decimal"
+    )
+    handle_empty_strings: bool = Field(
+        default=True,
+        description="Return 1.0 (100%) for empty strings"
+    )
+
+
+class JudgeConfig(BaseModel):
+    """
+    Configuration for LLM judge service.
+    
+    Attributes:
+        model_id: Bedrock model identifier for judge agent
+        region_name: AWS region for Bedrock service
+        max_retries: Maximum retry attempts for failed evaluations
+        system_prompt: System prompt for judge agent
+    """
+    model_id: str = Field(
+        default="au.anthropic.claude-haiku-4-5-20251001-v1:0",
+        description="Bedrock model ID for judge evaluation"
+    )
+    region_name: str = Field(
+        default="ap-southeast-2",
+        description="AWS region for Bedrock service"
+    )
+    max_retries: int = Field(
+        default=3,
+        ge=1,
+        le=10,
+        description="Maximum retry attempts for failed evaluations"
+    )
+    system_prompt: str = Field(
+        default="",  # Add default empty string
+        description="System prompt for judge agent"
+    )
+
+
+class EvaluatorConfig(BaseModel):
+    """
+    Configuration for voice assistant evaluator.
+
+    Attributes:
+        dataset_path: Path to evaluation dataset JSON file
+        audio_dir: Directory containing audio files
+        evaluate_voice_quality: Whether to evaluate voice quality metrics
+        max_retries: Maximum retry attempts for failed evaluations
+        wer_config: Configuration for WER calculation
+        judge_config: Configuration for LLM judge
+    """
+    dataset_path: str = Field(
+        description="Path to evaluation dataset JSON file"
+    )
+    audio_dir: str = Field(description="Directory containing audio files")
+    evaluate_voice_quality: bool = Field(
+        default=True,
+        description="Whether to evaluate voice quality metrics"
+    )
+    max_retries: int = Field(
+        default=3,
+        ge=1,
+        le=10,
+        description="Maximum retry attempts for failed evaluations"
+    )
+    wer_config: Optional[WERConfig] = Field(
+        default=None,
+        description="Configuration for WER calculation"
+    )
+    judge_config: Optional[JudgeConfig] = Field(
+        default=None,
+        description="Configuration for LLM judge"
+    )
