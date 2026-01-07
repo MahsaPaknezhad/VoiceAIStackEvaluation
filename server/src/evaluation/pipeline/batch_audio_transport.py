@@ -50,7 +50,7 @@ class BatchAudioInput(FrameProcessor):
             sample_rate: int,
             vad_analyzer: Optional[Any] = None,
             stt_model: str = "small",
-            sleep_time: float = 0.1
+            sleep_time: float = 0.05
     ) -> None:
         """
         Initialize batch audio input processor.
@@ -189,7 +189,7 @@ class BatchAudioInput(FrameProcessor):
 
     async def _wait_for_processing(
             self,
-            wait_time: float = 15.0,
+            wait_time: float = 30.0,
             whisper_wait_time: float = 30.0
     ) -> None:
         """
