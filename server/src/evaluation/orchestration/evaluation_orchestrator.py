@@ -11,6 +11,9 @@ from loguru import logger
 
 from src.evaluation.models import PipelineResult
 from src.evaluation.results.results_collector import ResultCollector
+from src.evaluation.pipeline.voice_pipeline_processor import (
+    VoicePipelineProcessor
+)
 
 
 class EvaluationOrchestrator:
@@ -19,8 +22,8 @@ class EvaluationOrchestrator:
 
     This class manages the complete evaluation workflow including dataset
     iteration, progress tracking, error handling with retries, result
-    collection, and incremental saving. It coordinates between the runner,
-    result collector, and provides comprehensive logging and statistics.
+    collection, and incremental saving. Uses VoicePipelineProcessor directly
+    for clean separation of concerns.
 
     Key responsibilities:
     - Iterate through dataset questions with progress tracking
@@ -30,7 +33,9 @@ class EvaluationOrchestrator:
     - Manage rate limiting between requests
 
     Attributes:
-        runner: Voice assistant runner instance for processing
+        processor: Voice pipeline processor instance
+        dataset: Evaluation dataset dictionary
+        audio_dir: Directory containing audio files
         output_path: Path for saving incremental results
         results: Accumulated evaluation results
         processed_count: Number of successfully processed items
@@ -41,45 +46,31 @@ class EvaluationOrchestrator:
 
     def __init__(
             self,
-            runner: Any,
+            processor: VoicePipelineProcessor,
+            dataset: Dict[str, Any],
+            audio_dir: str,
             output_path: Optional[str] = None
     ) -> None:
         """
         Initialize evaluation orchestrator.
 
         Args:
-            runner: Voice assistant runner instance with dataset and configs
+            processor: Voice pipeline processor instance
+            dataset: Evaluation dataset dictionary
+            audio_dir: Directory containing audio files
             output_path: Optional path for incremental result saving
         """
-        self.runner = runner
+        self.processor = processor
+        self.dataset = dataset
+        self.audio_dir = audio_dir
         self.output_path = output_path
         self.results: List[PipelineResult] = []
         self.processed_count = 0
         self.error_count = 0
         self.skipped_count = 0
         self.result_collector = ResultCollector(
-            runner.stt_config, runner.tts_config
+            processor.stt_config, processor.tts_config
         )
-
-    async def run_evaluation(self) -> List[PipelineResult]:
-        """
-        Run evaluation on all dataset items.
-
-        Orchestrates the complete evaluation process including dataset
-        iteration, progress tracking, and final summary logging.
-
-        Returns:
-            List of PipelineResult objects for all processed items
-        """
-        total_files = len(self.runner.dataset['questions'])
-        logger.info(f"Starting evaluation of {total_files} audio files")
-
-        for i, question in enumerate(self.runner.dataset['questions']):
-            await self._process_question(question, i)
-            await self._pause_if_needed(i, total_files)
-
-        self._log_summary(total_files)
-        return self.results
 
     async def _process_question(
             self,
@@ -99,7 +90,8 @@ class EvaluationOrchestrator:
         """
         question_id = question['id']
         audio_file = question['audio_file']
-        audio_path = os.path.join(self.runner.audio_dir, audio_file)
+        audio_path = os.path.join(self.audio_dir, audio_file)
+        ground_truth = question['text']
 
         if not os.path.exists(audio_path):
             logger.error(f"Audio file not found: {audio_path}")
@@ -108,9 +100,8 @@ class EvaluationOrchestrator:
 
         try:
             result = await self.retry_operation(
-                lambda: self.runner.process_audio_file(
-                    audio_path,
-                    question_id),
+                lambda: self.processor.process_audio_file(
+                    audio_path, question_id, ground_truth),
                 question_id
             )
             result, is_success = self._process_result(result)
@@ -254,10 +245,30 @@ class EvaluationOrchestrator:
         Returns:
             Tuple of (processed_result, is_success_boolean)
         """
-        if self.runner.tts_config and result.tts_audio_path is None:
+        if self.processor.tts_config and result.tts_audio_path is None:
             result.status = "failed"
             result.error = "TTS failed - no audio generated"
             return result, False
         else:
             result.status = "success"
             return result, True
+
+    async def run_evaluation(self) -> List[PipelineResult]:
+        """
+        Run evaluation on all dataset items.
+
+        Orchestrates the complete evaluation process including dataset
+        iteration, progress tracking, and final summary logging.
+
+        Returns:
+            List of PipelineResult objects for all processed items
+        """
+        total_files = len(self.dataset['questions'])
+        logger.info(f"Starting evaluation of {total_files} audio files")
+
+        for i, question in enumerate(self.dataset['questions']):
+            await self._process_question(question, i)
+            await self._pause_if_needed(i, total_files)
+
+        self._log_summary(total_files)
+        return self.results

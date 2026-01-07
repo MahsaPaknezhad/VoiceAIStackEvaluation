@@ -1,35 +1,28 @@
 """
-Run the Q&A bot on VoiceAssistant-Eval dataset audio files.
-Collects STT outputs and bot responses for evaluation.
+Voice assistant evaluation pipeline entry point.
+Orchestrates voice assistant evaluation across datasets with multiple AI
+services.
 """
 
 # Standard library imports
 import argparse
 import asyncio
 import json
-import os
 import warnings
-from typing import Dict, List
+from typing import Dict, List, Optional, Any
 
 # Third-party imports
 from dotenv import load_dotenv
 from loguru import logger
 
-from src.core.agent_builder import build_conversation_agent
-from src.core.llm_processor import StrandsAgentsProcessor
-
 from src.evaluation.config.configuration_manager import ConfigurationManager
-from src.evaluation.factories.stt_factory import STTServiceFactory
-from src.evaluation.factories.tts_factory import TTSServiceFactory
-from src.evaluation.pipeline.audio_processor import AudioProcessor
-from src.evaluation.services.service_manager import ServiceManager
+from src.evaluation.models import PipelineResult
 from src.evaluation.results.results_collector import ResultCollector
+from src.evaluation.pipeline.voice_pipeline_processor import (
+    VoicePipelineProcessor
+)
 from src.evaluation.orchestration.evaluation_orchestrator import (
     EvaluationOrchestrator
-)
-
-from src.evaluation.models import (
-    PipelineResult,
 )
 
 # Configuration
@@ -39,19 +32,49 @@ logger.disable("pipecat.pipeline.task")
 
 
 class VoiceAssistantRunner:
+    """
+    Main runner for voice assistant evaluation pipeline.
+
+    CLI interface and dataset manager for voice assistant evaluation.
+    Delegates core processing to VoicePipelineProcessor for clean separation.
+
+    Key responsibilities:
+    - Load and manage evaluation datasets
+    - Extract ground truth data for evaluation
+    - Delegate processing to VoicePipelineProcessor
+    - Coordinate with evaluation orchestrator for batch processing
+
+    Attributes:
+        dataset_path: Path to evaluation dataset JSON file
+        audio_dir: Directory containing audio files for evaluation
+        config_manager: Configuration manager for loading service configs
+        dataset: Loaded evaluation dataset dictionary
+        stt_config: STT service configuration dictionary
+        tts_config: TTS service configuration dictionary
+    """
+
     def __init__(
             self,
             dataset_path: str,
             audio_dir: str,
-            stt_config: str = None,
-            tts_config: str = None):
+            stt_config: Optional[str] = None,
+            tts_config: Optional[str] = None
+    ) -> None:
+        """
+        Initialize voice assistant runner with dataset and service configs.
+
+        Args:
+            dataset_path: Path to JSON file containing evaluation dataset
+            audio_dir: Directory path containing audio files referenced in
+                dataset
+            stt_config: Optional path to STT service configuration file
+            tts_config: Optional path to TTS service configuration file
+        """
         self.dataset_path = dataset_path
         self.audio_dir = audio_dir
 
         # Use configuration manager
         self.config_manager = ConfigurationManager()
-        self.stt_factory = STTServiceFactory(self.config_manager)
-        self.tts_factory = TTSServiceFactory(self.config_manager)
         self.dataset = self._load_dataset()
 
         # Load configs using the manager
@@ -60,127 +83,103 @@ class VoiceAssistantRunner:
         self.tts_config = self.config_manager.load_config(tts_config) if \
             tts_config else None
 
-    def _create_stt_service(self):
-        """Create STT service using factory."""
-        return self.stt_factory.create_service(self.stt_config)
+    def _load_dataset(self) -> Dict[str, Any]:
+        """
+        Load evaluation dataset from JSON file.
 
-    def _create_tts_service(self):
-        """Create TTS service using factory."""
-        return self.tts_factory.create_service(self.tts_config)
+        Returns:
+            Dictionary containing dataset questions and metadata
 
-    def _load_dataset(self) -> Dict:
-        """Load the evaluation dataset"""
+        Raises:
+            FileNotFoundError: If dataset file doesn't exist
+            json.JSONDecodeError: If dataset file is not valid JSON
+        """
         with open(self.dataset_path, 'r') as f:
             return json.load(f)
 
-    async def process_audio_file(
+    async def run_all(
             self,
-            audio_path: str,
-            question_id: str) -> PipelineResult:
+            output_path: Optional[str] = None
+    ) -> List[PipelineResult]:
         """
-        Process a single audio file through the bot pipeline.
+        Run evaluation on all audio files in the dataset.
+
+        Creates processor instance and delegates to EvaluationOrchestrator
+        for managing the complete evaluation workflow.
+
+        Args:
+            output_path: Optional path for saving incremental results
 
         Returns:
-            Dict with stt_output, bot_response, and latencies
+            List of PipelineResult objects for all processed items
         """
-        logger.info(f"=== PROCESSING FILE: {question_id} ===")
-        logger.info(f"Audio file path: {audio_path}")
-        logger.info(f"File exists: {os.path.exists(audio_path)}")
-        logger.info(f"Processing {question_id}: {audio_path}")
-
-        # Get the ground truth transcript from dataset (for WER comparison)
-        question_data = next(
-            (q for q in self.dataset['questions'] if q['id'] == question_id),
-            None
+        processor = VoicePipelineProcessor(self.stt_config, self.tts_config)
+        orchestrator = EvaluationOrchestrator(
+            processor, self.dataset, self.audio_dir, output_path
         )
-        if not question_data:
-            raise ValueError(f"Question {question_id} not found in dataset")
-
-        ground_truth = question_data['text']
-
-        # Process audio
-        audio_processor = AudioProcessor(self.stt_config)
-        audio_processor.process_audio_file(audio_path)
-
-        # Create services
-        stt = self._create_stt_service()
-        tts = self._create_tts_service()
-        agent = build_conversation_agent(
-            model_id="au.anthropic.claude-haiku-4-5-20251001-v1:0",
-            tts_service=tts)
-        llm = StrandsAgentsProcessor(agent=agent)
-
-        # Setup pipeline
-        pipeline_components = audio_processor.build_pipeline(stt, tts, llm)
-
-        # Execute pipeline using AudioProcessor
-        execution_results = await audio_processor.execute_pipeline(
-            pipeline_components, stt, audio_path, self.stt_config
-        )
-
-        # Create service manager and cleanup
-        service_manager = ServiceManager()
-        await service_manager.cleanup_services(stt, tts)
-
-        logger.info("Pipeline processing complete, continuing...")
-        # Create result collector
-        result_collector = ResultCollector(self.stt_config, self.tts_config)
-
-        # Collect final result
-        result = result_collector.collect_result(
-            execution_results,
-            pipeline_components,
-            question_id,
-            audio_path,
-            ground_truth
-        )
-
-        return result
-
-    async def run_all(self, output_path: str = None) -> List[PipelineResult]:
-        """Run bot on all audio files in dataset"""
-        orchestrator = EvaluationOrchestrator(self, output_path)
         return await orchestrator.run_evaluation()
 
 
 def create_argument_parser() -> argparse.ArgumentParser:
-    """Create and configure argument parser."""
+    """
+    Create and configure command-line argument parser.
+
+    Sets up argument parser with all required and optional parameters
+    for running voice assistant evaluation including dataset paths,
+    service configurations, and output settings.
+
+    Returns:
+        Configured ArgumentParser instance with all evaluation parameters
+    """
     parser = argparse.ArgumentParser(
-        description='Run bot on VoiceAssistant-Eval dataset'
+        description='Run voice assistant evaluation on dataset audio files'
     )
     parser.add_argument(
         '--dataset',
         default='evaluation_data/voiceassistant_eval/'
         'voiceassistant_eval_dataset.json',
-        help='Path to dataset JSON'
+        help='Path to evaluation dataset JSON file'
     )
     parser.add_argument(
         '--audio-dir',
         default='evaluation_data/voiceassistant_eval/audio_input',
-        help='Directory containing audio files'
+        help='Directory containing audio files referenced in dataset'
     )
     parser.add_argument(
         '--output',
         default='evaluation_data/voiceassistant_eval/bot_results.json',
-        help='Output path for bot results'
+        help='Output path for evaluation results JSON file'
     )
     parser.add_argument(
         '--stt-config',
-        help='STT service config (e.g., evaluation_data/bot_configs/'
-        'deepgram_nova3_config.json)'
+        help='Path to STT service configuration file '
+             '(e.g., evaluation_data/stt_bot_configs/'
+             'deepgram_nova3_config.json)'
     )
     parser.add_argument(
         '--tts-config',
-        help='TTS service config (e.g., evaluation_data/tts_bot_configs/'
-        'deepgram_aura_config.json)'
+        help='Path to TTS service configuration file '
+             '(e.g., evaluation_data/tts_bot_configs/'
+             'deepgram_aura_config.json)'
     )
     return parser
 
 
 def print_final_summary(
         results: List[PipelineResult],
-        output_path: str) -> None:
-    """Print final evaluation summary."""
+        output_path: str
+) -> None:
+    """
+    Print comprehensive evaluation summary with statistics.
+
+    Displays formatted summary including success rates, error counts,
+    and next steps for further analysis. Provides clear visual separation
+    and actionable information for users.
+
+    Args:
+        results: List of pipeline results from evaluation
+        output_path: Path where results were saved
+    """
     successful = len([r for r in results if r.status == 'success'])
     failed = len([r for r in results if r.status == 'failed'])
 
@@ -199,7 +198,13 @@ def print_final_summary(
 
 
 def cleanup_background_tasks() -> None:
-    """Cancel background tasks but not the main task."""
+    """
+    Cancel background asyncio tasks to prevent hanging processes.
+
+    Identifies and cancels all pending asyncio tasks except the current
+    main task to ensure clean shutdown. Handles exceptions gracefully
+    to prevent shutdown errors.
+    """
     try:
         loop = asyncio.get_running_loop()
         current_task = asyncio.current_task()
@@ -211,7 +216,14 @@ def cleanup_background_tasks() -> None:
         pass
 
 
-async def main():
+async def main() -> None:
+    """
+    Main entry point for voice assistant evaluation pipeline.
+
+    Orchestrates the complete evaluation workflow including argument parsing,
+    runner initialization, evaluation execution, result saving, and cleanup.
+    Provides comprehensive logging and error handling.
+    """
     parser = create_argument_parser()
     args = parser.parse_args()
 
@@ -222,7 +234,7 @@ async def main():
         tts_config=args.tts_config,
     )
 
-    logger.info("Running bot on all audio files...")
+    logger.info("Starting voice assistant evaluation on all audio files...")
     results = await runner.run_all(args.output)
 
     result_collector = ResultCollector(runner.stt_config, runner.tts_config)
