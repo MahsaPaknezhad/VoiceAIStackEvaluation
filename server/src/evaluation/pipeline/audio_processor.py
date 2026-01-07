@@ -98,7 +98,6 @@ class AudioProcessor:
         """
         if not self.stt_config.get("audio_requirements"):
             return
-
         audio_reqs = self.stt_config["audio_requirements"]
         required_rates = audio_reqs.get("sample_rates", [])
         target_rate = audio_reqs.get("resample_to")
@@ -106,8 +105,8 @@ class AudioProcessor:
         if required_rates and \
                 self.sample_rate not in required_rates and target_rate:
             logger.info(
-                f"Resampling audio from {self.sample_rate}Hz "
-                f"to {target_rate}Hz"
+                f"Resampling audio from {self.sample_rate} Hz "
+                f"to {target_rate} Hz"
             )
             audio_array = np.frombuffer(
                 self.audio_data, dtype=np.int16
@@ -134,6 +133,7 @@ class AudioProcessor:
         """
         self.load_audio_file(audio_path)
         self.resample_if_needed()
+        logger.info(f'Successfully Retrieved Audio File {audio_path}')
 
     def build_pipeline(
             self,

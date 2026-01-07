@@ -87,6 +87,39 @@ class PipelineCollectors(BaseModel):
     )
 
 
+class TimingCollector(BaseModel):
+    """
+    Centralized timing data collector for pipeline performance metrics.
+
+    Tracks start/end times for STT and TTS processing stages to calculate
+    latency metrics for evaluation. Provides methods to compute processing
+    durations in milliseconds for performance analysis.
+
+    Attributes:
+        stt_start_time: Timestamp when STT processing begins
+        stt_end_time: Timestamp when STT processing completes
+        tts_start_time: Timestamp when TTS processing begins
+        tts_end_time: Timestamp when TTS processing completes
+    """
+
+    stt_start_time: Optional[float] = None
+    stt_end_time: Optional[float] = None
+    tts_start_time: Optional[float] = None
+    tts_end_time: Optional[float] = None
+
+    def get_stt_latency_ms(self) -> Optional[float]:
+        """Calculate STT processing latency in milliseconds."""
+        if self.stt_start_time is not None and self.stt_end_time is not None:
+            return (self.stt_end_time - self.stt_start_time) * 1000
+        return None
+
+    def get_tts_latency_ms(self) -> Optional[float]:
+        """Calculate TTS processing latency in milliseconds."""
+        if self.tts_start_time is not None and self.tts_end_time is not None:
+            return (self.tts_end_time - self.tts_start_time) * 1000
+        return None
+
+
 class PipelineComponents(BaseModel):
     """Container for pipeline components."""
     transport: Any = Field(

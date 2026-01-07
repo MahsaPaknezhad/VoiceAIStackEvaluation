@@ -8,12 +8,15 @@ from typing import Dict, Any, Optional
 from loguru import logger
 
 from src.core.agent_builder import build_conversation_agent
-from src.core.llm_processor import StrandsAgentsProcessor
+
 
 from src.evaluation.config.configuration_manager import ConfigurationManager
 from src.evaluation.factories.stt_factory import STTServiceFactory
 from src.evaluation.factories.tts_factory import TTSServiceFactory
 from src.evaluation.pipeline.audio_processor import AudioProcessor
+from src.evaluation.pipeline.strands_processor import (
+    EvaluationStrandsProcessor
+)
 from src.evaluation.services.service_manager import ServiceManager
 from src.evaluation.results.results_collector import ResultCollector
 from src.evaluation.models import PipelineResult
@@ -81,7 +84,9 @@ class VoicePipelineProcessor:
             self,
             audio_path: str,
             question_id: str,
-            ground_truth: str
+            ground_truth: str,
+            default_llm_model: str =
+            "au.anthropic.claude-haiku-4-5-20251001-v1:0"
     ) -> PipelineResult:
         """
         Process single audio file through complete voice pipeline.
@@ -94,6 +99,7 @@ class VoicePipelineProcessor:
             audio_path: Path to audio file to process
             question_id: Unique identifier for the question/audio pair
             ground_truth: Expected transcription for evaluation
+            default_llm_model: AWS Bedrock model ID. Default to Haiku 4.5
 
         Returns:
             PipelineResult containing transcription, response, timing, metadata
@@ -113,9 +119,10 @@ class VoicePipelineProcessor:
         stt = self._create_stt_service()
         tts = self._create_tts_service()
         agent = build_conversation_agent(
-            model_id="au.anthropic.claude-haiku-4-5-20251001-v1:0",
-            tts_service=tts)
-        llm = StrandsAgentsProcessor(agent=agent)
+            model_id=default_llm_model,
+            tts_service=tts
+        )
+        llm = EvaluationStrandsProcessor(agent=agent)
 
         # Setup pipeline
         pipeline_components = audio_processor.build_pipeline(stt, tts, llm)

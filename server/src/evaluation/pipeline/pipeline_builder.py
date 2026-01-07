@@ -16,15 +16,15 @@ from pipecat.processors.aggregators.llm_response import (
 from pipecat.services.aws.llm import AWSBedrockLLMContext
 from pipecat.transports.base_transport import TransportParams
 
-from src.evaluation.frame_processor import (
-    TimingCollector,
+from src.evaluation.models import TimingCollector
+from src.evaluation.pipeline.frame_processors import (
     STTTimingProcessor,
     TTSTimingProcessor,
     STTCollector,
     LLMCollector
 )
 from src.evaluation.models import PipelineCollectors, PipelineComponents
-from src.transport.batch_audio_transport import EvaluationTransport
+from src.evaluation.pipeline.batch_audio_transport import BatchAudioTransport
 
 
 class PipelineBuilder:
@@ -53,12 +53,18 @@ class PipelineBuilder:
                        Defaults to empty dict.
         """
         self.stt_config = stt_config or {}
+        self._is_whisper = 'whisper' in self.stt_config.get(
+            'stt_service_id', ''
+        ).lower()
 
     def create_transport(
             self,
             audio_data: bytes,
-            sample_rate: int
-    ) -> EvaluationTransport:
+            sample_rate: int,
+            vad_analyzer_class: type = SileroVADAnalyzer,
+            vad_params: Optional[VADParams] = None,
+            transport_params: Optional[TransportParams] = None
+    ) -> BatchAudioTransport:
         """
         Create evaluation transport with Voice Activity Detection.
 
@@ -68,19 +74,34 @@ class PipelineBuilder:
         Args:
             audio_data: Raw audio data as bytes
             sample_rate: Audio sample rate in Hz
+            vad_analyzer_class: VAD analyzer class to use.
+                Defaults to SileroVADAnalyzer
+            vad_params: VAD parameters. Defaults to VADParams(stop_secs=1.0)
+            transport_params: Transport parameters.
+                Defaults to audio_in_enabled=True with VAD
 
         Returns:
-            Configured EvaluationTransport instance with VAD enabled
+            Configured BatchAudioTransport instance with VAD enabled
         """
-        vad_analyzer = SileroVADAnalyzer(params=VADParams(stop_secs=1.0))
-        params = TransportParams(
-            audio_in_enabled=True,
-            vad_analyzer=vad_analyzer)
+        if vad_params is None:
+            vad_params = VADParams(stop_secs=1.0)
 
-        return EvaluationTransport(
+        vad_analyzer = None
+        if not self._is_whisper:
+            vad_analyzer = vad_analyzer_class(params=vad_params)
+
+        if transport_params is None:
+            transport_params = TransportParams(
+                audio_in_enabled=True,
+                vad_analyzer=vad_analyzer
+            )
+        else:
+            transport_params.vad_analyzer = vad_analyzer
+
+        return BatchAudioTransport(
             audio_data,
             sample_rate,
-            params=params,
+            params=transport_params,
             stt_model=self.stt_config.get("config", {}).get("model", "default")
         )
 
@@ -101,7 +122,11 @@ class PipelineBuilder:
             llm_texts=[]
         )
 
-    def create_context_aggregator(self) -> LLMUserContextAggregator:
+    def create_context_aggregator(
+            self,
+            aggregation_timeout: Optional[float] = None,
+            whisper_aggregation_timeout: float = 5.0
+    ) -> LLMUserContextAggregator:
         """
         Create LLM context aggregator based on STT service type.
 
@@ -109,21 +134,27 @@ class PipelineBuilder:
         - Whisper services: Timeout-based aggregation (5 seconds)
         - Streaming services: VAD-based aggregation
 
+        Args:
+            aggregation_timeout: Base timeout value. Default to None,
+                meaning the pipeline will use VAD-based aggregation
+            whisper_aggregation_timeout: Specific whisper based timeout.
+                Default to 5.0s.
         Returns:
             Configured LLMUserContextAggregator for managing conversation
             context
         """
         context = AWSBedrockLLMContext()
-        stt_service_id = self.stt_config.get('stt_service_id', '').lower()
-        is_whisper = 'whisper' in stt_service_id
 
-        if is_whisper:
-            user_params = LLMUserAggregatorParams(aggregation_timeout=5.0)
-            logger.info("Using timeout-based aggregation for Whisper (5s)")
-        else:
-            user_params = LLMUserAggregatorParams(aggregation_timeout=None)
-            logger.info("Using VAD-based aggregation for streaming STT")
+        if self._is_whisper:
+            aggregation_timeout = whisper_aggregation_timeout
 
+        logger.info(
+            f"Adding timeout of {aggregation_timeout} -> "
+            "If None, will revert to VAD-based aggregation"
+        )
+        user_params = LLMUserAggregatorParams(
+            aggregation_timeout=aggregation_timeout
+        )
         return LLMUserContextAggregator(context=context, params=user_params)
 
     def build_pipeline(
@@ -141,6 +172,18 @@ class PipelineBuilder:
         ordering and data flow. Creates transport, collectors, and context
         aggregator, then connects them in the correct sequence.
 
+        Pipeline Flow:
+        1. transport.input() - Streams audio chunks with VAD coordination
+        2. STTTimingProcessor - Captures STT start timing on first audio frame
+        3. stt_service - Converts audio to text (AWS Transcribe, Whisper, etc.)
+        4. STTCollector - Collects transcriptions and marks STT end timing
+        5. context_aggregator - Aggregates STT output for LLM context
+        6. llm_service - Generates response text (Bedrock Claude, OpenAI, etc.)
+        7. LLMCollector - Collects/cleans LLM text and marks TTS start timing
+        8. tts_service - Converts text to speech (AWS Polly, ElevenLabs, etc.)
+        9. TTSTimingProcessor - Captures TTS end timing on first audio output
+        10. transport.output() - Collects generated TTS audio for evaluation
+
         Args:
             audio_data: Raw audio data as bytes
             sample_rate: Audio sample rate in Hz
@@ -151,9 +194,10 @@ class PipelineBuilder:
         Returns:
             PipelineComponents containing transport, pipeline, and collectors
         """
-        transport = self.create_transport(audio_data, sample_rate)
+        logger.info('Starting Pipeline Build')
         collectors = self.create_collectors()
         context_aggregator = self.create_context_aggregator()
+        transport = self.create_transport(audio_data, sample_rate)
 
         pipeline = Pipeline([
             transport.input(),
