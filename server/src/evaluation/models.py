@@ -191,6 +191,33 @@ class EvaluationOutput(ServiceIdentificationMixin):
 # Quality Assessment Models
 # =============================================================================
 
+class WERResults(BaseModel):
+    """WER evaluation results."""
+    wer_score: float = Field(
+        ge=0, le=100, description="Word Error Rate percentage")
+    reference: str = Field(description="Ground truth text")
+    hypothesis: str = Field(description="Predicted text")
+
+
+class ResponseQualityResults(BaseModel):
+    """Alias for JudgeScores to maintain naming consistency."""
+    correctness: float = Field(
+        default=0.0, ge=0, le=10, description="Factual accuracy score (0-10)")
+    relevance: float = Field(
+        default=0.0, ge=0, le=10,
+        description="Question relevance score (0-10)")
+    completeness: float = Field(
+        default=0.0, ge=0, le=10,
+        description="Response completeness score (0-10)")
+    clarity: float = Field(
+        default=0.0, ge=0, le=10,
+        description="Communication clarity score (0-10)")
+    overall: float = Field(
+        default=0.0, ge=0, le=10, description="Overall quality score (0-10)")
+    reasoning: str = Field(
+        default="", description="Judge reasoning explanation")
+
+
 class JudgeScores(BaseModel):
     """LLM judge evaluation scores for response quality."""
     correctness: float = Field(
@@ -218,19 +245,19 @@ class JudgeScores(BaseModel):
 class VoiceQuality(BaseModel):
     """Voice quality metrics from NISQA and SpeechMetrics."""
     # NISQA metrics
-    mos: Optional[float] = Field(
+    nisqa_mos: Optional[float] = Field(
         default=None, ge=0, le=5, description="Mean Opinion Score (1-5)"
     )
-    noisiness: Optional[float] = Field(
+    nisqa_noisiness: Optional[float] = Field(
         default=None, ge=0, le=5, description="Noisiness score (1-5)"
     )
-    coloration: Optional[float] = Field(
+    nisqa_coloration: Optional[float] = Field(
         default=None, ge=0, le=5, description="Coloration score (1-5)"
     )
-    discontinuity: Optional[float] = Field(
+    nisqa_discontinuity: Optional[float] = Field(
         default=None, ge=0, le=5, description="Discontinuity score (1-5)"
     )
-    loudness: Optional[float] = Field(
+    nisqa_loudness: Optional[float] = Field(
         default=None, ge=0, le=5, description="Loudness score (1-5)"
     )
     overall_quality: Optional[float] = Field(

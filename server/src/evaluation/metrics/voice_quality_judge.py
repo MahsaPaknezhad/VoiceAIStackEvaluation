@@ -2,7 +2,7 @@ import json
 from typing import Optional
 from loguru import logger
 from src.evaluation.services.base_llm_service import BaseLLMService
-from src.evaluation.metrics.base_audio_evaluator import BaseAudioEvaluator
+from src.evaluation.metrics.base_quality_evaluator import BaseQualityEvaluator
 from src.evaluation.metrics.audio_feature_extractor import (
     AudioFeatureExtractor
 )
@@ -48,7 +48,7 @@ Return ONLY valid JSON:
 }"""  # noqa: E501
 
 
-class VoiceQualityJudge(BaseLLMService, BaseAudioEvaluator):
+class VoiceQualityJudge(BaseLLMService, BaseQualityEvaluator[LLMJudgeResults]):
     """
     LLM-based voice quality evaluator using Claude via AWS Bedrock.
 
@@ -82,7 +82,7 @@ class VoiceQualityJudge(BaseLLMService, BaseAudioEvaluator):
             f"LLM Voice Judge initialized with model: {config.model_id}"
         )
 
-    def initialize(self) -> bool:
+    async def initialize(self) -> bool:
         """
         Initialize audio feature extractor and AWS Bedrock client.
 
@@ -95,7 +95,7 @@ class VoiceQualityJudge(BaseLLMService, BaseAudioEvaluator):
         try:
             logger.info("Initializing LLM Voice Judge components...")
             self.feature_extractor = AudioFeatureExtractor()
-            logger.debug("Audio feature extractor initialized")
+            logger.info("Audio feature extractor initialized")
 
             success = self._initialize_bedrock()
             if success:

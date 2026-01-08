@@ -2,12 +2,13 @@ import os
 import tempfile
 import librosa
 import soundfile as sf
+from loguru import logger
 from src.evaluation.metrics.NISQA.nisqa.NISQA_model import nisqaModel
-from src.evaluation.metrics.base_audio_evaluator import BaseAudioEvaluator
+from src.evaluation.metrics.base_quality_evaluator import BaseQualityEvaluator
 from src.evaluation.models import NISQAConfig, NISQAResults
 
 
-class NISQAEvaluator(BaseAudioEvaluator):
+class NISQAEvaluator(BaseQualityEvaluator[NISQAResults]):
     """
     NISQA (Non-Intrusive Speech Quality Assessment) evaluator.
 
@@ -30,7 +31,7 @@ class NISQAEvaluator(BaseAudioEvaluator):
         self.config = config
         self.nisqa_args = None
 
-    def initialize(self) -> bool:
+    async def initialize(self) -> bool:
         """
         Initialize NISQA model and prediction arguments.
 
@@ -40,6 +41,9 @@ class NISQAEvaluator(BaseAudioEvaluator):
         try:
             # Verify model path exists
             if not os.path.exists(self.config.model_path):
+                logger.warning(
+                    f"Model Path for NISQA {self.config.model_path} dne"
+                )
                 return False
 
             # Set up prediction arguments template
@@ -59,7 +63,7 @@ class NISQAEvaluator(BaseAudioEvaluator):
         except Exception:
             return False
 
-    def evaluate(self, audio_path: str) -> NISQAResults:
+    async def evaluate(self, audio_path: str) -> NISQAResults:
         """
         Evaluate audio quality using NISQA model.
 
@@ -81,7 +85,6 @@ class NISQAEvaluator(BaseAudioEvaluator):
             audio_data, _ = librosa.load(
                 audio_path, sr=self.config.sample_rate
             )
-
             # Create temporary file with correct format
             temp_file = tempfile.NamedTemporaryFile(
                 suffix='.wav', delete=False

@@ -1,12 +1,12 @@
 import os
-from src.evaluation.metrics.base_audio_evaluator import BaseAudioEvaluator
+from src.evaluation.metrics.base_quality_evaluator import BaseQualityEvaluator
 from src.evaluation.models import SpeechMetricsConfig, SpeechMetricsResults
 from src.evaluation.metrics.speechmetrics.speechmetrics.absolute import (
     mosnet, srmr
 )
 
 
-class SpeechMetricsEvaluator(BaseAudioEvaluator):
+class SpeechMetricsEvaluator(BaseQualityEvaluator[SpeechMetricsResults]):
     """
     SpeechMetrics evaluator for MOSNet and SRMR quality assessment.
 
@@ -33,7 +33,7 @@ class SpeechMetricsEvaluator(BaseAudioEvaluator):
         self.mosnet_metric = None
         self.srmr_metric = None
 
-    def initialize(self) -> bool:
+    async def initialize(self) -> bool:
         """
         Initialize MOSNet and SRMR models.
 
@@ -56,7 +56,7 @@ class SpeechMetricsEvaluator(BaseAudioEvaluator):
         except Exception:
             return False
 
-    def evaluate(self, audio_path: str) -> SpeechMetricsResults:
+    async def evaluate(self, audio_path: str) -> SpeechMetricsResults:
         """
         Evaluate audio quality using SpeechMetrics models.
 

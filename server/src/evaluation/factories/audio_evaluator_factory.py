@@ -1,5 +1,5 @@
 from typing import Dict, List, Union
-from src.evaluation.metrics.base_audio_evaluator import BaseAudioEvaluator
+from src.evaluation.metrics.base_quality_evaluator import BaseQualityEvaluator
 from src.evaluation.metrics.nisqa_evaluator import NISQAEvaluator
 from src.evaluation.metrics.speechmetrics_evaluator import (
     SpeechMetricsEvaluator
@@ -37,7 +37,7 @@ class AudioEvaluatorFactory:
         self,
         evaluator_type: str,
         config: AudioQualityConfig
-    ) -> BaseAudioEvaluator:
+    ) -> BaseQualityEvaluator:
         """
         Create a single audio evaluator instance.
 
@@ -63,7 +63,7 @@ class AudioEvaluatorFactory:
     def create_evaluators(
         self,
         config: AudioQualityConfig
-    ) -> Dict[str, BaseAudioEvaluator]:
+    ) -> Dict[str, BaseQualityEvaluator]:
         """
         Create multiple evaluators based on configuration flags.
 

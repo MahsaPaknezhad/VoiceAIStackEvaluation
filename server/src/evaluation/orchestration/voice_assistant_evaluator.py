@@ -12,11 +12,12 @@ from datetime import datetime
 
 from src.evaluation.audio_quality_analyzer import VoiceQualityEvaluator
 from src.evaluation.models import (
-    JudgeScores, VoiceQuality, EvaluationResult, EvaluationReport,
-    EvaluationSummary, CategoryStats, EvaluatorConfig  # Add these two
+    JudgeScores, EvaluationResult, EvaluationReport,
+    EvaluationSummary, CategoryStats, EvaluatorConfig
 )
-from src.evaluation.metrics.wer_calculator import WERCalculator
-from src.evaluation.metrics.response_evaluator import ResponseEvaluator
+from src.evaluation.factories.quality_evaluator_factory import (
+    QualityEvaluatorFactory
+)
 
 
 class VoiceAssistantEvaluator:
@@ -45,12 +46,24 @@ class VoiceAssistantEvaluator:
         self.config = config
         self.dataset = self._load_dataset()
 
-        # Initialize evaluators with configurations
-        self.wer_calculator = WERCalculator(config.wer_config)
-        self.response_evaluator = ResponseEvaluator(config.judge_config)
+        # Initialize evaluators with unified factory
+        factory = QualityEvaluatorFactory()
+        self.wer_evaluator = factory.create_wer_evaluator(config.wer_config)
+        self.response_evaluator = factory.create_response_evaluator(
+            config.judge_config
+        )
 
         if config.evaluate_voice_quality:
             self.voice_evaluator = VoiceQualityEvaluator(use_llm_judge=True)
+        else:
+            self.voice_evaluator = None
+
+    async def initialize(self) -> None:
+        """Initialize all evaluators asynchronously."""
+        await self.wer_evaluator.initialize()
+        await self.response_evaluator.initialize()
+        if self.voice_evaluator:
+            await self.voice_evaluator.initialize()
 
     def _load_dataset(self) -> Dict:
         """
@@ -100,70 +113,38 @@ class VoiceAssistantEvaluator:
             EvaluationResult containing all evaluation metrics
         """
         # Calculate WER for STT accuracy
-        wer_score = self.wer_calculator.calculate(ground_truth, stt_output)
-
+        wer_result = await self.wer_evaluator.evaluate(
+            ground_truth, stt_output
+        )
         # Evaluate response quality using LLM judge
         judge_scores = await self.response_evaluator.evaluate(
             stt_output, llm_response
         )
 
-        # Create evaluation result
-        result = EvaluationResult(
+        # Evaluate voice quality using:
+        # - LLM
+        # - Librosa
+        # - Nisqa
+        # - Speechmetrics
+        voice_quality = None
+        if self.config.evaluate_voice_quality and tts_audio_path \
+                and self.voice_evaluator:
+            voice_quality = await self.voice_evaluator.evaluate(tts_audio_path)
+
+        return EvaluationResult(
             question_id=question_id,
             category=category,
             ground_truth=ground_truth,
             stt_output=stt_output,
-            wer=wer_score,
+            wer=wer_result.wer_score,
             llm_response=llm_response,
             judge_scores=judge_scores,
+            voice_quality=voice_quality,
             stt_latency_ms=stt_latency,
             tts_latency_ms=tts_latency,
             total_latency_ms=total_latency,
             tts_audio_path=tts_audio_path
         )
-
-        # Add voice quality metrics if enabled and audio available
-        if self.config.evaluate_voice_quality and tts_audio_path:
-            try:
-                result.voice_quality = await self._evaluate_voice_quality(
-                    tts_audio_path, llm_response
-                )
-            except Exception as e:
-                logger.error(
-                    f"Voice quality evaluation failed for {question_id}: {e}"
-                )
-
-        return result
-
-    async def _evaluate_voice_quality(
-        self,
-        tts_audio_path: str,
-        llm_response: str
-    ) -> VoiceQuality:
-        """
-        Evaluate voice quality using multiple metrics.
-
-        Args:
-            tts_audio_path: Path to TTS audio file
-            llm_response: Response text for context
-
-        Returns:
-            VoiceQuality metrics combining technical and perceptual scores
-        """
-        # Get LLM judge evaluation
-        llm_voice_metrics = await self.voice_evaluator.evaluate_with_llm_judge(
-            tts_audio_path, llm_response
-        )
-
-        # Get technical voice metrics
-        technical_voice_metrics = self.voice_evaluator.evaluate(tts_audio_path)
-
-        # Merge metrics
-        combined_data = {
-            **technical_voice_metrics.model_dump(),
-            **llm_voice_metrics.model_dump()
-        }
-        return VoiceQuality.model_validate(combined_data)
 
     def _load_results_file(self, results_file: str) -> Optional[Dict]:
         """
@@ -415,23 +396,81 @@ class VoiceAssistantEvaluator:
             total_questions if evaluations else 0
         )
 
+        stt_latencies = [
+            e.stt_latency_ms for e in evaluations
+            if e.stt_latency_ms is not None
+        ]
+        tts_latencies = [
+            e.tts_latency_ms for e in evaluations
+            if e.tts_latency_ms is not None
+        ]
+        total_latencies = [
+            e.total_latency_ms for e in evaluations
+            if e.total_latency_ms is not None
+        ]
+
+        avg_stt_latency = (
+            sum(stt_latencies) / len(stt_latencies) if stt_latencies else None
+        )
+        avg_tts_latency = (
+            sum(tts_latencies) / len(tts_latencies) if tts_latencies else None
+        )
+        avg_total_latency = (
+            sum(total_latencies) / len(total_latencies)
+            if total_latencies else None
+        )
+
         # Calculate category statistics
         by_category = {}
         for category in set(e.category for e in evaluations if e.category):
             cat_evals = [e for e in evaluations if e.category == category]
+
+            # Calculate category latency averages
+            cat_stt_latencies = [
+                e.stt_latency_ms for e in cat_evals
+                if e.stt_latency_ms is not None
+            ]
+            cat_tts_latencies = [
+                e.tts_latency_ms for e in cat_evals
+                if e.tts_latency_ms is not None
+            ]
+            cat_total_latencies = [
+                e.total_latency_ms for e in cat_evals
+                if e.total_latency_ms is not None
+            ]
+
+            cat_avg_stt = (
+                sum(cat_stt_latencies) / len(cat_stt_latencies)
+                if cat_stt_latencies else None
+            )
+            cat_avg_tts = (
+                sum(cat_tts_latencies) / len(cat_tts_latencies)
+                if cat_tts_latencies else None
+            )
+            cat_avg_total = (
+                sum(cat_total_latencies) / len(cat_total_latencies)
+                if cat_total_latencies else None
+            )
+
             by_category[category] = CategoryStats(
                 count=len(cat_evals),
                 avg_wer=sum(e.wer for e in cat_evals) / len(cat_evals),
                 avg_score=(
                     sum(e.judge_scores.overall for e in cat_evals) /
                     len(cat_evals)
-                )
+                ),
+                stt_latency_ms=cat_avg_stt,      # Use alias name
+                tts_latency_ms=cat_avg_tts,      # Use alias name
+                total_latency_ms=cat_avg_total   # Use alias name
             )
 
         summary = EvaluationSummary(
             average_wer=avg_wer,
             average_overall_score=avg_score,
-            by_category=by_category
+            by_category=by_category,
+            stt_latency_ms=avg_stt_latency,      # Use alias name
+            tts_latency_ms=avg_tts_latency,      # Use alias name
+            total_latency_ms=avg_total_latency   # Use alias name
         )
 
         self._log_evaluation_summary(evaluations, summary)
@@ -457,6 +496,9 @@ class VoiceAssistantEvaluator:
         Returns:
             EvaluationReport with complete analysis or None if failed
         """
+        # Initialize evaluators first
+        await self.initialize()
+
         # Load results with error handling
         results_data = self._load_results_file(results_file)
         if results_data is None:
