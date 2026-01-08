@@ -359,7 +359,7 @@ class WERConfig(BaseModel):
     Configuration for WER calculation.
 
     Attributes:
-        return_percentage: Whether to return WER as percentage (0-100) 
+        return_percentage: Whether to return WER as percentage (0-100)
                           or decimal (0-1)
         handle_empty_strings: How to handle empty reference or hypothesis
     """
@@ -376,7 +376,7 @@ class WERConfig(BaseModel):
 class JudgeConfig(BaseModel):
     """
     Configuration for LLM judge service.
-    
+
     Attributes:
         model_id: Bedrock model identifier for judge agent
         region_name: AWS region for Bedrock service
@@ -437,3 +437,150 @@ class EvaluatorConfig(BaseModel):
         default=None,
         description="Configuration for LLM judge"
     )
+
+
+# =============================================================================
+# Audio Quality Analysis Models
+# =============================================================================
+
+class AudioMetrics(BaseModel):
+    """Comprehensive audio feature metrics extracted from librosa analysis."""
+
+    # Fluency metrics
+    duration: float = Field(
+        ge=0, description="Audio duration in seconds"
+    )
+    pitch_mean: float = Field(
+        ge=0, description="Mean fundamental frequency (Hz)"
+    )
+    pitch_std: float = Field(
+        ge=0, description="Pitch standard deviation"
+    )
+    pitch_cv: float = Field(ge=0, description="Pitch coefficient of variation")
+    speech_rate: float = Field(ge=0, description="Speech rate (onsets/second)")
+    primary_tempo: float = Field(ge=0, description="Primary tempo (BPM)")
+    energy_mean: float = Field(ge=0, description="Mean RMS energy")
+    energy_consistency: float = Field(
+        ge=0, le=1, description="Energy consistency (0-1)"
+    )
+
+    # Naturalness metrics
+    spectral_centroid: float = Field(
+        ge=0, description="Spectral centroid (Hz)"
+    )
+    mfcc_coefficients: List[float] = Field(description="MFCC coefficients")
+    spectral_rolloff: float = Field(ge=0, description="Spectral rolloff (Hz)")
+
+    # Tone metrics
+    spectral_contrast: float = Field(ge=0, description="Spectral contrast")
+    zero_crossing_rate: float = Field(ge=0, description="Zero crossing rate")
+    harmonic_noise_ratio: float = Field(
+        description="Harmonic-to-noise ratio (dB)"
+    )
+
+    # Overall quality metrics
+    chroma: float = Field(ge=0, le=1, description="Chroma feature")
+    tonnetz: float = Field(description="Tonnetz harmonic relationships")
+    dynamic_range: float = Field(ge=0, description="Dynamic range")
+    spectral_flatness: float = Field(
+        ge=0, le=1, description="Spectral flatness"
+    )
+
+
+class NISQAConfig(BaseModel):
+    """Configuration for NISQA evaluation."""
+    model_path: str = Field(description="Path to NISQA model weights")
+    sample_rate: int = Field(default=48000, description="Required sample rate")
+    max_segments: int = Field(default=2000, description="Max audio segments")
+    batch_size: int = Field(default=1, description="Batch size for processing")
+
+
+class NISQAResults(BaseModel):
+    """NISQA evaluation results with validation."""
+    nisqa_mos: float = Field(
+        ge=0, le=5, description="Mean Opinion Score (0-5)"
+    )
+    nisqa_noisiness: float = Field(
+        ge=0, le=5, description="Noisiness score (0-5)"
+    )
+    nisqa_coloration: float = Field(
+        ge=0, le=5, description="Coloration score (0-5)"
+    )
+    nisqa_discontinuity: float = Field(
+        ge=0, le=5, description="Discontinuity score (0-5)"
+    )
+    nisqa_loudness: float = Field(
+        ge=0, le=5, description="Loudness score (0-5)"
+    )
+
+
+class SpeechMetricsConfig(BaseModel):
+    """Configuration for SpeechMetrics evaluation."""
+    window_size: float = Field(
+        default=0.75, description="Analysis window size"
+    )
+    enable_mosnet: bool = Field(default=True, description="Enable MOSNet")
+    enable_srmr: bool = Field(default=True, description="Enable SRMR")
+
+
+class SpeechMetricsResults(BaseModel):
+    """SpeechMetrics evaluation results with validation."""
+    mosnet_score: float = Field(
+        ge=0, le=5, description="MOSNet quality score (0-5)"
+    )
+    srmr_score: float = Field(
+        ge=-10, le=30, description="SRMR quality score (dB)"
+    )
+
+
+class LLMJudgeConfig(BaseModel):
+    """Configuration for LLM-based voice quality evaluation."""
+    model_id: str = Field(
+        default="au.anthropic.claude-haiku-4-5-20251001-v1:0",
+        description="Bedrock model ID"
+    )
+    region_name: str = Field(
+        default="ap-southeast-2",
+        description="AWS region"
+    )
+    temperature: float = Field(
+        default=0.3, ge=0, le=1,
+        description="LLM temperature"
+    )
+    max_tokens: int = Field(
+        default=500, ge=1,
+        description="Maximum response tokens"
+    )
+
+
+class LLMJudgeResults(BaseModel):
+    """LLM voice judge evaluation results with validation."""
+    llm_fluency: int = Field(
+        ge=0, le=10, description="Fluency score (0-10)"
+    )
+    llm_naturalness: int = Field(
+        ge=0, le=10, description="Naturalness score (0-10)"
+    )
+    llm_tone: int = Field(
+        ge=0, le=10, description="Tone quality score (0-10)"
+    )
+    llm_overall: int = Field(
+        ge=0, le=10, description="Overall quality score (0-10)"
+    )
+    llm_reasoning: str = Field(description="LLM explanation of scores")
+
+
+class AudioQualityConfig(BaseModel):
+    """Complete configuration for audio quality evaluation."""
+    sample_rate: int = Field(default=16000, description="Audio sample rate")
+    enable_nisqa: bool = Field(default=True, description="Enable NISQA")
+    enable_speechmetrics: bool = Field(
+        default=True, description="Enable SpeechMetrics"
+    )
+    enable_llm_judge: bool = Field(
+        default=False, description="Enable LLM judge"
+    )
+
+    nisqa_config: Optional[NISQAConfig] = Field(default=None)
+    speechmetrics_config: Optional[SpeechMetricsConfig] = Field(default=None)
+    llm_judge_config: Optional[LLMJudgeConfig] = Field(default=None)

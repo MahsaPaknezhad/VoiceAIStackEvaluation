@@ -6,7 +6,7 @@ from typing import Optional
 from loguru import logger
 
 from src.evaluation.models import JudgeScores, JudgeConfig
-from src.evaluation.services.judge_service import JudgeService
+from src.evaluation.metrics.response_quality_judge import ResponseQualityJudge
 
 
 class ResponseEvaluator:
@@ -28,7 +28,7 @@ class ResponseEvaluator:
         Args:
             judge_config: Optional configuration for judge service
         """
-        self.judge_service = JudgeService(judge_config)
+        self.judge_service = ResponseQualityJudge(judge_config)
 
     async def evaluate(
         self,

@@ -165,46 +165,21 @@ class VoiceAssistantEvaluator:
         }
         return VoiceQuality.model_validate(combined_data)
 
-    async def run_evaluation(
-            self,
-            results_file: str) -> Optional[EvaluationReport]:
+    def _load_results_file(self, results_file: str) -> Optional[Dict]:
         """
-        Run comprehensive evaluation on pre-recorded results.
+        Load and validate a JSON results file containing evaluation data.
+
+        Reads the specified results file, validates it's not empty, and parses
+        the JSON content. Handles common file reading and JSON parsing errors
+        gracefully with appropriate logging.
 
         Args:
-            results_file: Path to JSON file with STT outputs and responses
+            results_file: Path to the JSON results file to load
 
         Returns:
-            EvaluationReport with complete analysis or None if failed
+            Dictionary containing parsed JSON data, or None if loading failed
+
         """
-        # Load results with error handling
-        results_data = self._load_results_file(results_file)
-        if results_data is None:
-            return None
-
-        # Extract metadata and results
-        metadata, results = self._extract_results_data(results_data)
-
-        logger.info("Starting evaluation...")
-
-        # Process all evaluations
-        evaluations = []
-        for i, question in enumerate(self.dataset['questions']):
-            if i > 0:  # Not the first question
-                logger.info("Pausing 3 seconds to avoid rate limiting...")
-                await asyncio.sleep(3)
-
-            evaluation = await self._process_single_question(question, results)
-            if evaluation:
-                evaluations.append(evaluation)
-
-        # Create evaluation report (implementation depends on existing models)
-        # This would need to be implemented based on your
-        # EvaluationReport model
-        return self._create_evaluation_report(evaluations, metadata)
-
-    def _load_results_file(self, results_file: str) -> Optional[Dict]:
-        """Load and validate results file."""
         try:
             with open(results_file, 'r') as f:
                 content = f.read().strip()
@@ -216,7 +191,23 @@ class VoiceAssistantEvaluator:
             return None
 
     def _extract_results_data(self, results_data: Dict) -> tuple[Dict, List]:
-        """Extract metadata and results from loaded data."""
+        """
+        Extract metadata and results from loaded evaluation data.
+
+        Handles both new format (dict with 'results' key and metadata) and
+        legacy format (direct list of results). Extracts model configuration
+        metadata when available for comprehensive evaluation reporting.
+
+        Args:
+            results_data: Dictionary containing evaluation results and
+            optional metadata
+
+        Returns:
+            Tuple containing:
+                - metadata: Dict with STT/TTS model information
+                    (empty if not available)
+                - results: List of individual evaluation results
+        """
         if isinstance(results_data, dict) and 'results' in results_data:
             metadata = {
                 'stt_model': results_data.get('stt_model'),
@@ -234,7 +225,25 @@ class VoiceAssistantEvaluator:
         question: Dict,
         results: List[Dict]
     ) -> Optional[EvaluationResult]:
-        """Process a single question with retry logic."""
+        """
+        Process a single evaluation question with robust retry logic.
+
+        Finds the corresponding result for a question, evaluates it using the
+        configured metrics (WER, LLM judge, voice quality), and handles
+        failures with exponential backoff retry for transient errors like API
+        rate limits.
+
+        Args:
+            question: Dictionary containing question data with 'id' and
+                'category'
+            results: List of result dictionaries to search for matching
+                question
+
+        Returns:
+            EvaluationResult with comprehensive metrics, or None if processing
+            failed after all retry attempts or if no matching result found
+        """
+
         question_id = question['id']
 
         # Find corresponding result
@@ -435,3 +444,41 @@ class VoiceAssistantEvaluator:
             summary=summary,
             **metadata
         )
+
+    async def run_evaluation(
+            self,
+            results_file: str) -> Optional[EvaluationReport]:
+        """
+        Run comprehensive evaluation on pre-recorded results.
+
+        Args:
+            results_file: Path to JSON file with STT outputs and responses
+
+        Returns:
+            EvaluationReport with complete analysis or None if failed
+        """
+        # Load results with error handling
+        results_data = self._load_results_file(results_file)
+        if results_data is None:
+            return None
+
+        # Extract metadata and results
+        metadata, results = self._extract_results_data(results_data)
+
+        logger.info("Starting evaluation...")
+
+        # Process all evaluations
+        evaluations = []
+        for i, question in enumerate(self.dataset['questions']):
+            if i > 0:  # Not the first question
+                logger.info("Pausing 3 seconds to avoid rate limiting...")
+                await asyncio.sleep(3)
+
+            evaluation = await self._process_single_question(question, results)
+            if evaluation:
+                evaluations.append(evaluation)
+
+        # Create evaluation report (implementation depends on existing models)
+        # This would need to be implemented based on your
+        # EvaluationReport model
+        return self._create_evaluation_report(evaluations, metadata)
