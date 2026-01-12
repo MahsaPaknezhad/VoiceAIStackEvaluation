@@ -36,6 +36,15 @@ voice_result = await voice_evaluator.evaluate(audio_path)
 ```
 src/evaluation/
 ├── metrics/                           # Quality evaluation components
+│   ├── NISQA/                         # NISQA neural speech quality assessment
+│   │   ├── config/                    # NISQA model configurations
+│   │   ├── nisqa/                     # NISQA library and models
+│   │   └── weights/                   # Pre-trained model weights
+│   ├── speechmetrics/                 # SpeechMetrics library integration
+│   │   ├── examples/                  # Usage examples
+│   │   └── speechmetrics/             # Core speechmetrics implementation
+│   │       ├── absolute/              # Absolute quality metrics (MOSNet, SRMR)
+│   │       └── relative/              # Relative quality metrics (PESQ, STOI)
 │   ├── base_quality_evaluator.py      # Unified async interface BaseQualityEvaluator[T]
 │   ├── wer_evaluator.py               # WER accuracy evaluator (BaseQualityEvaluator[WERResults])
 │   ├── response_quality_evaluator.py  # Response quality evaluator (BaseQualityEvaluator[JudgeScores])
@@ -46,6 +55,7 @@ src/evaluation/
 │   ├── audio_feature_extractor.py     # Librosa-based audio feature extraction
 │   └── base_audio_processor.py        # Audio processing base class
 ├── factories/                         # Factory pattern for service creation
+│   ├── base_factory.py               # Base factory interface
 │   ├── quality_evaluator_factory.py   # Unified factory for all quality evaluators
 │   ├── audio_evaluator_factory.py     # Factory for audio sub-evaluators
 │   ├── stt_factory.py                 # Speech-to-Text service factory
@@ -54,12 +64,24 @@ src/evaluation/
 │   ├── voice_assistant_evaluator.py   # Main evaluation orchestrator
 │   └── evaluation_orchestrator.py     # Evaluation workflow management
 ├── services/                          # Shared service components
-│   └── base_llm_service.py           # Shared Bedrock LLM functionality
+│   ├── base_llm_service.py           # Shared Bedrock LLM functionality
+│   ├── batch_whisper_stt.py          # Batch Whisper STT service for evaluation
+│   └── service_manager.py            # Service lifecycle management
+├── pipeline/                         # Voice pipeline processing
+│   ├── audio_processor.py            # Audio processing components
+│   ├── batch_audio_transport.py      # Batch audio transport layer
+│   ├── frame_processors.py           # Frame processing utilities
+│   ├── pipeline_builder.py           # Pipeline construction
+│   ├── pipeline_executor.py          # Pipeline execution engine
+│   ├── strands_processor.py          # Strands agent processing
+│   └── voice_pipeline_processor.py   # Voice pipeline coordination
+├── results/                          # Result collection and output
+│   └── results_collector.py          # Result collection and file operations
 ├── config/                           # Configuration management
 │   └── configuration_manager.py       # Service configuration loading
-├── pipeline/                         # Voice pipeline processing
-├── results/                          # Result collection and output
 ├── audio_quality_analyzer.py         # Backward compatibility wrapper
+├── dataset_generator.py              # Test dataset management
+├── metrics_calculator.py             # WER and latency metrics computation
 ├── models.py                         # Pydantic data models
 └── voice_pipeline_evaluator.py       # Main entry point
 ```
@@ -340,5 +362,10 @@ voice_eval = factory.create_voice_evaluator(
 - `voice_pipeline_evaluator.py` - Main evaluation orchestrator with VAD integration
 - `metrics_calculator.py` - WER and LLM judge scoring
 - `audio_quality_analyzer.py` - Voice quality analysis (librosa + LLM)
-- `frame_processor.py` - Pipeline timing, text collection, and Unicode cleaning
+- `pipeline/frame_processors.py` - Pipeline timing, text collection, and Unicode cleaning
+- `services/batch_whisper_stt.py` - Batch Whisper STT service for evaluation
+- `factories/stt_factory.py` - STT service factory with batch Whisper support
+- `pipeline/batch_audio_transport.py` - Batch audio processing transport layer
+- `pipeline/pipeline_executor.py` - Pipeline execution with batch STT integration
+- `results/results_collector.py` - Result collection and file operations
 - `../visualize/plot_evaluation_results.py` - Comprehensive visualization suite
