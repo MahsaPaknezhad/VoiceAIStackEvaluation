@@ -192,7 +192,7 @@ class BatchAudioInput(FrameProcessor):
             self,
             wait_time: float = 30.0,
             whisper_wait_time: float = 30.0,
-            transcribe_wait_time: float = 10.0
+            transcribe_wait_time: float = 5.0
     ) -> None:
         """
         Wait for STT processing with model-specific timing.

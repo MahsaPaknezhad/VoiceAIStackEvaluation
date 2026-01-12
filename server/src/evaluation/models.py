@@ -582,16 +582,16 @@ class LLMJudgeConfig(BaseModel):
 
 class LLMJudgeResults(BaseModel):
     """LLM voice judge evaluation results with validation."""
-    llm_fluency: int = Field(
+    llm_fluency: float = Field(
         ge=0, le=10, description="Fluency score (0-10)"
     )
-    llm_naturalness: int = Field(
+    llm_naturalness: float = Field(
         ge=0, le=10, description="Naturalness score (0-10)"
     )
-    llm_tone: int = Field(
+    llm_tone: float = Field(
         ge=0, le=10, description="Tone quality score (0-10)"
     )
-    llm_overall: int = Field(
+    llm_overall: float = Field(
         ge=0, le=10, description="Overall quality score (0-10)"
     )
     llm_reasoning: str = Field(description="LLM explanation of scores")
