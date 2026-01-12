@@ -131,6 +131,14 @@ class ResultCollector:
         Returns:
             Complete PipelineResult with all metadata and results
         """
+        logger.info(f"Collecting results for {question_id}")
+        logger.info(f"STT output: '{execution_results.stt_output}'")
+        logger.info(f"LLM response: '{execution_results.llm_response}'")
+        output_size = (
+            len(execution_results.output_audio)
+            if execution_results.output_audio else 0
+        )
+        logger.info(f"Output audio size: {output_size} bytes")
         # Save TTS audio
         tts_audio_path = self._save_tts_audio(
             execution_results.output_audio, question_id, pipeline_components

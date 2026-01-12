@@ -48,8 +48,12 @@ class PipelineExecutor:
             transcription
         """
         if hasattr(stt_service, 'transcribe_file'):
+            logger.info(f"Using batch transcription for Whisper: {audio_path}")
             transcription = stt_service.transcribe_file(audio_path)
+            logger.info(f"Whisper transcription result: '{transcription}'")
             stt_service.set_transcription(transcription)
+        else:
+            logger.info("STT service does not support batch transcription")
 
     def _create_pipeline_config(
             self,

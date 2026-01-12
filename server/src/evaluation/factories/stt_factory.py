@@ -3,6 +3,7 @@ from loguru import logger
 from typing import Dict, Any, Optional
 from pipecat.services.deepgram.stt import DeepgramSTTService, LiveOptions
 from .base_factory import BaseServiceFactory
+from src.evaluation.services.batch_whisper_stt import BatchWhisperSTTService
 
 
 class STTServiceFactory(BaseServiceFactory):
@@ -65,16 +66,20 @@ class STTServiceFactory(BaseServiceFactory):
         """
         module = __import__(config["module"], fromlist=[config["class"]])
         service_class = getattr(module, config["class"])
+
+        # Use batch-enabled Whisper service for evaluation
+        if config["class"] == "WhisperSTTService":
+            service_class = BatchWhisperSTTService
+            logger.info(
+                "Using BatchWhisperSTTService for batch transcription support"
+            )
+
         service_config = self.config_manager.substitute_env_vars(
             config.get("config", {})
         )
 
         service_id = config.get("stt_service_id", "")
         provider = service_id.split('_')[0].upper()
-
-        logger.info(f"Creating STT service: {service_class.__name__}")
-        logger.info(f"STT Service ID: {service_id}")
-        logger.info(f"STT Config passed to Pipecat: {service_config}")
 
         if self._needs_api_key(provider, config["module"]):
             api_key = self._get_api_key_for_provider(service_id)
