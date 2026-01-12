@@ -1,4 +1,5 @@
 import os
+from loguru import logger
 from typing import Dict, Any, Optional
 from pipecat.services.deepgram.stt import DeepgramSTTService, LiveOptions
 from .base_factory import BaseServiceFactory
@@ -71,8 +72,14 @@ class STTServiceFactory(BaseServiceFactory):
         service_id = config.get("stt_service_id", "")
         provider = service_id.split('_')[0].upper()
 
+        logger.info(f"Creating STT service: {service_class.__name__}")
+        logger.info(f"STT Service ID: {service_id}")
+        logger.info(f"STT Config passed to Pipecat: {service_config}")
+
         if self._needs_api_key(provider, config["module"]):
             api_key = self._get_api_key_for_provider(service_id)
+            logger.info(f"STT API key provided: {'Yes' if api_key else 'No'}")
             return service_class(api_key=api_key, **service_config)
         else:
+            logger.info("STT service does not require API key")
             return service_class(**service_config)
