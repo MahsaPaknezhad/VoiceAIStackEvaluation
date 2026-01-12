@@ -1,13 +1,149 @@
-# Voice Assistant Evaluation Metrics
+# Voice Assistant Evaluation Framework
 
 ## Overview
-This evaluation framework measures voice assistant performance across accuracy, quality, and latency dimensions using both objective metrics and AI-based subjective evaluation.
+Unified evaluation framework for voice assistants measuring speech-to-text accuracy, response quality, and voice quality using a consistent async architecture with factory pattern and SOLID principles.
 
-## Metrics Categories
+## Architecture
 
-### 🎯 STT (Speech-to-Text) Metrics
-- **WER (Word Error Rate)**: Percentage of incorrectly transcribed words (0-100%, lower = better)
-- **STT Latency**: Time from audio input to transcription output (milliseconds)
+### Unified Quality Evaluation Pattern
+All quality evaluators follow the same `BaseQualityEvaluator[T]` interface:
+
+```python
+# Consistent creation pattern
+factory = QualityEvaluatorFactory()
+wer_evaluator = factory.create_wer_evaluator(config)
+response_evaluator = factory.create_response_evaluator(config)
+voice_evaluator = factory.create_voice_evaluator(config)
+
+# Same async initialization
+await wer_evaluator.initialize()
+await response_evaluator.initialize()
+await voice_evaluator.initialize()
+
+# Same evaluation pattern
+wer_result = await wer_evaluator.evaluate(reference, hypothesis)
+response_result = await response_evaluator.evaluate(question, llm_response)
+voice_result = await voice_evaluator.evaluate(audio_path)
+```
+
+### Three-Phase Evaluation Pipeline
+1. **WER Evaluation** - Speech-to-text accuracy measurement
+2. **Response Quality** - LLM response assessment using Claude judge
+3. **Voice Quality** - Multi-method audio quality analysis
+
+## File Structure
+
+```
+src/evaluation/
+├── metrics/                           # Quality evaluation components
+│   ├── NISQA/                         # NISQA neural speech quality assessment
+│   │   ├── config/                    # NISQA model configurations
+│   │   ├── nisqa/                     # NISQA library and models
+│   │   └── weights/                   # Pre-trained model weights
+│   ├── speechmetrics/                 # SpeechMetrics library integration
+│   │   ├── examples/                  # Usage examples
+│   │   └── speechmetrics/             # Core speechmetrics implementation
+│   │       ├── absolute/              # Absolute quality metrics (MOSNet, SRMR)
+│   │       └── relative/              # Relative quality metrics (PESQ, STOI)
+│   ├── base_quality_evaluator.py      # Unified async interface BaseQualityEvaluator[T]
+│   ├── wer_evaluator.py               # WER accuracy evaluator (BaseQualityEvaluator[WERResults])
+│   ├── response_quality_evaluator.py  # Response quality evaluator (BaseQualityEvaluator[JudgeScores])
+│   ├── voice_quality_evaluator.py     # Voice quality evaluator (BaseQualityEvaluator[VoiceQuality])
+│   ├── nisqa_evaluator.py             # NISQA neural quality assessment
+│   ├── speechmetrics_evaluator.py     # SpeechMetrics (MOSNet, SRMR) evaluation
+│   ├── voice_quality_judge.py         # LLM-based voice quality assessment
+│   ├── audio_feature_extractor.py     # Librosa-based audio feature extraction
+│   └── base_audio_processor.py        # Audio processing base class
+├── factories/                         # Factory pattern for service creation
+│   ├── base_factory.py               # Base factory interface
+│   ├── quality_evaluator_factory.py   # Unified factory for all quality evaluators
+│   ├── audio_evaluator_factory.py     # Factory for audio sub-evaluators
+│   ├── stt_factory.py                 # Speech-to-Text service factory
+│   └── tts_factory.py                 # Text-to-Speech service factory
+├── orchestration/                     # High-level evaluation workflow
+│   ├── voice_assistant_evaluator.py   # Main evaluation orchestrator
+│   └── evaluation_orchestrator.py     # Evaluation workflow management
+├── services/                          # Shared service components
+│   ├── base_llm_service.py           # Shared Bedrock LLM functionality
+│   ├── batch_whisper_stt.py          # Batch Whisper STT service for evaluation
+│   └── service_manager.py            # Service lifecycle management
+├── pipeline/                         # Voice pipeline processing
+│   ├── audio_processor.py            # Audio processing components
+│   ├── batch_audio_transport.py      # Batch audio transport layer
+│   ├── frame_processors.py           # Frame processing utilities
+│   ├── pipeline_builder.py           # Pipeline construction
+│   ├── pipeline_executor.py          # Pipeline execution engine
+│   ├── strands_processor.py          # Strands agent processing
+│   └── voice_pipeline_processor.py   # Voice pipeline coordination
+├── results/                          # Result collection and output
+│   └── results_collector.py          # Result collection and file operations
+├── config/                           # Configuration management
+│   └── configuration_manager.py       # Service configuration loading
+├── audio_quality_analyzer.py         # Backward compatibility wrapper
+├── dataset_generator.py              # Test dataset management
+├── metrics_calculator.py             # WER and latency metrics computation
+├── models.py                         # Pydantic data models
+└── voice_pipeline_evaluator.py       # Main entry point
+```
+
+## Unified Quality Evaluation Architecture
+
+### Core Interface: BaseQualityEvaluator[T]
+All quality evaluators implement the same async interface:
+
+```python
+class BaseQualityEvaluator(ABC, Generic[T]):
+    async def initialize() -> bool          # Initialize evaluator resources
+    async def evaluate(*args, **kwargs) -> T  # Perform evaluation
+    def is_available() -> bool              # Check evaluator availability
+```
+
+### Three Quality Evaluators
+
+#### 1. WEREvaluator (Speech-to-Text Accuracy)
+- **Type**: `BaseQualityEvaluator[WERResults]`
+- **Purpose**: Measures STT transcription accuracy
+- **Method**: `await evaluate(reference: str, hypothesis: str) -> WERResults`
+- **Metrics**: Word Error Rate percentage, reference/hypothesis text
+- **Implementation**: Uses jiwer library for WER calculation
+
+#### 2. ResponseQualityEvaluator (LLM Response Assessment)
+- **Type**: `BaseQualityEvaluator[JudgeScores]`
+- **Purpose**: Evaluates LLM response quality using Claude as judge
+- **Method**: `await evaluate(question: str, llm_response: str) -> JudgeScores`
+- **Metrics**: Correctness, Relevance, Completeness, Clarity, Overall (0-10 scale)
+- **Implementation**: AWS Bedrock Claude API with retry logic and JSON parsing
+
+#### 3. VoiceQualityEvaluator (Audio Quality Assessment)
+- **Type**: `BaseQualityEvaluator[VoiceQuality]`
+- **Purpose**: Multi-method voice quality analysis
+- **Method**: `await evaluate(audio_path: str) -> VoiceQuality`
+- **Sub-evaluators**:
+  - **NISQA**: Neural speech quality (MOS, noisiness, coloration, discontinuity, loudness)
+  - **SpeechMetrics**: MOSNet and SRMR quality scores
+  - **LLM Judge**: Claude-based perceptual assessment (fluency, naturalness, tone)
+  - **Audio Features**: Librosa-based acoustic analysis
+
+### Factory Pattern
+```python
+factory = QualityEvaluatorFactory()
+
+# Create evaluators with consistent interface
+wer_eval = factory.create_wer_evaluator(wer_config)
+response_eval = factory.create_response_evaluator(judge_config)
+voice_eval = factory.create_voice_evaluator(
+    sample_rate=16000,
+    use_llm_judge=True,
+    use_nisqa=True,
+    use_speechmetrics=True
+)
+```
+
+### 🎯 WER (Word Error Rate) Metrics
+- **WER**: Percentage of incorrectly transcribed words (0-100%, lower = better)
+- **Reference Text**: Ground truth transcription
+- **Hypothesis Text**: STT output transcription
+- **Implementation**: jiwer library with configurable empty string handling
 
 ### 🤖 LLM Response Quality (LLM-as-Judge)
 - **Correctness**: Factual accuracy (0-10 scale)
@@ -226,5 +362,10 @@ This evaluation framework measures voice assistant performance across accuracy, 
 - `voice_pipeline_evaluator.py` - Main evaluation orchestrator with VAD integration
 - `metrics_calculator.py` - WER and LLM judge scoring
 - `audio_quality_analyzer.py` - Voice quality analysis (librosa + LLM)
-- `frame_processor.py` - Pipeline timing, text collection, and Unicode cleaning
+- `pipeline/frame_processors.py` - Pipeline timing, text collection, and Unicode cleaning
+- `services/batch_whisper_stt.py` - Batch Whisper STT service for evaluation
+- `factories/stt_factory.py` - STT service factory with batch Whisper support
+- `pipeline/batch_audio_transport.py` - Batch audio processing transport layer
+- `pipeline/pipeline_executor.py` - Pipeline execution with batch STT integration
+- `results/results_collector.py` - Result collection and file operations
 - `../visualize/plot_evaluation_results.py` - Comprehensive visualization suite

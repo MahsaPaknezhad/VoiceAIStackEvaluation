@@ -107,9 +107,6 @@ class StrandsAgentsProcessor(FrameProcessor):
             
         else:
             await self.push_frame(frame, direction)
-    
-
-
 
     async def _ainvoke(self, text: str):
         """Invoke the Strands agent with the provided text and stream results as Pipecat frames.

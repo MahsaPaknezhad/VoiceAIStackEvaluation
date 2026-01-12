@@ -4,6 +4,7 @@
   "module": "pipecat.services.aws.stt",
   "class": "AWSTranscribeSTTService",
   "config": {
+    "model": "aws_transcribe",
     "region": "${AWS_REGION}",
     "session_timeout": 60000,
     "enable_partial_results_stabilization": true,

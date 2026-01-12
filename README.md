@@ -34,11 +34,28 @@ This project provides a complete pipeline for building, testing, and evaluating 
 │   │   │   ├── custom_rtvi_observer.py  # RTVI event handling
 │   │   │   └── nvidia/              # NVIDIA AI services
 │   │   ├── evaluation/    # Evaluation framework
-│   │   │   ├── voice_pipeline_evaluator.py  # Main evaluator
+│   │   │   ├── config/              # Configuration management
+│   │   │   │   └── configuration_manager.py
+│   │   │   ├── factories/           # Service factory pattern
+│   │   │   │   ├── base_factory.py
+│   │   │   │   ├── stt_factory.py
+│   │   │   │   └── tts_factory.py
+│   │   │   ├── pipeline/            # Pipeline components
+│   │   │   │   ├── pipeline_builder.py
+│   │   │   │   ├── pipeline_executor.py
+│   │   │   │   └── audio_processor.py
+│   │   │   ├── services/            # Service management
+│   │   │   │   └── service_manager.py
+│   │   │   ├── results/             # Result collection
+│   │   │   │   └── result_collector.py
+│   │   │   ├── orchestration/       # Evaluation orchestration
+│   │   │   │   └── evaluation_orchestrator.py
+│   │   │   ├── voice_pipeline_evaluator.py  # Main evaluator entry point
+│   │   │   ├── models.py            # Pydantic data models
 │   │   │   ├── metrics_calculator.py        # WER, latency metrics
 │   │   │   ├── audio_quality_analyzer.py    # Voice quality analysis
-│   │   │   ├── dataset_generator.py         # Test data management
-│   │   │   └── frame_processor.py           # Audio frame processing
+│   │   │   ├── frame_processor.py           # Audio frame processing
+│   │   │   └── dataset_generator.py         # Test data management
 │   │   └── transport/     # Audio transport layers
 │   │       ├── batch_audio_transport.py     # Batch processing
 │   │       └── realtime_transport.py        # Real-time streaming
@@ -165,8 +182,15 @@ Results are saved in `server/evaluation_output/`:
 - `src/core/agent_builder.py` - Strands agent configuration
 - `src/core/llm_processor.py` - LLM integration and prompt management
 
-**Evaluation Pipeline**
-- `src/evaluation/voice_pipeline_evaluator.py` - Main evaluation orchestrator
+**Evaluation Pipeline Architecture**
+- `src/evaluation/voice_pipeline_evaluator.py` - Main evaluation entry point and runner
+- `src/evaluation/config/configuration_manager.py` - Configuration loading and management
+- `src/evaluation/factories/` - Service factory pattern for STT/TTS creation
+- `src/evaluation/pipeline/` - Pipeline construction, execution, and audio processing
+- `src/evaluation/services/service_manager.py` - Service lifecycle management
+- `src/evaluation/results/result_collector.py` - Result collection and file operations
+- `src/evaluation/orchestration/evaluation_orchestrator.py` - Evaluation workflow orchestration
+- `src/evaluation/models.py` - Pydantic data models for type safety
 - `src/evaluation/metrics_calculator.py` - Metric computation
 - `src/evaluation/audio_quality_analyzer.py` - Voice quality assessment
 - `src/evaluation/frame_processor.py` - Audio frame processing
