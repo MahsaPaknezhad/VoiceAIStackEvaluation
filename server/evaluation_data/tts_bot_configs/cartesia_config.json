@@ -4,9 +4,7 @@
   "module": "pipecat.services.cartesia.tts",
   "class": "CartesiaTTSService",
   "config": {
-    "voice_id": "6ccbfb76-1fc6-48f7-b71d-91ac6298247b",
-    "connection_timeout": 10,
-    "read_timeout": 30
+    "voice_id": "6ccbfb76-1fc6-48f7-b71d-91ac6298247b"
   },
   "force_stop_on_cancel": true,
   "available_voices": [],

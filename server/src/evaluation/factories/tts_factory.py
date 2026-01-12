@@ -2,7 +2,7 @@ import os
 from loguru import logger
 from typing import Dict, Any, Optional
 from src.core.nvidia.livekit_tts_adapter import LiveKitTTSAdapter
-from tts import DeepgramTTSService
+from pipecat.services.deepgram.tts import DeepgramTTSService
 from .base_factory import BaseServiceFactory
 
 
