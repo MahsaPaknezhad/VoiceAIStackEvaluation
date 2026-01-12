@@ -9,13 +9,13 @@ TTS_CONFIG="evaluation_data/tts_bot_configs/aws_polly_config.json"
 OUTPUT="evaluation_output/test_whisper_turbo_polly_results.json"
 EVAL_OUTPUT="evaluation_output/test_whisper_turbo_polly_evaluation.json"
 
-# echo "Step 1: Running bot on dataset..."
-# python3 -m src.evaluation.voice_pipeline_evaluator \
-#     --dataset "$DATASET" \
-#     --audio-dir "$AUDIO_DIR" \
-#     --stt-config "$STT_CONFIG" \
-#     --tts-config "$TTS_CONFIG" \
-#     --output "$OUTPUT"
+echo "Step 1: Running bot on dataset..."
+python3 -m src.evaluation.voice_pipeline_evaluator \
+    --dataset "$DATASET" \
+    --audio-dir "$AUDIO_DIR" \
+    --stt-config "$STT_CONFIG" \
+    --tts-config "$TTS_CONFIG" \
+    --output "$OUTPUT"
 
 echo "Step 2: Evaluating results (WER + LLM judge)..."
 python3 -m src.evaluation.metrics_calculator \
