@@ -211,7 +211,7 @@ class PipelineBuilder:
             TTSTimingProcessor(collectors.timing),
             transport.output()
         ])
-
+        logger.info("Finalised pipeline build")
         return PipelineComponents(
             transport=transport,
             pipeline=pipeline,

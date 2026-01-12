@@ -15,7 +15,8 @@ from pipecat.frames.frames import (
     UserStoppedSpeakingFrame,
     TTSAudioRawFrame,
     TextFrame,
-    TTSStoppedFrame
+    TTSStoppedFrame,
+    EndFrame
 )
 from pipecat.transports.base_transport import BaseTransport, TransportParams
 from pipecat.processors.frame_processor import FrameDirection, FrameProcessor
@@ -190,7 +191,8 @@ class BatchAudioInput(FrameProcessor):
     async def _wait_for_processing(
             self,
             wait_time: float = 30.0,
-            whisper_wait_time: float = 30.0
+            whisper_wait_time: float = 30.0,
+            transcribe_wait_time: float = 10.0
     ) -> None:
         """
         Wait for STT processing with model-specific timing.
@@ -201,9 +203,11 @@ class BatchAudioInput(FrameProcessor):
         """
         if "large" in self._stt_model.lower():
             wait_time = whisper_wait_time
+        if 'transcribe' in self._stt_model.lower():
+            wait_time = transcribe_wait_time
         logger.info(
             f"All audio chunks sent, waiting {wait_time}s for "
-            "transcription..."
+            f"{self._stt_model} transcription..."
         )
         await asyncio.sleep(wait_time)
 
@@ -251,8 +255,21 @@ class BatchAudioOutput(FrameProcessor):
         super().__init__()
         self._output_list = output_list
         self._collecting_tts = False
+        logger.debug(
+            "BatchAudioOutput initialized with _collecting_tts = "
+            f"{self._collecting_tts}"
+        )
         self.sample_rate = 16000  # Default, will be updated from first frame
         self._chunk_counter = 0
+
+    def reset(self) -> None:
+        """Reset the output processor state for new file processing."""
+        self._collecting_tts = False
+        logger.debug(
+            f"BatchAudioOutput reset: _collecting_tts = {self._collecting_tts}"
+        )
+        self._chunk_counter = 0
+        self._output_list.clear()
 
     async def process_frame(
             self,
@@ -269,7 +286,9 @@ class BatchAudioOutput(FrameProcessor):
         await super().process_frame(frame, direction)
 
         # Start collecting when we see TTS audio (after TextFrame processing)
-        if isinstance(frame, TTSAudioRawFrame) and self._collecting_tts:
+        if isinstance(frame, EndFrame):
+            logger.info("EndFrame detected - pipeline should be ending")
+        elif isinstance(frame, TTSAudioRawFrame) and self._collecting_tts:
             self._chunk_counter += 1
             logger.info(
                 f"Collecting TTS audio chunk #{self._chunk_counter}: "
@@ -279,16 +298,22 @@ class BatchAudioOutput(FrameProcessor):
             self._output_list.append(frame.audio)
         elif isinstance(frame, TextFrame):
             # TextFrame indicates TTS is about to start
-            logger.info(
-                "TextFrame detected, starting TTS collection"
-            )
             self._collecting_tts = True
-        elif isinstance(frame, TTSStoppedFrame):
-            # TTSStoppedFrame indicates TTS is complete
             logger.info(
-                "TTSStoppedFrame detected, stopping TTS collection"
+                "TextFrame detected, starting TTS collection - "
+                f"Setting _collecting_tts to {self._collecting_tts}"
             )
+        elif isinstance(frame, TTSStoppedFrame):
             self._collecting_tts = False
+            logger.info(
+                "TTSStoppedFrame detected, stopping TTS collection - "
+                f"Setting _collecting_tts to {self._collecting_tts}"
+            )
+            logger.info(f"Total TTS chunks collected: {self._chunk_counter}")
+
+            # Send EndFrame to complete pipeline
+            logger.info("Sending EndFrame to complete pipeline")
+            await self.push_frame(EndFrame(), direction)
 
         await self.push_frame(frame, direction)
 
@@ -350,15 +375,18 @@ class BatchAudioTransport(BaseTransport):
 
         # Create input/output processors BEFORE calling super().__init__()
         vad_analyzer = self._params.vad_analyzer if self._params else None
-        self._input = batch_audio_input or BatchAudioInput(
+
+        # Always create fresh instances
+        # (ignore passed parameters to ensure clean state)
+        self._input = BatchAudioInput(
             self._audio_data,
             self._sample_rate,
             vad_analyzer,
             stt_model
-        )
+        ) or batch_audio_input
 
-        self._output = batch_audio_output or BatchAudioOutput(
-            self._output_audio
+        self._output = (
+            BatchAudioOutput(self._output_audio) or batch_audio_output
         )
 
         super().__init__(
@@ -395,4 +423,7 @@ class BatchAudioTransport(BaseTransport):
             Complete TTS audio data as bytes, or empty bytes if no audio
                 generated
         """
-        return b''.join(self._output_audio) if self._output_audio else b''
+        logger.info(f"Getting output audio: {len(self._output_audio)} chunks")
+        result = b''.join(self._output_audio) if self._output_audio else b''
+        logger.info(f"Output audio size: {len(result)} bytes")
+        return result

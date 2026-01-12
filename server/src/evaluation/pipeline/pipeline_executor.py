@@ -6,7 +6,7 @@ Handles pipeline execution and result collection.
 import asyncio
 import time
 from typing import Dict, Optional, Any
-
+from loguru import logger
 from pipecat.frames.frames import EndFrame, StartFrame
 from pipecat.pipeline.runner import PipelineRunner
 from pipecat.pipeline.task import PipelineTask, PipelineParams
@@ -113,19 +113,35 @@ class PipelineExecutor:
             enable_usage_metrics=config.enable_usage_metrics,
             report_only_initial_ttfb=config.report_only_initial_ttfb
         )
-
+        logger.info('Starting Pipeline')
         task = PipelineTask(
             pipeline_components.pipeline,
             params=pipeline_params)
         start_time = time.time()
 
         await task.queue_frames([StartFrame(), EndFrame()])
-        runner = PipelineRunner()
-        await asyncio.create_task(runner.run(task))
-        await asyncio.sleep(config.timeout)
-        await task.cancel()
-        await asyncio.sleep(0.1)
+        logger.info("StartFrame and EndFrame queued")
 
+        runner = PipelineRunner()
+        logger.info("About to run pipeline task")
+
+        run_start = time.time()
+        await asyncio.create_task(runner.run(task))
+        run_end = time.time()
+        logger.info(f"Pipeline runner completed in {run_end - run_start:.2f}s")
+
+        sleep_start = time.time()
+        await asyncio.sleep(config.timeout)
+        sleep_end = time.time()
+        logger.info(f"Sleep completed in {sleep_end - sleep_start:.2f}s")
+
+        cancel_start = time.time()
+        await task.cancel()
+        cancel_end = time.time()
+        logger.info(f"Task cancelled in {cancel_end - cancel_start:.2f}s")
+        await asyncio.sleep(0.05)
+
+        logger.info('Finished Pipeline')
         return (time.time() - start_time) * 1000
 
     async def execute_pipeline(
