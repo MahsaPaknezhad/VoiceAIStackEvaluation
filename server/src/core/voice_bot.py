@@ -33,10 +33,10 @@ from pipecat.utils.text.markdown_text_filter import MarkdownTextFilter
 from pipecat_whisker import WhiskerObserver
 
 
-from tts import DeepgramTTSService
-from src.core.agent_builder import build_conversation_agent
-from src.core.llm_processor import StrandsAgentsProcessor
-from custom_rtvi_observer import CustomRTVIObserver
+from .tts import DeepgramTTSService
+from .agent_builder import build_conversation_agent
+from .llm_processor import StrandsAgentsProcessor
+from .custom_rtvi_observer import CustomRTVIObserver
 
 load_dotenv(override=True)
 

@@ -29,7 +29,10 @@ This project provides a complete pipeline for building, testing, and evaluating 
 │   │   ├── core/          # Core voice bot logic
 │   │   │   ├── voice_bot.py         # Main bot implementation
 │   │   │   ├── agent_builder.py     # Agent configuration
-│   │   │   └── llm_processor.py     # LLM integration
+│   │   │   ├── llm_processor.py     # LLM integration
+│   │   │   ├── tts.py               # TTS service implementations
+│   │   │   ├── custom_rtvi_observer.py  # RTVI event handling
+│   │   │   └── nvidia/              # NVIDIA AI services
 │   │   ├── evaluation/    # Evaluation framework
 │   │   │   ├── config/              # Configuration management
 │   │   │   │   └── configuration_manager.py
@@ -61,7 +64,7 @@ This project provides a complete pipeline for building, testing, and evaluating 
 │   ├── evaluation_output/ # Results, metrics, and TTS audio
 │   ├── main_server.py     # FastAPI server entry point
 │   └── requirements.txt   # Python dependencies
-└── .nab_venv/             # Python virtual environment
+└── .gitignore             # Git ignore file
 ```
 
 ## Quick Start
@@ -89,6 +92,9 @@ nano server/.env
 Required keys:
 - `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `AWS_REGION` - For AWS services
 - `DEEPGRAM_API_KEY` - For Deepgram STT/TTS (optional)
+- `OPENAI_API_KEY` - For OpenAI services (optional)
+- `GROQ_API_KEY` - For Groq LLM services (optional)
+- `CARTESIA_API_KEY` - For Cartesia TTS (optional)
 - Additional keys for other providers (optional)
 
 ### 2. Backend Setup
@@ -101,41 +107,19 @@ sudo apt-get install -y ffmpeg
 cd server/
 
 # Create virtual environment (recommended)
-python -m venv .nab_venv
-source .nab_venv/bin/activate  # On Windows: .nab_venv\Scripts\activate
+python -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
 
 # Install dependencies
 pip install -r requirements.txt
 
-# Install srmrpy for audio quality metrics (from GitHub)
-pip install git+https://github.com/jfsantos/SRMRpy.git
-
 # Fix numpy compatibility in srmrpy
+chmod +x ./scripts/fix_srmrpy.sh
 ./scripts/fix_srmrpy.sh
 
 # Download Whisper models (required for local STT)
 python -c "import whisper; whisper.load_model('turbo'); whisper.load_model('large'); whisper.load_model('small')"
 
-# Start the server
-python main_server.py
-```
-
-Server runs on `http://localhost:8765`
-
-### 3. Frontend Setup
-
-```bash
-# Open new terminal
-cd client/
-
-# Install dependencies
-npm install
-
-# Start development server
-npm run dev
-```
-
-Frontend runs on `http://localhost:5173`
 
 ## Evaluation
 
@@ -144,13 +128,7 @@ Frontend runs on `http://localhost:5173`
 Evaluate AWS Transcribe + Polly pipeline:
 ```bash
 cd server/
-./scripts/evaluate_aws_pipeline.sh
-```
-
-Run comprehensive evaluation across all configured models:
-```bash
-cd server/
-./scripts/evaluate_all_models.sh
+./scripts/test_aws_transcribe_polly.sh
 ```
 
 ### NVIDIA Services
