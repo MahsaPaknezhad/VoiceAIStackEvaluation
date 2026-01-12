@@ -143,11 +143,11 @@ class VoiceQualityJudge(BaseLLMService, BaseQualityEvaluator[LLMJudgeResults]):
             features = self.feature_extractor.extract_features(
                 audio_data, sample_rate
             )
-            logger.debug("Audio features extracted successfully")
+            logger.info("Audio features extracted successfully")
 
             # Create structured prompt with feature measurements
             user_prompt = self._create_user_prompt(features)
-            logger.debug(
+            logger.info(
                 f"Created user prompt with {len(user_prompt)} characters"
             )
 
@@ -155,7 +155,7 @@ class VoiceQualityJudge(BaseLLMService, BaseQualityEvaluator[LLMJudgeResults]):
             response = await self._call_bedrock_with_retry(
                 SYSTEM_PROMPT, user_prompt
             )
-            logger.debug(
+            logger.info(
                 f"Received response from Claude: {response[:100]}..."
             )
 
@@ -258,7 +258,7 @@ OVERALL QUALITY METRICS:
         try:
             cleaned_response = self._clean_json_response(response_text)
             result = json.loads(cleaned_response)
-            logger.debug("Successfully parsed JSON response")
+            logger.info("Successfully parsed JSON response")
 
             return LLMJudgeResults(
                 llm_fluency=result.get("fluency", 0),

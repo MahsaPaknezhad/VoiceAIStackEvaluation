@@ -165,7 +165,6 @@ class STTCollector(FrameProcessor):
                 "Appending to text_collector "
                 f"(len = {len(self.text_collector)})"
             )
-
         await self.push_frame(frame, direction)
 
 

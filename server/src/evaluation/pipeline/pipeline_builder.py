@@ -124,29 +124,19 @@ class PipelineBuilder:
 
     def create_context_aggregator(
             self,
-            aggregation_timeout: Optional[float] = None,
-            whisper_aggregation_timeout: float = 5.0
+            aggregation_timeout: Optional[float] = 5.0
     ) -> LLMUserContextAggregator:
         """
-        Create LLM context aggregator based on STT service type.
-
-        Configures aggregation strategy based on STT service:
-        - Whisper services: Timeout-based aggregation (5 seconds)
-        - Streaming services: VAD-based aggregation
+        Create LLM context aggregator
 
         Args:
             aggregation_timeout: Base timeout value. Default to None,
                 meaning the pipeline will use VAD-based aggregation
-            whisper_aggregation_timeout: Specific whisper based timeout.
-                Default to 5.0s.
         Returns:
             Configured LLMUserContextAggregator for managing conversation
             context
         """
         context = AWSBedrockLLMContext()
-
-        if self._is_whisper:
-            aggregation_timeout = whisper_aggregation_timeout
 
         logger.info(
             f"Adding timeout of {aggregation_timeout} -> "

@@ -108,6 +108,7 @@ class BatchAudioInput(FrameProcessor):
         await self._stream_audio_chunks(direction)
         await self._stream_silence_padding(direction)
         await self._send_vad_stop(direction)
+        await asyncio.sleep(2.0)
         await self._wait_for_processing()
 
     async def _send_vad_start(self, direction: FrameDirection) -> None:
@@ -152,7 +153,7 @@ class BatchAudioInput(FrameProcessor):
     async def _stream_silence_padding(
             self,
             direction: FrameDirection,
-            silence_duration: float = 2.0,
+            silence_duration: float = 6.0,
             num_channels: int = 1) -> None:
         """
         Add silence padding to ensure complete transcription.
