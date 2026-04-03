@@ -1,0 +1,919 @@
+[
+  {
+    "naturalness": 10,
+    "noisiness": 1,
+    "loudness": 8,
+    "file": "listening_general_0_response.wav",
+    "source_folder": "aws_transcribe_groq"
+  },
+  {
+    "naturalness": 10,
+    "noisiness": 1,
+    "loudness": 8,
+    "file": "listening_general_10_response.wav",
+    "source_folder": "aws_transcribe_groq"
+  },
+  {
+    "naturalness": 10,
+    "noisiness": 1,
+    "loudness": 8,
+    "file": "listening_general_11_response.wav",
+    "source_folder": "aws_transcribe_groq"
+  },
+  {
+    "naturalness": 10,
+    "noisiness": 1,
+    "loudness": 8,
+    "file": "listening_general_12_response.wav",
+    "source_folder": "aws_transcribe_groq"
+  },
+  {
+    "naturalness": 10,
+    "noisiness": 1,
+    "loudness": 8,
+    "file": "listening_general_13_response.wav",
+    "source_folder": "aws_transcribe_groq"
+  },
+  {
+    "naturalness": 9,
+    "noisiness": 1,
+    "loudness": 7,
+    "file": "listening_general_14_response.wav",
+    "source_folder": "aws_transcribe_groq"
+  },
+  {
+    "naturalness": 10,
+    "noisiness": 1,
+    "loudness": 8,
+    "file": "listening_general_15_response.wav",
+    "source_folder": "aws_transcribe_groq"
+  },
+  {
+    "naturalness": 10,
+    "noisiness": 1,
+    "loudness": 8,
+    "file": "listening_general_16_response.wav",
+    "source_folder": "aws_transcribe_groq"
+  },
+  {
+    "naturalness": 9,
+    "noisiness": 1,
+    "loudness": 7,
+    "file": "listening_general_17_response.wav",
+    "source_folder": "aws_transcribe_groq"
+  },
+  {
+    "naturalness": 9,
+    "noisiness": 1,
+    "loudness": 7,
+    "file": "listening_general_18_response.wav",
+    "source_folder": "aws_transcribe_groq"
+  },
+  {
+    "naturalness": 9,
+    "noisiness": 1,
+    "loudness": 7,
+    "file": "listening_general_19_response.wav",
+    "source_folder": "aws_transcribe_groq"
+  },
+  {
+    "naturalness": 10,
+    "noisiness": 1,
+    "loudness": 8,
+    "file": "listening_general_1_response.wav",
+    "source_folder": "aws_transcribe_groq"
+  },
+  {
+    "naturalness": 9,
+    "noisiness": 2,
+    "loudness": 7,
+    "file": "listening_general_2_response.wav",
+    "source_folder": "aws_transcribe_groq"
+  },
+  {
+    "naturalness": 10,
+    "noisiness": 1,
+    "loudness": 8,
+    "file": "listening_general_3_response.wav",
+    "source_folder": "aws_transcribe_groq"
+  },
+  {
+    "naturalness": 9,
+    "noisiness": 1,
+    "loudness": 7,
+    "file": "listening_general_4_response.wav",
+    "source_folder": "aws_transcribe_groq"
+  },
+  {
+    "naturalness": 9,
+    "noisiness": 1,
+    "loudness": 7,
+    "file": "listening_general_5_response.wav",
+    "source_folder": "aws_transcribe_groq"
+  },
+  {
+    "naturalness": 10,
+    "noisiness": 1,
+    "loudness": 8,
+    "file": "listening_general_6_response.wav",
+    "source_folder": "aws_transcribe_groq"
+  },
+  {
+    "naturalness": 10,
+    "noisiness": 1,
+    "loudness": 8,
+    "file": "listening_general_7_response.wav",
+    "source_folder": "aws_transcribe_groq"
+  },
+  {
+    "naturalness": 9,
+    "noisiness": 1,
+    "loudness": 7,
+    "file": "listening_general_8_response.wav",
+    "source_folder": "aws_transcribe_groq"
+  },
+  {
+    "naturalness": 9,
+    "noisiness": 1,
+    "loudness": 7,
+    "file": "listening_general_9_response.wav",
+    "source_folder": "aws_transcribe_groq"
+  },
+  {
+    "naturalness": 9,
+    "noisiness": 1,
+    "loudness": 7,
+    "file": "listening_general_0_response.wav",
+    "source_folder": "deepgram_nova2_groq"
+  },
+  {
+    "naturalness": 10,
+    "noisiness": 1,
+    "loudness": 8,
+    "file": "listening_general_10_response.wav",
+    "source_folder": "deepgram_nova2_groq"
+  },
+  {
+    "naturalness": 9,
+    "noisiness": 1,
+    "loudness": 7,
+    "file": "listening_general_11_response.wav",
+    "source_folder": "deepgram_nova2_groq"
+  },
+  {
+    "naturalness": 9,
+    "noisiness": 1,
+    "loudness": 7,
+    "file": "listening_general_12_response.wav",
+    "source_folder": "deepgram_nova2_groq"
+  },
+  {
+    "naturalness": 10,
+    "noisiness": 1,
+    "loudness": 8,
+    "file": "listening_general_13_response.wav",
+    "source_folder": "deepgram_nova2_groq"
+  },
+  {
+    "naturalness": 9,
+    "noisiness": 1,
+    "loudness": 7,
+    "file": "listening_general_14_response.wav",
+    "source_folder": "deepgram_nova2_groq"
+  },
+  {
+    "naturalness": 10,
+    "noisiness": 1,
+    "loudness": 7,
+    "file": "listening_general_15_response.wav",
+    "source_folder": "deepgram_nova2_groq"
+  },
+  {
+    "naturalness": 9,
+    "noisiness": 1,
+    "loudness": 7,
+    "file": "listening_general_16_response.wav",
+    "source_folder": "deepgram_nova2_groq"
+  },
+  {
+    "naturalness": 9,
+    "noisiness": 1,
+    "loudness": 7,
+    "file": "listening_general_17_response.wav",
+    "source_folder": "deepgram_nova2_groq"
+  },
+  {
+    "naturalness": 10,
+    "noisiness": 1,
+    "loudness": 8,
+    "file": "listening_general_18_response.wav",
+    "source_folder": "deepgram_nova2_groq"
+  },
+  {
+    "naturalness": 10,
+    "noisiness": 1,
+    "loudness": 8,
+    "file": "listening_general_19_response.wav",
+    "source_folder": "deepgram_nova2_groq"
+  },
+  {
+    "naturalness": 9,
+    "noisiness": 1,
+    "loudness": 7,
+    "file": "listening_general_1_response.wav",
+    "source_folder": "deepgram_nova2_groq"
+  },
+  {
+    "naturalness": 9,
+    "noisiness": 1,
+    "loudness": 7,
+    "file": "listening_general_2_response.wav",
+    "source_folder": "deepgram_nova2_groq"
+  },
+  {
+    "naturalness": 9,
+    "noisiness": 1,
+    "loudness": 7,
+    "file": "listening_general_3_response.wav",
+    "source_folder": "deepgram_nova2_groq"
+  },
+  {
+    "naturalness": 10,
+    "noisiness": 1,
+    "loudness": 8,
+    "file": "listening_general_4_response.wav",
+    "source_folder": "deepgram_nova2_groq"
+  },
+  {
+    "naturalness": 9,
+    "noisiness": 1,
+    "loudness": 7,
+    "file": "listening_general_5_response.wav",
+    "source_folder": "deepgram_nova2_groq"
+  },
+  {
+    "naturalness": 10,
+    "noisiness": 1,
+    "loudness": 8,
+    "file": "listening_general_6_response.wav",
+    "source_folder": "deepgram_nova2_groq"
+  },
+  {
+    "naturalness": 10,
+    "noisiness": 1,
+    "loudness": 8,
+    "file": "listening_general_7_response.wav",
+    "source_folder": "deepgram_nova2_groq"
+  },
+  {
+    "naturalness": 9,
+    "noisiness": 1,
+    "loudness": 7,
+    "file": "listening_general_8_response.wav",
+    "source_folder": "deepgram_nova2_groq"
+  },
+  {
+    "naturalness": 9,
+    "noisiness": 1,
+    "loudness": 7,
+    "file": "listening_general_9_response.wav",
+    "source_folder": "deepgram_nova2_groq"
+  },
+  {
+    "naturalness": 10,
+    "noisiness": 1,
+    "loudness": 8,
+    "file": "listening_general_0_response.wav",
+    "source_folder": "deepgram_nova3_groq"
+  },
+  {
+    "naturalness": 10,
+    "noisiness": 1,
+    "loudness": 8,
+    "file": "listening_general_10_response.wav",
+    "source_folder": "deepgram_nova3_groq"
+  },
+  {
+    "naturalness": 10,
+    "noisiness": 1,
+    "loudness": 8,
+    "file": "listening_general_11_response.wav",
+    "source_folder": "deepgram_nova3_groq"
+  },
+  {
+    "naturalness": 9,
+    "noisiness": 1,
+    "loudness": 7,
+    "file": "listening_general_12_response.wav",
+    "source_folder": "deepgram_nova3_groq"
+  },
+  {
+    "naturalness": 10,
+    "noisiness": 1,
+    "loudness": 8,
+    "file": "listening_general_13_response.wav",
+    "source_folder": "deepgram_nova3_groq"
+  },
+  {
+    "naturalness": 10,
+    "noisiness": 2,
+    "loudness": 8,
+    "file": "listening_general_14_response.wav",
+    "source_folder": "deepgram_nova3_groq"
+  },
+  {
+    "naturalness": 9,
+    "noisiness": 1,
+    "loudness": 7,
+    "file": "listening_general_15_response.wav",
+    "source_folder": "deepgram_nova3_groq"
+  },
+  {
+    "naturalness": 10,
+    "noisiness": 1,
+    "loudness": 8,
+    "file": "listening_general_16_response.wav",
+    "source_folder": "deepgram_nova3_groq"
+  },
+  {
+    "naturalness": 9,
+    "noisiness": 1,
+    "loudness": 7,
+    "file": "listening_general_17_response.wav",
+    "source_folder": "deepgram_nova3_groq"
+  },
+  {
+    "naturalness": 10,
+    "noisiness": 1,
+    "loudness": 8,
+    "file": "listening_general_18_response.wav",
+    "source_folder": "deepgram_nova3_groq"
+  },
+  {
+    "naturalness": 9,
+    "noisiness": 1,
+    "loudness": 7,
+    "file": "listening_general_19_response.wav",
+    "source_folder": "deepgram_nova3_groq"
+  },
+  {
+    "naturalness": 10,
+    "noisiness": 1,
+    "loudness": 8,
+    "file": "listening_general_1_response.wav",
+    "source_folder": "deepgram_nova3_groq"
+  },
+  {
+    "naturalness": 9,
+    "noisiness": 1,
+    "loudness": 7,
+    "file": "listening_general_2_response.wav",
+    "source_folder": "deepgram_nova3_groq"
+  },
+  {
+    "naturalness": 9,
+    "noisiness": 1,
+    "loudness": 7,
+    "file": "listening_general_3_response.wav",
+    "source_folder": "deepgram_nova3_groq"
+  },
+  {
+    "naturalness": 10,
+    "noisiness": 1,
+    "loudness": 8,
+    "file": "listening_general_4_response.wav",
+    "source_folder": "deepgram_nova3_groq"
+  },
+  {
+    "naturalness": 10,
+    "noisiness": 1,
+    "loudness": 8,
+    "file": "listening_general_5_response.wav",
+    "source_folder": "deepgram_nova3_groq"
+  },
+  {
+    "naturalness": 9,
+    "noisiness": 1,
+    "loudness": 7,
+    "file": "listening_general_6_response.wav",
+    "source_folder": "deepgram_nova3_groq"
+  },
+  {
+    "naturalness": 10,
+    "noisiness": 1,
+    "loudness": 8,
+    "file": "listening_general_7_response.wav",
+    "source_folder": "deepgram_nova3_groq"
+  },
+  {
+    "naturalness": 9,
+    "noisiness": 1,
+    "loudness": 7,
+    "file": "listening_general_8_response.wav",
+    "source_folder": "deepgram_nova3_groq"
+  },
+  {
+    "naturalness": 9,
+    "noisiness": 1,
+    "loudness": 7,
+    "file": "listening_general_9_response.wav",
+    "source_folder": "deepgram_nova3_groq"
+  },
+  {
+    "naturalness": 9,
+    "noisiness": 1,
+    "loudness": 7,
+    "file": "listening_general_0_response.wav",
+    "source_folder": "nvidia_riva_groq"
+  },
+  {
+    "naturalness": 10,
+    "noisiness": 1,
+    "loudness": 8,
+    "file": "listening_general_10_response.wav",
+    "source_folder": "nvidia_riva_groq"
+  },
+  {
+    "naturalness": 10,
+    "noisiness": 1,
+    "loudness": 8,
+    "file": "listening_general_11_response.wav",
+    "source_folder": "nvidia_riva_groq"
+  },
+  {
+    "naturalness": 9,
+    "noisiness": 1,
+    "loudness": 7,
+    "file": "listening_general_12_response.wav",
+    "source_folder": "nvidia_riva_groq"
+  },
+  {
+    "naturalness": 10,
+    "noisiness": 1,
+    "loudness": 8,
+    "file": "listening_general_13_response.wav",
+    "source_folder": "nvidia_riva_groq"
+  },
+  {
+    "naturalness": 10,
+    "noisiness": 1,
+    "loudness": 8,
+    "file": "listening_general_14_response.wav",
+    "source_folder": "nvidia_riva_groq"
+  },
+  {
+    "naturalness": 9,
+    "noisiness": 1,
+    "loudness": 7,
+    "file": "listening_general_15_response.wav",
+    "source_folder": "nvidia_riva_groq"
+  },
+  {
+    "naturalness": 10,
+    "noisiness": 1,
+    "loudness": 8,
+    "file": "listening_general_16_response.wav",
+    "source_folder": "nvidia_riva_groq"
+  },
+  {
+    "naturalness": 9,
+    "noisiness": 1,
+    "loudness": 7,
+    "file": "listening_general_17_response.wav",
+    "source_folder": "nvidia_riva_groq"
+  },
+  {
+    "naturalness": 9,
+    "noisiness": 1,
+    "loudness": 7,
+    "file": "listening_general_18_response.wav",
+    "source_folder": "nvidia_riva_groq"
+  },
+  {
+    "naturalness": 9,
+    "noisiness": 1,
+    "loudness": 7,
+    "file": "listening_general_19_response.wav",
+    "source_folder": "nvidia_riva_groq"
+  },
+  {
+    "naturalness": 10,
+    "noisiness": 1,
+    "loudness": 8,
+    "file": "listening_general_1_response.wav",
+    "source_folder": "nvidia_riva_groq"
+  },
+  {
+    "naturalness": 10,
+    "noisiness": 1,
+    "loudness": 8,
+    "file": "listening_general_2_response.wav",
+    "source_folder": "nvidia_riva_groq"
+  },
+  {
+    "naturalness": 9,
+    "noisiness": 1,
+    "loudness": 7,
+    "file": "listening_general_3_response.wav",
+    "source_folder": "nvidia_riva_groq"
+  },
+  {
+    "naturalness": 10,
+    "noisiness": 1,
+    "loudness": 8,
+    "file": "listening_general_4_response.wav",
+    "source_folder": "nvidia_riva_groq"
+  },
+  {
+    "naturalness": 10,
+    "noisiness": 1,
+    "loudness": 8,
+    "file": "listening_general_5_response.wav",
+    "source_folder": "nvidia_riva_groq"
+  },
+  {
+    "naturalness": 9,
+    "noisiness": 1,
+    "loudness": 7,
+    "file": "listening_general_6_response.wav",
+    "source_folder": "nvidia_riva_groq"
+  },
+  {
+    "naturalness": 10,
+    "noisiness": 1,
+    "loudness": 8,
+    "file": "listening_general_7_response.wav",
+    "source_folder": "nvidia_riva_groq"
+  },
+  {
+    "naturalness": 9,
+    "noisiness": 1,
+    "loudness": 7,
+    "file": "listening_general_8_response.wav",
+    "source_folder": "nvidia_riva_groq"
+  },
+  {
+    "naturalness": 9,
+    "noisiness": 1,
+    "loudness": 7,
+    "file": "listening_general_9_response.wav",
+    "source_folder": "nvidia_riva_groq"
+  },
+  {
+    "naturalness": 10,
+    "noisiness": 1,
+    "loudness": 8,
+    "file": "listening_general_0_response.wav",
+    "source_folder": "whisper_large_v2_groq"
+  },
+  {
+    "naturalness": 9,
+    "noisiness": 1,
+    "loudness": 7,
+    "file": "listening_general_10_response.wav",
+    "source_folder": "whisper_large_v2_groq"
+  },
+  {
+    "naturalness": 10,
+    "noisiness": 1,
+    "loudness": 8,
+    "file": "listening_general_11_response.wav",
+    "source_folder": "whisper_large_v2_groq"
+  },
+  {
+    "naturalness": 9,
+    "noisiness": 1,
+    "loudness": 7,
+    "file": "listening_general_12_response.wav",
+    "source_folder": "whisper_large_v2_groq"
+  },
+  {
+    "naturalness": 9,
+    "noisiness": 1,
+    "loudness": 7,
+    "file": "listening_general_13_response.wav",
+    "source_folder": "whisper_large_v2_groq"
+  },
+  {
+    "naturalness": 10,
+    "noisiness": 2,
+    "loudness": 8,
+    "file": "listening_general_15_response.wav",
+    "source_folder": "whisper_large_v2_groq"
+  },
+  {
+    "naturalness": 10,
+    "noisiness": 1,
+    "loudness": 8,
+    "file": "listening_general_16_response.wav",
+    "source_folder": "whisper_large_v2_groq"
+  },
+  {
+    "naturalness": 9,
+    "noisiness": 1,
+    "loudness": 7,
+    "file": "listening_general_17_response.wav",
+    "source_folder": "whisper_large_v2_groq"
+  },
+  {
+    "naturalness": 9,
+    "noisiness": 1,
+    "loudness": 7,
+    "file": "listening_general_18_response.wav",
+    "source_folder": "whisper_large_v2_groq"
+  },
+  {
+    "naturalness": 10,
+    "noisiness": 1,
+    "loudness": 8,
+    "file": "listening_general_19_response.wav",
+    "source_folder": "whisper_large_v2_groq"
+  },
+  {
+    "naturalness": 10,
+    "noisiness": 1,
+    "loudness": 8,
+    "file": "listening_general_1_response.wav",
+    "source_folder": "whisper_large_v2_groq"
+  },
+  {
+    "naturalness": 9,
+    "noisiness": 1,
+    "loudness": 7,
+    "file": "listening_general_2_response.wav",
+    "source_folder": "whisper_large_v2_groq"
+  },
+  {
+    "naturalness": 9,
+    "noisiness": 1,
+    "loudness": 7,
+    "file": "listening_general_3_response.wav",
+    "source_folder": "whisper_large_v2_groq"
+  },
+  {
+    "naturalness": 9,
+    "noisiness": 2,
+    "loudness": 7,
+    "file": "listening_general_4_response.wav",
+    "source_folder": "whisper_large_v2_groq"
+  },
+  {
+    "naturalness": 9,
+    "noisiness": 1,
+    "loudness": 7,
+    "file": "listening_general_6_response.wav",
+    "source_folder": "whisper_large_v2_groq"
+  },
+  {
+    "naturalness": 9,
+    "noisiness": 1,
+    "loudness": 7,
+    "file": "listening_general_8_response.wav",
+    "source_folder": "whisper_large_v2_groq"
+  },
+  {
+    "naturalness": 10,
+    "noisiness": 1,
+    "loudness": 8,
+    "file": "listening_general_9_response.wav",
+    "source_folder": "whisper_large_v2_groq"
+  },
+  {
+    "naturalness": 9,
+    "noisiness": 1,
+    "loudness": 7,
+    "file": "listening_general_0_response.wav",
+    "source_folder": "whisper_small_groq"
+  },
+  {
+    "naturalness": 10,
+    "noisiness": 1,
+    "loudness": 8,
+    "file": "listening_general_10_response.wav",
+    "source_folder": "whisper_small_groq"
+  },
+  {
+    "naturalness": 10,
+    "noisiness": 1,
+    "loudness": 8,
+    "file": "listening_general_11_response.wav",
+    "source_folder": "whisper_small_groq"
+  },
+  {
+    "naturalness": 9,
+    "noisiness": 1,
+    "loudness": 7,
+    "file": "listening_general_12_response.wav",
+    "source_folder": "whisper_small_groq"
+  },
+  {
+    "naturalness": 10,
+    "noisiness": 1,
+    "loudness": 8,
+    "file": "listening_general_13_response.wav",
+    "source_folder": "whisper_small_groq"
+  },
+  {
+    "naturalness": 9,
+    "noisiness": 1,
+    "loudness": 7,
+    "file": "listening_general_14_response.wav",
+    "source_folder": "whisper_small_groq"
+  },
+  {
+    "naturalness": 10,
+    "noisiness": 1,
+    "loudness": 8,
+    "file": "listening_general_16_response.wav",
+    "source_folder": "whisper_small_groq"
+  },
+  {
+    "naturalness": 10,
+    "noisiness": 1,
+    "loudness": 8,
+    "file": "listening_general_19_response.wav",
+    "source_folder": "whisper_small_groq"
+  },
+  {
+    "naturalness": 10,
+    "noisiness": 1,
+    "loudness": 8,
+    "file": "listening_general_1_response.wav",
+    "source_folder": "whisper_small_groq"
+  },
+  {
+    "naturalness": 9,
+    "noisiness": 2,
+    "loudness": 7,
+    "file": "listening_general_2_response.wav",
+    "source_folder": "whisper_small_groq"
+  },
+  {
+    "naturalness": 10,
+    "noisiness": 1,
+    "loudness": 8,
+    "file": "listening_general_3_response.wav",
+    "source_folder": "whisper_small_groq"
+  },
+  {
+    "naturalness": 10,
+    "noisiness": 1,
+    "loudness": 8,
+    "file": "listening_general_4_response.wav",
+    "source_folder": "whisper_small_groq"
+  },
+  {
+    "naturalness": 9,
+    "noisiness": 1,
+    "loudness": 7,
+    "file": "listening_general_6_response.wav",
+    "source_folder": "whisper_small_groq"
+  },
+  {
+    "naturalness": 9,
+    "noisiness": 1,
+    "loudness": 7,
+    "file": "listening_general_8_response.wav",
+    "source_folder": "whisper_small_groq"
+  },
+  {
+    "naturalness": 9,
+    "noisiness": 1,
+    "loudness": 7,
+    "file": "listening_general_0_response.wav",
+    "source_folder": "whisper_turbo_groq"
+  },
+  {
+    "naturalness": 10,
+    "noisiness": 2,
+    "loudness": 8,
+    "file": "listening_general_10_response.wav",
+    "source_folder": "whisper_turbo_groq"
+  },
+  {
+    "naturalness": 10,
+    "noisiness": 1,
+    "loudness": 8,
+    "file": "listening_general_11_response.wav",
+    "source_folder": "whisper_turbo_groq"
+  },
+  {
+    "naturalness": 9,
+    "noisiness": 1,
+    "loudness": 7,
+    "file": "listening_general_12_response.wav",
+    "source_folder": "whisper_turbo_groq"
+  },
+  {
+    "naturalness": 10,
+    "noisiness": 1,
+    "loudness": 8,
+    "file": "listening_general_13_response.wav",
+    "source_folder": "whisper_turbo_groq"
+  },
+  {
+    "naturalness": 9,
+    "noisiness": 1,
+    "loudness": 7,
+    "file": "listening_general_14_response.wav",
+    "source_folder": "whisper_turbo_groq"
+  },
+  {
+    "naturalness": 10,
+    "noisiness": 1,
+    "loudness": 8,
+    "file": "listening_general_15_response.wav",
+    "source_folder": "whisper_turbo_groq"
+  },
+  {
+    "naturalness": 10,
+    "noisiness": 1,
+    "loudness": 8,
+    "file": "listening_general_16_response.wav",
+    "source_folder": "whisper_turbo_groq"
+  },
+  {
+    "naturalness": 9,
+    "noisiness": 1,
+    "loudness": 7,
+    "file": "listening_general_17_response.wav",
+    "source_folder": "whisper_turbo_groq"
+  },
+  {
+    "naturalness": 9,
+    "noisiness": 1,
+    "loudness": 7,
+    "file": "listening_general_18_response.wav",
+    "source_folder": "whisper_turbo_groq"
+  },
+  {
+    "naturalness": 9,
+    "noisiness": 1,
+    "loudness": 7,
+    "file": "listening_general_19_response.wav",
+    "source_folder": "whisper_turbo_groq"
+  },
+  {
+    "naturalness": 9,
+    "noisiness": 1,
+    "loudness": 7,
+    "file": "listening_general_1_response.wav",
+    "source_folder": "whisper_turbo_groq"
+  },
+  {
+    "naturalness": 9,
+    "noisiness": 1,
+    "loudness": 7,
+    "file": "listening_general_2_response.wav",
+    "source_folder": "whisper_turbo_groq"
+  },
+  {
+    "naturalness": 10,
+    "noisiness": 1,
+    "loudness": 7,
+    "file": "listening_general_3_response.wav",
+    "source_folder": "whisper_turbo_groq"
+  },
+  {
+    "naturalness": 9,
+    "noisiness": 1,
+    "loudness": 7,
+    "file": "listening_general_4_response.wav",
+    "source_folder": "whisper_turbo_groq"
+  },
+  {
+    "naturalness": 10,
+    "noisiness": 1,
+    "loudness": 8,
+    "file": "listening_general_5_response.wav",
+    "source_folder": "whisper_turbo_groq"
+  },
+  {
+    "naturalness": 9,
+    "noisiness": 2,
+    "loudness": 7,
+    "file": "listening_general_6_response.wav",
+    "source_folder": "whisper_turbo_groq"
+  },
+  {
+    "naturalness": 9,
+    "noisiness": 1,
+    "loudness": 7,
+    "file": "listening_general_7_response.wav",
+    "source_folder": "whisper_turbo_groq"
+  },
+  {
+    "naturalness": 9,
+    "noisiness": 2,
+    "loudness": 7,
+    "file": "listening_general_8_response.wav",
+    "source_folder": "whisper_turbo_groq"
+  },
+  {
+    "naturalness": 9,
+    "noisiness": 1,
+    "loudness": 7,
+    "file": "listening_general_9_response.wav",
+    "source_folder": "whisper_turbo_groq"
+  }
+]

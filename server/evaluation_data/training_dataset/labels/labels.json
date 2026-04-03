@@ -1,0 +1,402 @@
+[
+  {
+    "audio_path": "/home/ubuntu/VoiceAIStackEvaluation/server/evaluation_data/training_dataset/audio/listening_music_0.wav",
+    "sample_id": "listening_music_0",
+    "split": "listening_music",
+    "naturalness": 3,
+    "noisiness": 7,
+    "loudness": 7
+  },
+  {
+    "audio_path": "/home/ubuntu/VoiceAIStackEvaluation/server/evaluation_data/training_dataset/audio/listening_music_1.wav",
+    "sample_id": "listening_music_1",
+    "split": "listening_music",
+    "naturalness": 9,
+    "noisiness": 3,
+    "loudness": 7
+  },
+  {
+    "audio_path": "/home/ubuntu/VoiceAIStackEvaluation/server/evaluation_data/training_dataset/audio/listening_music_2.wav",
+    "sample_id": "listening_music_2",
+    "split": "listening_music",
+    "naturalness": 3,
+    "noisiness": 2,
+    "loudness": 7
+  },
+  {
+    "audio_path": "/home/ubuntu/VoiceAIStackEvaluation/server/evaluation_data/training_dataset/audio/listening_music_3.wav",
+    "sample_id": "listening_music_3",
+    "split": "listening_music",
+    "naturalness": 2,
+    "noisiness": 7,
+    "loudness": 7
+  },
+  {
+    "audio_path": "/home/ubuntu/VoiceAIStackEvaluation/server/evaluation_data/training_dataset/audio/listening_music_4.wav",
+    "sample_id": "listening_music_4",
+    "split": "listening_music",
+    "naturalness": 2,
+    "noisiness": 2,
+    "loudness": 7
+  },
+  {
+    "audio_path": "/home/ubuntu/VoiceAIStackEvaluation/server/evaluation_data/training_dataset/audio/listening_music_5.wav",
+    "sample_id": "listening_music_5",
+    "split": "listening_music",
+    "naturalness": 9,
+    "noisiness": 10,
+    "loudness": 5
+  },
+  {
+    "audio_path": "/home/ubuntu/VoiceAIStackEvaluation/server/evaluation_data/training_dataset/audio/listening_music_6.wav",
+    "sample_id": "listening_music_6",
+    "split": "listening_music",
+    "naturalness": 9,
+    "noisiness": 8,
+    "loudness": 3
+  },
+  {
+    "audio_path": "/home/ubuntu/VoiceAIStackEvaluation/server/evaluation_data/training_dataset/audio/listening_music_7.wav",
+    "sample_id": "listening_music_7",
+    "split": "listening_music",
+    "naturalness": 6,
+    "noisiness": 2,
+    "loudness": 6
+  },
+  {
+    "audio_path": "/home/ubuntu/VoiceAIStackEvaluation/server/evaluation_data/training_dataset/audio/listening_sound_0.wav",
+    "sample_id": "listening_sound_0",
+    "split": "listening_sound",
+    "naturalness": 2,
+    "noisiness": 1,
+    "loudness": 8
+  },
+  {
+    "audio_path": "/home/ubuntu/VoiceAIStackEvaluation/server/evaluation_data/training_dataset/audio/listening_sound_1.wav",
+    "sample_id": "listening_sound_1",
+    "split": "listening_sound",
+    "naturalness": 9,
+    "noisiness": 8,
+    "loudness": 4
+  },
+  {
+    "audio_path": "/home/ubuntu/VoiceAIStackEvaluation/server/evaluation_data/training_dataset/audio/listening_sound_2.wav",
+    "sample_id": "listening_sound_2",
+    "split": "listening_sound",
+    "naturalness": 8,
+    "noisiness": 5,
+    "loudness": 5
+  },
+  {
+    "audio_path": "/home/ubuntu/VoiceAIStackEvaluation/server/evaluation_data/training_dataset/audio/listening_sound_3.wav",
+    "sample_id": "listening_sound_3",
+    "split": "listening_sound",
+    "naturalness": 3,
+    "noisiness": 3,
+    "loudness": 6
+  },
+  {
+    "audio_path": "/home/ubuntu/VoiceAIStackEvaluation/server/evaluation_data/training_dataset/audio/listening_sound_4.wav",
+    "sample_id": "listening_sound_4",
+    "split": "listening_sound",
+    "naturalness": 4,
+    "noisiness": 1,
+    "loudness": 9
+  },
+  {
+    "audio_path": "/home/ubuntu/VoiceAIStackEvaluation/server/evaluation_data/training_dataset/audio/listening_sound_5.wav",
+    "sample_id": "listening_sound_5",
+    "split": "listening_sound",
+    "naturalness": 9,
+    "noisiness": 5,
+    "loudness": 5
+  },
+  {
+    "audio_path": "/home/ubuntu/VoiceAIStackEvaluation/server/evaluation_data/training_dataset/audio/listening_sound_6.wav",
+    "sample_id": "listening_sound_6",
+    "split": "listening_sound",
+    "naturalness": 1,
+    "noisiness": 2,
+    "loudness": 8
+  },
+  {
+    "audio_path": "/home/ubuntu/VoiceAIStackEvaluation/server/evaluation_data/training_dataset/audio/listening_sound_7.wav",
+    "sample_id": "listening_sound_7",
+    "split": "listening_sound",
+    "naturalness": 7,
+    "noisiness": 5,
+    "loudness": 5
+  },
+  {
+    "audio_path": "/home/ubuntu/VoiceAIStackEvaluation/server/evaluation_data/training_dataset/audio/listening_speech_0.wav",
+    "sample_id": "listening_speech_0",
+    "split": "listening_speech",
+    "naturalness": 6,
+    "noisiness": 10,
+    "loudness": 3
+  },
+  {
+    "audio_path": "/home/ubuntu/VoiceAIStackEvaluation/server/evaluation_data/training_dataset/audio/listening_speech_1.wav",
+    "sample_id": "listening_speech_1",
+    "split": "listening_speech",
+    "naturalness": 10,
+    "noisiness": 7,
+    "loudness": 4
+  },
+  {
+    "audio_path": "/home/ubuntu/VoiceAIStackEvaluation/server/evaluation_data/training_dataset/audio/listening_speech_2.wav",
+    "sample_id": "listening_speech_2",
+    "split": "listening_speech",
+    "naturalness": 10,
+    "noisiness": 8,
+    "loudness": 5
+  },
+  {
+    "audio_path": "/home/ubuntu/VoiceAIStackEvaluation/server/evaluation_data/training_dataset/audio/listening_speech_3.wav",
+    "sample_id": "listening_speech_3",
+    "split": "listening_speech",
+    "naturalness": 7,
+    "noisiness": 2,
+    "loudness": 8
+  },
+  {
+    "audio_path": "/home/ubuntu/VoiceAIStackEvaluation/server/evaluation_data/training_dataset/audio/listening_speech_4.wav",
+    "sample_id": "listening_speech_4",
+    "split": "listening_speech",
+    "naturalness": 10,
+    "noisiness": 8,
+    "loudness": 6
+  },
+  {
+    "audio_path": "/home/ubuntu/VoiceAIStackEvaluation/server/evaluation_data/training_dataset/audio/listening_speech_5.wav",
+    "sample_id": "listening_speech_5",
+    "split": "listening_speech",
+    "naturalness": 10,
+    "noisiness": 1,
+    "loudness": 7
+  },
+  {
+    "audio_path": "/home/ubuntu/VoiceAIStackEvaluation/server/evaluation_data/training_dataset/audio/listening_speech_6.wav",
+    "sample_id": "listening_speech_6",
+    "split": "listening_speech",
+    "naturalness": 10,
+    "noisiness": 5,
+    "loudness": 2
+  },
+  {
+    "audio_path": "/home/ubuntu/VoiceAIStackEvaluation/server/evaluation_data/training_dataset/audio/listening_speech_7.wav",
+    "sample_id": "listening_speech_7",
+    "split": "listening_speech",
+    "naturalness": 5,
+    "noisiness": 1,
+    "loudness": 9
+  },
+  {
+    "audio_path": "/home/ubuntu/VoiceAIStackEvaluation/server/evaluation_data/training_dataset/audio/speaking_assistant_0.wav",
+    "sample_id": "speaking_assistant_0",
+    "split": "speaking_assistant",
+    "naturalness": 7,
+    "noisiness": 7,
+    "loudness": 2
+  },
+  {
+    "audio_path": "/home/ubuntu/VoiceAIStackEvaluation/server/evaluation_data/training_dataset/audio/speaking_assistant_1.wav",
+    "sample_id": "speaking_assistant_1",
+    "split": "speaking_assistant",
+    "naturalness": 6,
+    "noisiness": 9,
+    "loudness": 5
+  },
+  {
+    "audio_path": "/home/ubuntu/VoiceAIStackEvaluation/server/evaluation_data/training_dataset/audio/speaking_assistant_2.wav",
+    "sample_id": "speaking_assistant_2",
+    "split": "speaking_assistant",
+    "naturalness": 9,
+    "noisiness": 9,
+    "loudness": 3
+  },
+  {
+    "audio_path": "/home/ubuntu/VoiceAIStackEvaluation/server/evaluation_data/training_dataset/audio/speaking_assistant_3.wav",
+    "sample_id": "speaking_assistant_3",
+    "split": "speaking_assistant",
+    "naturalness": 10,
+    "noisiness": 5,
+    "loudness": 1
+  },
+  {
+    "audio_path": "/home/ubuntu/VoiceAIStackEvaluation/server/evaluation_data/training_dataset/audio/speaking_assistant_4.wav",
+    "sample_id": "speaking_assistant_4",
+    "split": "speaking_assistant",
+    "naturalness": 7,
+    "noisiness": 5,
+    "loudness": 4
+  },
+  {
+    "audio_path": "/home/ubuntu/VoiceAIStackEvaluation/server/evaluation_data/training_dataset/audio/speaking_assistant_5.wav",
+    "sample_id": "speaking_assistant_5",
+    "split": "speaking_assistant",
+    "naturalness": 10,
+    "noisiness": 1,
+    "loudness": 10
+  },
+  {
+    "audio_path": "/home/ubuntu/VoiceAIStackEvaluation/server/evaluation_data/training_dataset/audio/speaking_assistant_6.wav",
+    "sample_id": "speaking_assistant_6",
+    "split": "speaking_assistant",
+    "naturalness": 10,
+    "noisiness": 4,
+    "loudness": 7
+  },
+  {
+    "audio_path": "/home/ubuntu/VoiceAIStackEvaluation/server/evaluation_data/training_dataset/audio/speaking_assistant_7.wav",
+    "sample_id": "speaking_assistant_7",
+    "split": "speaking_assistant",
+    "naturalness": 10,
+    "noisiness": 2,
+    "loudness": 5
+  },
+  {
+    "audio_path": "/home/ubuntu/VoiceAIStackEvaluation/server/evaluation_data/training_dataset/audio/speaking_emotion_0.wav",
+    "sample_id": "speaking_emotion_0",
+    "split": "speaking_emotion",
+    "naturalness": 9,
+    "noisiness": 7,
+    "loudness": 1
+  },
+  {
+    "audio_path": "/home/ubuntu/VoiceAIStackEvaluation/server/evaluation_data/training_dataset/audio/speaking_emotion_1.wav",
+    "sample_id": "speaking_emotion_1",
+    "split": "speaking_emotion",
+    "naturalness": 5,
+    "noisiness": 7,
+    "loudness": 1
+  },
+  {
+    "audio_path": "/home/ubuntu/VoiceAIStackEvaluation/server/evaluation_data/training_dataset/audio/speaking_emotion_2.wav",
+    "sample_id": "speaking_emotion_2",
+    "split": "speaking_emotion",
+    "naturalness": 8,
+    "noisiness": 5,
+    "loudness": 2
+  },
+  {
+    "audio_path": "/home/ubuntu/VoiceAIStackEvaluation/server/evaluation_data/training_dataset/audio/speaking_emotion_3.wav",
+    "sample_id": "speaking_emotion_3",
+    "split": "speaking_emotion",
+    "naturalness": 9,
+    "noisiness": 5,
+    "loudness": 2
+  },
+  {
+    "audio_path": "/home/ubuntu/VoiceAIStackEvaluation/server/evaluation_data/training_dataset/audio/speaking_emotion_4.wav",
+    "sample_id": "speaking_emotion_4",
+    "split": "speaking_emotion",
+    "naturalness": 2,
+    "noisiness": 9,
+    "loudness": 2
+  },
+  {
+    "audio_path": "/home/ubuntu/VoiceAIStackEvaluation/server/evaluation_data/training_dataset/audio/speaking_emotion_5.wav",
+    "sample_id": "speaking_emotion_5",
+    "split": "speaking_emotion",
+    "naturalness": 1,
+    "noisiness": 2,
+    "loudness": 6
+  },
+  {
+    "audio_path": "/home/ubuntu/VoiceAIStackEvaluation/server/evaluation_data/training_dataset/audio/speaking_emotion_6.wav",
+    "sample_id": "speaking_emotion_6",
+    "split": "speaking_emotion",
+    "naturalness": 1,
+    "noisiness": 5,
+    "loudness": 6
+  },
+  {
+    "audio_path": "/home/ubuntu/VoiceAIStackEvaluation/server/evaluation_data/training_dataset/audio/speaking_emotion_7.wav",
+    "sample_id": "speaking_emotion_7",
+    "split": "speaking_emotion",
+    "naturalness": 2,
+    "noisiness": 9,
+    "loudness": 5
+  },
+  {
+    "audio_path": "/home/ubuntu/VoiceAIStackEvaluation/server/evaluation_data/training_dataset/audio/speaking_instruction_following_0.wav",
+    "sample_id": "speaking_instruction_following_0",
+    "split": "speaking_instruction_following",
+    "naturalness": 6,
+    "noisiness": 5,
+    "loudness": 6
+  },
+  {
+    "audio_path": "/home/ubuntu/VoiceAIStackEvaluation/server/evaluation_data/training_dataset/audio/speaking_instruction_following_1.wav",
+    "sample_id": "speaking_instruction_following_1",
+    "split": "speaking_instruction_following",
+    "naturalness": 7,
+    "noisiness": 1,
+    "loudness": 9
+  },
+  {
+    "audio_path": "/home/ubuntu/VoiceAIStackEvaluation/server/evaluation_data/training_dataset/audio/speaking_instruction_following_2.wav",
+    "sample_id": "speaking_instruction_following_2",
+    "split": "speaking_instruction_following",
+    "naturalness": 9,
+    "noisiness": 1,
+    "loudness": 10
+  },
+  {
+    "audio_path": "/home/ubuntu/VoiceAIStackEvaluation/server/evaluation_data/training_dataset/audio/speaking_instruction_following_3.wav",
+    "sample_id": "speaking_instruction_following_3",
+    "split": "speaking_instruction_following",
+    "naturalness": 10,
+    "noisiness": 7,
+    "loudness": 4
+  },
+  {
+    "audio_path": "/home/ubuntu/VoiceAIStackEvaluation/server/evaluation_data/training_dataset/audio/speaking_instruction_following_4.wav",
+    "sample_id": "speaking_instruction_following_4",
+    "split": "speaking_instruction_following",
+    "naturalness": 8,
+    "noisiness": 1,
+    "loudness": 7
+  },
+  {
+    "audio_path": "/home/ubuntu/VoiceAIStackEvaluation/server/evaluation_data/training_dataset/audio/speaking_instruction_following_5.wav",
+    "sample_id": "speaking_instruction_following_5",
+    "split": "speaking_instruction_following",
+    "naturalness": 5,
+    "noisiness": 5,
+    "loudness": 3
+  },
+  {
+    "audio_path": "/home/ubuntu/VoiceAIStackEvaluation/server/evaluation_data/training_dataset/audio/speaking_instruction_following_6.wav",
+    "sample_id": "speaking_instruction_following_6",
+    "split": "speaking_instruction_following",
+    "naturalness": 8,
+    "noisiness": 3,
+    "loudness": 6
+  },
+  {
+    "audio_path": "/home/ubuntu/VoiceAIStackEvaluation/server/evaluation_data/training_dataset/audio/speaking_instruction_following_7.wav",
+    "sample_id": "speaking_instruction_following_7",
+    "split": "speaking_instruction_following",
+    "naturalness": 9,
+    "noisiness": 2,
+    "loudness": 6
+  },
+  {
+    "audio_path": "/home/ubuntu/VoiceAIStackEvaluation/server/evaluation_data/training_dataset/audio/speaking_multi_round_0.wav",
+    "sample_id": "speaking_multi_round_0",
+    "split": "speaking_multi_round",
+    "naturalness": 7,
+    "noisiness": 10,
+    "loudness": 9
+  },
+  {
+    "audio_path": "/home/ubuntu/VoiceAIStackEvaluation/server/evaluation_data/training_dataset/audio/speaking_multi_round_1.wav",
+    "sample_id": "speaking_multi_round_1",
+    "split": "speaking_multi_round",
+    "naturalness": 10,
+    "noisiness": 10,
+    "loudness": 9
+  }
+]

@@ -1,0 +1,32 @@
+{
+  "aws_polly": {
+    "num_files": 110,
+    "avg_naturalness": 8.47,
+    "avg_noisiness": 1.26,
+    "avg_loudness": 6.44
+  },
+  "cartesia": {
+    "num_files": 131,
+    "avg_naturalness": 9.08,
+    "avg_noisiness": 1.28,
+    "avg_loudness": 6.8
+  },
+  "deepgram_aura": {
+    "num_files": 20,
+    "avg_naturalness": 9.0,
+    "avg_noisiness": 1.85,
+    "avg_loudness": 7.0
+  },
+  "groq": {
+    "num_files": 131,
+    "avg_naturalness": 9.21,
+    "avg_noisiness": 1.63,
+    "avg_loudness": 7.01
+  },
+  "nvidia_riva": {
+    "num_files": 20,
+    "avg_naturalness": 9.1,
+    "avg_noisiness": 2.0,
+    "avg_loudness": 6.05
+  }
+}

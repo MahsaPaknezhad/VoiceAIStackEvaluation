@@ -3,6 +3,7 @@
 ### IGNORE MODEL FILES ###
 
 server/models/*
+server/trained_models/
 
 ### macOS ###
 # General
