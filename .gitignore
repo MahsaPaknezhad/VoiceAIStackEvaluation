@@ -4,6 +4,7 @@
 
 server/models/*
 server/trained_models/
+server/lily-data/*
 
 ### macOS ###
 # General

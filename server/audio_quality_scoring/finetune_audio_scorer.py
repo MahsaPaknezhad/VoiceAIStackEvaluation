@@ -12,6 +12,9 @@ import os
 from copy import deepcopy
 
 import librosa
+import matplotlib
+matplotlib.use("Agg")
+import matplotlib.pyplot as plt
 import numpy as np
 import torch
 from transformers import AutoModel, AutoTokenizer
@@ -32,9 +35,12 @@ SCORING_PROMPT = (
     'Respond ONLY with JSON: {"naturalness": <int>, "noisiness": <int>, "loudness": <int>}'
 )
 
-EPOCHS = 3
+MAX_EPOCHS = 50
 LR = 1e-4
 GRAD_ACCUM = 4
+PATIENCE = 5
+TRAIN_RATIO = 0.9
+LOSS_PLOT_PATH = "trained_models/minicpm_audio_scorer_lora/training_loss.png"
 
 
 def build_tokenized_sample(model, audio_array, target_json_str):
@@ -161,27 +167,59 @@ def main():
         lr=LR, weight_decay=0.01,
     )
 
-    # Training loop
-    for epoch in range(EPOCHS):
+    # Split into train/val (90/10)
+    indices = np.random.permutation(len(samples))
+    split = int(len(samples) * TRAIN_RATIO)
+    train_indices = indices[:split]
+    val_indices = indices[split:]
+    logger.info(f"Train: {len(train_indices)}, Val: {len(val_indices)}")
+
+    def compute_loss_on(subset_indices):
+        """Compute average loss over a subset without gradient updates."""
+        total = 0.0
+        for idx in subset_indices:
+            inputs, target_len = samples[idx]
+            batch = {k: v.cuda() if isinstance(v, torch.Tensor) else v for k, v in inputs.items()}
+            batch.pop("image_sizes", None)
+            input_ids = batch["input_ids"]
+            seq_len = input_ids.shape[1]
+            labels_tensor = torch.full_like(input_ids, -100, dtype=torch.long)
+            target_start = max(0, seq_len - target_len - 5)
+            labels_tensor[:, target_start:] = input_ids[:, target_start:].long()
+            with torch.no_grad():
+                outputs = model.base_model.model.llm(
+                    input_ids=input_ids,
+                    attention_mask=batch.get("attention_mask"),
+                    labels=labels_tensor,
+                )
+            total += outputs.loss.item()
+            del outputs, batch, input_ids, labels_tensor
+            torch.cuda.empty_cache()
+        return total / max(len(subset_indices), 1)
+
+    train_losses, val_losses = [], []
+    best_val_loss = float("inf")
+    patience_counter = 0
+
+    # Training loop with early stopping on validation loss
+    for epoch in range(MAX_EPOCHS):
+        model.train()
         total_loss = 0.0
-        indices = np.random.permutation(len(samples))
+        perm = np.random.permutation(len(train_indices))
         optimizer.zero_grad()
 
-        for step, idx in enumerate(indices):
+        for step, pi in enumerate(perm):
+            idx = train_indices[pi]
             inputs, target_len = samples[idx]
 
-            # Move to GPU
             batch = {k: v.cuda() if isinstance(v, torch.Tensor) else v for k, v in inputs.items()}
             batch.pop("image_sizes", None)
 
             input_ids = batch["input_ids"]
             seq_len = input_ids.shape[1]
 
-            # Build labels: -100 everywhere except the last target_len tokens (shifted by 1)
             labels_tensor = torch.full_like(input_ids, -100, dtype=torch.long)
-            # The target tokens are at the end of the sequence (before any eos)
-            # We supervise positions where the model should predict the next target token
-            target_start = max(0, seq_len - target_len - 5)  # include a few tokens before for context
+            target_start = max(0, seq_len - target_len - 5)
             labels_tensor[:, target_start:] = input_ids[:, target_start:].long()
 
             outputs = model.base_model.model.llm(
@@ -202,19 +240,52 @@ def main():
                 optimizer.zero_grad()
 
         # Flush remaining gradients
-        if len(samples) % GRAD_ACCUM != 0:
+        if len(train_indices) % GRAD_ACCUM != 0:
             torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)
             optimizer.step()
             optimizer.zero_grad()
 
-        avg_loss = total_loss / len(samples)
-        logger.info(f"Epoch {epoch+1}/{EPOCHS} - avg loss: {avg_loss:.4f}")
+        avg_train_loss = total_loss / len(train_indices)
+        train_losses.append(avg_train_loss)
 
-    # Save
-    os.makedirs(OUTPUT_DIR, exist_ok=True)
-    model.save_pretrained(OUTPUT_DIR)
-    model.base_model.model.processor.tokenizer.save_pretrained(OUTPUT_DIR)
+        # Validation
+        model.eval()
+        avg_val_loss = compute_loss_on(val_indices) if len(val_indices) > 0 else avg_train_loss
+        val_losses.append(avg_val_loss)
+
+        logger.info(f"Epoch {epoch+1}/{MAX_EPOCHS} - train loss: {avg_train_loss:.4f}, val loss: {avg_val_loss:.4f}")
+
+        # Early stopping (lower loss = better accuracy)
+        if avg_val_loss < best_val_loss:
+            best_val_loss = avg_val_loss
+            patience_counter = 0
+            # Save best checkpoint
+            os.makedirs(OUTPUT_DIR, exist_ok=True)
+            model.save_pretrained(OUTPUT_DIR)
+            model.base_model.model.processor.tokenizer.save_pretrained(OUTPUT_DIR)
+            logger.info("  Saved best model checkpoint")
+        else:
+            patience_counter += 1
+            logger.info(f"  No improvement ({patience_counter}/{PATIENCE})")
+            if patience_counter >= PATIENCE:
+                logger.info("Early stopping triggered")
+                break
+
+        # Plot losses so far
+        plt.figure()
+        plt.plot(range(1, len(train_losses) + 1), train_losses, label="Train Loss")
+        plt.plot(range(1, len(val_losses) + 1), val_losses, label="Val Loss")
+        plt.xlabel("Epoch")
+        plt.ylabel("Loss")
+        plt.title("Training and Validation Loss")
+        plt.legend()
+        plt.tight_layout()
+        os.makedirs(os.path.dirname(LOSS_PLOT_PATH), exist_ok=True)
+        plt.savefig(LOSS_PLOT_PATH)
+        plt.close()
+
     logger.info(f"LoRA adapter saved to {OUTPUT_DIR}")
+    logger.info(f"Loss plot saved to {LOSS_PLOT_PATH}")
 
 
 if __name__ == "__main__":
