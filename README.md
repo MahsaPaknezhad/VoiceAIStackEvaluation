@@ -1,257 +1,281 @@
 # Voice Assistant Evaluation Pipeline
 
-A comprehensive evaluation framework for voice assistants that measures speech-to-text accuracy, response quality, and latency metrics across different AI service combinations.
-
-![](demo.png)
+A comprehensive evaluation framework for voice assistants that measures speech-to-text accuracy, response quality, voice quality, and latency metrics across different AI service combinations on the [Pipecat](https://github.com/pipecat-ai/pipecat) platform.
 
 ## Overview
 
-This project provides a complete pipeline for building, testing, and evaluating voice assistants with multiple AI service providers. It enables systematic comparison of different STT/TTS/LLM combinations to optimize for accuracy, latency, and voice quality.
+This project provides a complete pipeline for evaluating voice assistants with multiple AI service providers. It enables systematic comparison of different STT/TTS/LLM combinations to find the best trade-offs between accuracy, latency, and voice quality.
 
 ## Architecture
 
-### Core Frameworks
-- **Pipecat** - Voice agent orchestration and real-time audio processing
-- **Strands Agents** - Multi-agent conversation management and tool calling
-- **FastAPI** - Backend API server with WebSocket support
+```mermaid
+flowchart TB
+    subgraph Inputs["Inputs"]
+        audio["🎤 Audio Files\n(.wav)"]
+        stt_cfg["⚙️ STT Config\n(.json)"]
+        tts_cfg["⚙️ TTS Config\n(.json)"]
+    end
 
-### AI Services
-- **Speech-to-Text (STT)**: AWS Transcribe, Deepgram Nova-3, Speechmatics, AssemblyAI, Gladia
-- **Text-to-Speech (TTS)**: AWS Polly, Deepgram Aura-2, ElevenLabs, Cartesia, PlayHT, LMNT, Rime
-- **Large Language Models (LLM)**: Amazon Bedrock (Claude 3.5 Haiku), OpenAI, Groq
+    subgraph Pipeline["Voice Pipeline Processor (Pipecat)"]
+        direction LR
+        ingest["Audio\nIngest"] --> stt["STT\nService"]
+        stt --> llm["LLM\nService"]
+        llm --> tts["TTS\nService"]
+    end
+
+    subgraph Timing["Timing Collectors"]
+        stt_lat["STT Latency"]
+        llm_lat["LLM Latency"]
+        tts_lat["TTS Latency"]
+    end
+
+    subgraph Eval["Three-Phase Evaluation"]
+        direction TB
+        subgraph WER["WER Evaluation"]
+            wer1["jiwer vs\nground truth"]
+        end
+        subgraph RQ["Response Quality\n(LLM Judge — Claude)"]
+            rq1["Correctness"]
+            rq2["Relevance"]
+            rq3["Completeness"]
+            rq4["Clarity"]
+        end
+        subgraph VQ["Voice Quality Assessment"]
+            vq1["NISQA — MOS, noisiness,\ncoloration, discontinuity, loudness"]
+            vq2["SpeechMetrics — MOSNet, SRMR"]
+            vq3["LLM Voice Judge\n(Claude + librosa features)\nfluency, naturalness, tone"]
+            vq4["Audio LLM Judge\n(MiniCPM-o)\nnaturalness, noisiness, loudness"]
+        end
+    end
+
+    subgraph Results["Results"]
+        r1["📄 Per-utterance metrics (JSON)"]
+        r2["📊 Aggregated evaluation report (JSON)"]
+        r3["🔊 Generated TTS audio (.wav)"]
+        r4["📈 Visualization plots (.png)"]
+    end
+
+    audio --> Pipeline
+    stt_cfg --> Pipeline
+    tts_cfg --> Pipeline
+    Pipeline --> Timing
+    Pipeline --> Eval
+    Eval --> Results
+```
+
+### Supported Services
+
+| STT (Speech-to-Text)     | TTS (Text-to-Speech)     | LLM                              |
+|--------------------------|--------------------------|----------------------------------|
+| AWS Transcribe           | AWS Polly                | Amazon Bedrock (Claude Haiku)    |
+| Deepgram Nova-2          | Cartesia                 | Groq                             |
+| Deepgram Nova-3          | Deepgram Aura            | OpenAI                           |
+| Whisper (small/large/turbo) | ElevenLabs            |                                  |
+| NVIDIA Riva (Parakeet)   | Groq                     |                                  |
+| AssemblyAI               | LMNT                     |                                  |
+| Gladia                   | NVIDIA Riva (Magpie)     |                                  |
+|                          | OpenAI TTS / TTS-HD      |                                  |
+|                          | PlayHT                   |                                  |
+|                          | Rime                     |                                  |
+
+### Core Frameworks
+
+- **[Pipecat](https://github.com/pipecat-ai/pipecat)** — Voice agent orchestration and real-time audio processing
+- **[Strands Agents](https://github.com/strands-agents/sdk-python)** — Multi-agent conversation management and tool calling
 
 ## Project Structure
 
 ```
-├── client/                 # Frontend web application
-├── server/                 # Backend services
-│   ├── src/
-│   │   ├── core/          # Core voice bot logic
-│   │   │   ├── voice_bot.py         # Main bot implementation
-│   │   │   ├── agent_builder.py     # Agent configuration
-│   │   │   ├── llm_processor.py     # LLM integration
-│   │   │   ├── tts.py               # TTS service implementations
-│   │   │   ├── custom_rtvi_observer.py  # RTVI event handling
-│   │   │   └── nvidia/              # NVIDIA AI services
-│   │   ├── evaluation/    # Evaluation framework
-│   │   │   ├── config/              # Configuration management
-│   │   │   │   └── configuration_manager.py
-│   │   │   ├── factories/           # Service factory pattern
-│   │   │   │   ├── base_factory.py
-│   │   │   │   ├── stt_factory.py
-│   │   │   │   └── tts_factory.py
-│   │   │   ├── pipeline/            # Pipeline components
-│   │   │   │   ├── pipeline_builder.py
-│   │   │   │   ├── pipeline_executor.py
-│   │   │   │   └── audio_processor.py
-│   │   │   ├── services/            # Service management
-│   │   │   │   └── service_manager.py
-│   │   │   ├── results/             # Result collection
-│   │   │   │   └── result_collector.py
-│   │   │   ├── orchestration/       # Evaluation orchestration
-│   │   │   │   └── evaluation_orchestrator.py
-│   │   │   ├── voice_pipeline_evaluator.py  # Main evaluator entry point
-│   │   │   ├── models.py            # Pydantic data models
-│   │   │   ├── metrics_calculator.py        # WER, latency metrics
-│   │   │   ├── audio_quality_analyzer.py    # Voice quality analysis
-│   │   │   ├── frame_processor.py           # Audio frame processing
-│   │   │   └── dataset_generator.py         # Test data management
-│   │   └── transport/     # Audio transport layers
-│   │       ├── batch_audio_transport.py     # Batch processing
-│   │       └── realtime_transport.py        # Real-time streaming
-│   ├── scripts/           # Evaluation scripts
-│   ├── evaluation_data/   # Test datasets and configurations
-│   ├── evaluation_output/ # Results, metrics, and TTS audio
-│   ├── main_server.py     # FastAPI server entry point
-│   └── requirements.txt   # Python dependencies
-└── .gitignore             # Git ignore file
+├── src/
+│   ├── core/                              # Voice bot under test
+│   │   ├── voice_bot.py                   # Main bot implementation
+│   │   ├── agent_builder.py               # Strands agent configuration
+│   │   ├── llm_processor.py               # LLM integration
+│   │   ├── tts.py                         # TTS service implementations
+│   │   └── nvidia/                        # NVIDIA Riva/NeMo adapters
+│   └── evaluation/                        # Evaluation framework
+│       ├── voice_pipeline_evaluator.py    # Entry point: run pipeline
+│       ├── metrics_calculator.py          # Entry point: score results
+│       ├── models.py                      # Pydantic data models
+│       ├── config/                        # Configuration management
+│       ├── factories/                     # Service factory pattern
+│       ├── pipeline/                      # Pipeline build & execution
+│       ├── orchestration/                 # Evaluation workflow
+│       ├── results/                       # Result collection & I/O
+│       ├── services/                      # LLM service, Whisper STT
+│       └── metrics/                       # Quality evaluators
+│           ├── wer_evaluator.py           #   Word Error Rate
+│           ├── response_quality_evaluator.py  #   LLM-as-judge
+│           ├── voice_quality_evaluator.py #   Audio quality
+│           ├── nisqa_evaluator.py         #   NISQA MOS scoring
+│           ├── speechmetrics_evaluator.py #   MOSNet, SRMR
+│           └── voice_quality_judge.py     #   LLM audio judge
+├── evaluation_data/
+│   ├── datasets/                          # Eval datasets & audio (.wav)
+│   ├── stt_configs/                       # STT service configs (.json)
+│   ├── tts_configs/                       # TTS service configs (.json)
+│   └── training_dataset/                  # Fine-tuning training data
+├── scripts/                               # Evaluation runner scripts
+│   ├── run_evaluation.sh                  # Unified runner (recommended)
+│   └── test_<stt>_<tts>.sh               # Per-combination scripts
+├── audio_quality_scoring/                 # Audio labeling & fine-tuning
+├── visualize/                             # Result visualization
+├── tests/                                 # Unit & integration tests
+├── requirements.txt
+└── .env.example
 ```
 
 ## Quick Start
 
 ### Prerequisites
+
 - Python 3.8+
-- Node.js 16+
-- ffmpeg (required for audio quality metrics)
+- ffmpeg
 - AWS account with Transcribe/Polly access
 - API keys for desired AI services (see `.env.example`)
 
-### 1. Environment Setup
+### Setup
 
 ```bash
-# Clone the repository
-cd nab-eba
+# Environment
+cp .env.example .env
+# Edit .env with your API keys
 
-# Copy environment template
-cp server/.env.example server/.env
-
-# Edit .env and add your API keys
-nano server/.env
-```
-
-Required keys:
-- `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `AWS_REGION` - For AWS services
-- `DEEPGRAM_API_KEY` - For Deepgram STT/TTS (optional)
-- `OPENAI_API_KEY` - For OpenAI services (optional)
-- `GROQ_API_KEY` - For Groq LLM services (optional)
-- `CARTESIA_API_KEY` - For Cartesia TTS (optional)
-- Additional keys for other providers (optional)
-
-### 2. Backend Setup
-
-```bash
-# Install system dependencies
-sudo apt-get update
-sudo apt-get install -y ffmpeg
-
-cd server/
-
-# Create virtual environment (recommended)
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
-
-# Install dependencies
+# Dependencies
+sudo apt-get update && sudo apt-get install -y ffmpeg
+python -m venv venv && source venv/bin/activate
 pip install -r requirements.txt
 
-# Fix numpy compatibility in srmrpy
-chmod +x ./scripts/fix_srmrpy.sh
+# Fix numpy compatibility
 ./scripts/fix_srmrpy.sh
 
-# Download Whisper models (required for local STT)
-python -c "import whisper; whisper.load_model('turbo'); whisper.load_model('large'); whisper.load_model('small')"
-
-
-## Evaluation
-
-### Running Evaluations
-
-Evaluate AWS Transcribe + Polly pipeline:
-```bash
-cd server/
-./scripts/test_aws_transcribe_polly.sh
+# Download Whisper models (if using local STT)
+python -c "import whisper; whisper.load_model('turbo')"
 ```
+
+## Running Evaluations
+
+### Unified Runner (recommended)
+
+```bash
+./scripts/run_evaluation.sh <stt_config> <tts_config>
+```
+
+Examples:
+
+```bash
+./scripts/run_evaluation.sh aws_transcribe cartesia
+./scripts/run_evaluation.sh deepgram_nova3 aws_polly
+./scripts/run_evaluation.sh whisper_turbo groq
+```
+
+Run without arguments to see available configs:
+
+```bash
+./scripts/run_evaluation.sh
+```
+
+### Per-Combination Scripts
+
+```bash
+./scripts/test_aws_transcribe_polly.sh
+./scripts/test_deepgram_nova3_cartesia.sh
+./scripts/test_whisper_turbo_groq.sh
+```
+
+### What Happens
+
+Each evaluation runs two steps:
+
+1. **Pipeline execution** (`voice_pipeline_evaluator.py`) — Sends audio through the STT → LLM → TTS pipeline, records transcriptions, responses, generated audio, and latency timings.
+
+2. **Scoring** (`metrics_calculator.py`) — Evaluates the results:
+   - **WER**: Compares STT output against ground truth transcriptions
+   - **Response quality**: LLM-as-judge scores (correctness, relevance, completeness, clarity)
+   - **Voice quality**: NISQA MOS, MOSNet, SRMR, and LLM audio quality assessment
 
 ### NVIDIA Services
 
-For NVIDIA AI services setup and deployment instructions, see [server/src/core/nvidia/README.md](server/src/core/nvidia/README.md).
+See [src/core/nvidia/README.md](src/core/nvidia/README.md) for NVIDIA Riva setup.
 
+## Evaluation Metrics
 
-### Evaluation Metrics
+| Category              | Metric                  | Method                                    |
+|-----------------------|-------------------------|-------------------------------------------|
+| **STT Accuracy**      | Word Error Rate (WER)   | jiwer vs ground truth                     |
+| **Response Quality**  | Correctness (0–10)      | LLM-as-judge (Claude)                     |
+|                       | Relevance (0–10)        | LLM-as-judge (Claude)                     |
+|                       | Completeness (0–10)     | LLM-as-judge (Claude)                     |
+|                       | Clarity (0–10)          | LLM-as-judge (Claude)                     |
+| **Voice Quality**     | MOS (1–5)               | NISQA neural model                        |
+|                       | Noisiness (1–5)         | NISQA sub-dimension                       |
+|                       | Coloration (1–5)        | NISQA sub-dimension                       |
+|                       | Discontinuity (1–5)     | NISQA sub-dimension                       |
+|                       | Loudness (1–5)          | NISQA sub-dimension                       |
+|                       | MOSNet (1–5)            | SpeechMetrics                             |
+|                       | SRMR (dB)               | SpeechMetrics                             |
+|                       | Fluency (0–10)          | LLM voice judge (Claude + librosa)        |
+|                       | Naturalness (0–10)      | LLM voice judge (Claude + librosa)        |
+|                       | Tone (0–10)             | LLM voice judge (Claude + librosa)        |
+|                       | Overall (0–10)          | LLM voice judge (Claude + librosa)        |
+|                       | Naturalness (1–10)      | Audio LLM judge (MiniCPM-o)               |
+|                       | Noisiness (1–10)        | Audio LLM judge (MiniCPM-o)               |
+|                       | Loudness (1–10)         | Audio LLM judge (MiniCPM-o)               |
+| **Latency**           | STT latency (ms)        | Time to transcription                     |
+|                       | TTS latency (ms)        | Time to first audio                       |
+|                       | Total latency (ms)      | End-to-end pipeline time                  |
 
-The framework measures:
+## Output
 
-**Speech Recognition Accuracy**
-- Word Error Rate (WER)
-- Character Error Rate (CER)
-- Transcription confidence scores
+Results are saved in `evaluation_output/` (gitignored):
 
-**Response Quality** (LLM-as-judge scoring)
-- Correctness - Factual accuracy
-- Relevance - Alignment with user intent
-- Completeness - Coverage of required information
-- Clarity - Communication effectiveness
-
-**Performance Metrics**
-- STT latency (time to first word, total transcription time)
-- LLM processing time
-- TTS generation latency
-- End-to-end response time
-
-**Voice Quality**
-- Audio clarity and naturalness
-- Prosody and intonation
-- Speech rate and rhythm
-
-### Output
-
-Results are saved in `server/evaluation_output/`:
-- `metrics_summary.json` - Aggregated metrics
-- `detailed_results.json` - Per-utterance analysis
-- `tts_audio/` - Generated audio files for quality review
-- `visualizations/` - Charts and graphs
-
-## Development
-
-### Core Components
-
-**Server Entry Point**
-- `main_server.py` - FastAPI application with WebSocket endpoints
-
-**Voice Bot Core**
-- `src/core/voice_bot.py` - Bot orchestration and pipeline management
-- `src/core/agent_builder.py` - Strands agent configuration
-- `src/core/llm_processor.py` - LLM integration and prompt management
-
-**Evaluation Pipeline Architecture**
-- `src/evaluation/voice_pipeline_evaluator.py` - Main evaluation entry point and runner
-- `src/evaluation/config/configuration_manager.py` - Configuration loading and management
-- `src/evaluation/factories/` - Service factory pattern for STT/TTS creation
-- `src/evaluation/pipeline/` - Pipeline construction, execution, and audio processing
-- `src/evaluation/services/service_manager.py` - Service lifecycle management
-- `src/evaluation/results/result_collector.py` - Result collection and file operations
-- `src/evaluation/orchestration/evaluation_orchestrator.py` - Evaluation workflow orchestration
-- `src/evaluation/models.py` - Pydantic data models for type safety
-- `src/evaluation/metrics_calculator.py` - Metric computation
-- `src/evaluation/audio_quality_analyzer.py` - Voice quality assessment
-- `src/evaluation/frame_processor.py` - Audio frame processing
-
-**Transport Layers**
-- `src/transport/batch_audio_transport.py` - Batch audio processing
-- `src/transport/realtime_transport.py` - Real-time streaming
-
-### Adding New AI Services
-
-1. Add API key to `server/.env`
-2. Update service configuration in `src/core/voice_bot.py`
-3. Create evaluation config in `evaluation_data/`
-4. Add evaluation script in `scripts/`
-
-### Running Tests
-
-```bash
-cd server/
-pytest tests/
+```
+evaluation_output/
+├── <stt>_<tts>_results.json        # Per-utterance pipeline results
+├── <stt>_<tts>_evaluation.json     # Aggregated metrics & scores
+└── tts_audio/
+    └── <stt>_<tts>/                # Generated TTS audio per combination
+        ├── question_0_response.wav
+        └── ...
 ```
 
-## Configuration
+Generate plots from results:
 
-### STT/TTS Configuration
+```bash
+python visualize/plot_evaluation_results.py
+```
 
-Create JSON configs in `evaluation_data/` to define service combinations:
+## Adding New Services
+
+1. Add API key to `.env`
+2. Create a config JSON in `evaluation_data/stt_configs/` or `evaluation_data/tts_configs/`:
 
 ```json
 {
-  "stt_service": "aws_transcribe",
-  "tts_service": "aws_polly",
-  "llm_service": "bedrock_claude",
-  "test_dataset": "common_voice"
+  "stt_service_id": "my_new_stt",
+  "stt_service_name": "My New STT",
+  "module": "pipecat.services.my_stt",
+  "class": "MySTTService",
+  "params": { ... }
 }
 ```
 
-### Agent Configuration
+3. Run: `./scripts/run_evaluation.sh my_new_stt cartesia`
 
-Modify `src/core/agent_builder.py` to customize:
-- System prompts
-- Tool definitions
-- Conversation flow
-- Context management
+## Running Tests
+
+```bash
+pytest tests/
+```
 
 ## Troubleshooting
 
-**Server won't start**
-- Check all required API keys are set in `.env`
-- Verify Python dependencies: `pip install -r requirements.txt`
-- Check port 8765 is available
-
-**Poor STT accuracy**
-- Verify audio quality (16kHz, mono recommended)
-- Check microphone permissions
-- Try different STT providers
-
-**High latency**
-- Check network connectivity
-- Consider regional endpoints (set `AWS_REGION`)
-- Use streaming STT/TTS services
+| Problem                | Solution                                                    |
+|------------------------|-------------------------------------------------------------|
+| Evaluation won't start | Check API keys in `.env`, run `pip install -r requirements.txt` |
+| Poor STT accuracy      | Verify audio is 16kHz mono; try different STT providers     |
+| High latency           | Check network; use regional endpoints (`AWS_REGION`)        |
+| NISQA errors           | Ensure ffmpeg is installed; check audio file format         |
 
 ## License
 

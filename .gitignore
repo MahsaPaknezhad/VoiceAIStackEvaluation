@@ -1,10 +1,15 @@
 # Created by https://www.toptal.com/developers/gitignore/api/python,visualstudiocode,macos
 # Edit at https://www.toptal.com/developers/gitignore?templates=python,visualstudiocode,macos
 ### IGNORE MODEL FILES ###
+models/
+trained_models/
 
-server/models/*
-server/trained_models/
-server/lily-data/*
+### Generated evaluation outputs ###
+evaluation_output/
+scoring_output/plots/
+scoring_output/baseline/tts_models/
+scoring_output/finetuned/tts_models/
+visualize/plots/
 
 ### macOS ###
 # General
