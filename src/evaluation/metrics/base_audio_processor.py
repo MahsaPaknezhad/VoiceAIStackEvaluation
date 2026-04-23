@@ -1,3 +1,6 @@
+# Copyright (c) 2026 under the MIT License.
+# SPDX-License-Identifier: MIT
+
 from abc import ABC, abstractmethod
 from typing import Tuple
 import numpy as np

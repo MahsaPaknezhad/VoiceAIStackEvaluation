@@ -1,3 +1,6 @@
+# Copyright (c) 2026 under the MIT License.
+# SPDX-License-Identifier: MIT
+
 # test_bedrock.py
 import boto3
 import os

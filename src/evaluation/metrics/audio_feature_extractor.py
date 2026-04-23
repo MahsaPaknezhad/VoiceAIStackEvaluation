@@ -1,3 +1,6 @@
+# Copyright (c) 2026 under the MIT License.
+# SPDX-License-Identifier: MIT
+
 import librosa
 import numpy as np
 from typing import Tuple, Dict, Any

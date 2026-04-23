@@ -1,3 +1,6 @@
+# Copyright (c) 2026 under the MIT License.
+# SPDX-License-Identifier: MIT
+
 """
 Evaluation script entry point for VoiceAssistant-Eval dataset.
 Measures STT accuracy (WER) and response quality using LLM-as-judge.

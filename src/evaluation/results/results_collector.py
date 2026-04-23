@@ -1,3 +1,6 @@
+# Copyright (c) 2026 under the MIT License.
+# SPDX-License-Identifier: MIT
+
 """
 Result collector for voice evaluation framework.
 Handles result collection and file operations.

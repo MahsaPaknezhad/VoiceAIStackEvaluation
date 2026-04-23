@@ -1,3 +1,6 @@
+# Copyright (c) 2026 under the MIT License.
+# SPDX-License-Identifier: MIT
+
 """
 Pipeline executor for voice evaluation framework.
 Handles pipeline execution and result collection.

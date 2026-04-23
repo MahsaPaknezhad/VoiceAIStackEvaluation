@@ -1,4 +1,6 @@
 #!/bin/bash
+# Copyright (c) 2026 under the MIT License.
+# SPDX-License-Identifier: MIT
 # Fix numpy compatibility issue in multiple packages
 PACKAGES=("srmrpy" "gammatone" "pyloudnorm" "resampy")
 

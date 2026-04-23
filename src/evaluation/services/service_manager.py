@@ -1,3 +1,6 @@
+# Copyright (c) 2026 under the MIT License.
+# SPDX-License-Identifier: MIT
+
 """
 Service manager for voice evaluation framework.
 Handles service lifecycle management and cleanup.

@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+# Copyright (c) 2026 under the MIT License.
+# SPDX-License-Identifier: MIT
 """
 Scientific visualization of STT/TTS evaluation results.
 """

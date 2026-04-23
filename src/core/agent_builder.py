@@ -1,3 +1,6 @@
+# Copyright (c) 2026 under the MIT License.
+# SPDX-License-Identifier: MIT
+
 from loguru import logger
 from strands import Agent
 from strands.models import BedrockModel

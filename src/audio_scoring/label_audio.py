@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+# Copyright (c) 2026 under the MIT License.
+# SPDX-License-Identifier: MIT
 """
 Web-based audio labeling tool for a SINGLE metric at a time.
 

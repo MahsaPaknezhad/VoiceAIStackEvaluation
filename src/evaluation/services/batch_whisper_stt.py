@@ -1,3 +1,6 @@
+# Copyright (c) 2026 under the MIT License.
+# SPDX-License-Identifier: MIT
+
 """
 Batch-enabled Whisper STT service for evaluation framework.
 Extends Pipecat's WhisperSTTService with batch transcription capabilities.

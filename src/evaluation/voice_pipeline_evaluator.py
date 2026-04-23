@@ -1,3 +1,6 @@
+# Copyright (c) 2026 under the MIT License.
+# SPDX-License-Identifier: MIT
+
 """
 Voice assistant evaluation pipeline entry point.
 Orchestrates voice assistant evaluation across datasets with multiple AI

@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+# Copyright (c) 2026 under the MIT License.
+# SPDX-License-Identifier: MIT
 """
 Fine-tune MiniCPM-o 4.5 with LoRA on labeled audio samples.
 

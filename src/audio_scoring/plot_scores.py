@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+# Copyright (c) 2026 under the MIT License.
+# SPDX-License-Identifier: MIT
 """Plot TTS model scores (naturalness, noisiness, loudness) with std error bars.
 
 Reads minicpm baseline and finetuned scores from lily-data evaluation JSONs,

@@ -1,3 +1,6 @@
+# Copyright (c) 2026 under the MIT License.
+# SPDX-License-Identifier: MIT
+
 """
 STT + TTS Combination Ranking Script
 =====================================
@@ -58,7 +61,7 @@ METRIC_DIRS = ["lower", "higher", "lower", "higher", "higher", "lower", "higher"
 def parse_args():
     p = argparse.ArgumentParser(description="Rank STT+TTS combinations")
     p.add_argument("--eval-dir",
-                   default=os.path.join(os.path.dirname(__file__), "output/eval-results/evaluation_output/evaluation"),
+                   default=os.path.join(os.path.dirname(__file__), "..", "output/eval-results/evaluation_output/evaluation"),
                    help="Path to evaluation directory")
     p.add_argument("--weights", default="30,10,30,10,7,7,6",
                    help="Comma-separated weights for: WER,Judge,Latency,VoiceLLM,mCPM_Nat,mCPM_Noi,mCPM_Loud (sum to 100)")

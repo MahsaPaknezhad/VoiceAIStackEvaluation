@@ -1,3 +1,6 @@
+# Copyright (c) 2026 under the MIT License.
+# SPDX-License-Identifier: MIT
+
 """
 Unified voice quality evaluator implementing BaseQualityEvaluator interface.
 

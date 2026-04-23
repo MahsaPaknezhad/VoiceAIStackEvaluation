@@ -1,3 +1,6 @@
+# Copyright (c) 2026 under the MIT License.
+# SPDX-License-Identifier: MIT
+
 """
 Pydantic models for voice evaluation framework.
 Provides type safety and validation for evaluation data structures.

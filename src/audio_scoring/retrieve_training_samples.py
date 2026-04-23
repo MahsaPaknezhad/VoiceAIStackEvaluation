@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+# Copyright (c) 2026 under the MIT License.
+# SPDX-License-Identifier: MIT
 """
 Retrieve 100 diverse audio samples from VoiceAssistant-Eval splits NOT used
 by the existing evaluation dataset, for fine-tuning training data.

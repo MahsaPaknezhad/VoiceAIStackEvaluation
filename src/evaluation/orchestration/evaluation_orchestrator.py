@@ -1,3 +1,6 @@
+# Copyright (c) 2026 under the MIT License.
+# SPDX-License-Identifier: MIT
+
 """
 Evaluation orchestrator for voice evaluation framework.
 Orchestrates the evaluation process across all dataset items.

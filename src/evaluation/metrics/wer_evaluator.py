@@ -1,3 +1,6 @@
+# Copyright (c) 2026 under the MIT License.
+# SPDX-License-Identifier: MIT
+
 from typing import Optional
 from jiwer import wer as jiwer_wer
 from src.evaluation.metrics.base_quality_evaluator import BaseQualityEvaluator

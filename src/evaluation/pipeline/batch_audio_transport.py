@@ -1,3 +1,6 @@
+# Copyright (c) 2026 under the MIT License.
+# SPDX-License-Identifier: MIT
+
 """
 Batch audio transport for evaluation pipeline.
 Handles batch processing of audio files through voice evaluation pipelines.

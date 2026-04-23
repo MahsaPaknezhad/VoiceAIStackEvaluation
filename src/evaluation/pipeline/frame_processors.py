@@ -1,3 +1,6 @@
+# Copyright (c) 2026 under the MIT License.
+# SPDX-License-Identifier: MIT
+
 """
 Frame processors for voice pipeline evaluation.
 Specialized processors that collect timing data and text outputs during

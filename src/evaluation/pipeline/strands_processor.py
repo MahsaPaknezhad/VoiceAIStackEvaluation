@@ -1,3 +1,6 @@
+# Copyright (c) 2026 under the MIT License.
+# SPDX-License-Identifier: MIT
+
 """
 Strands Agent processor for evaluation pipeline.
 Specialized version for batch evaluation with simplified processing.

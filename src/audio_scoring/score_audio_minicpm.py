@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+# Copyright (c) 2026 under the MIT License.
+# SPDX-License-Identifier: MIT
 """Score audio files using MiniCPM-o 4.5 for naturalness and clarity.
 
 Walks evaluation JSON files, resolves the matching local .wav from tts_audio/,

@@ -1,3 +1,6 @@
+# Copyright (c) 2026 under the MIT License.
+# SPDX-License-Identifier: MIT
+
 # Create: server/tests/test_pipeline_integration.py
 
 import pytest

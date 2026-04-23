@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+# Copyright (c) 2026 under the MIT License.
+# SPDX-License-Identifier: MIT
 """Plot STT latency vs WER with broken axis for local vs API-based models."""
 
 import json

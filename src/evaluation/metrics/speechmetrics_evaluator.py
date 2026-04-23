@@ -1,3 +1,6 @@
+# Copyright (c) 2026 under the MIT License.
+# SPDX-License-Identifier: MIT
+
 import os
 from src.evaluation.metrics.base_quality_evaluator import BaseQualityEvaluator
 from src.evaluation.models import SpeechMetricsConfig, SpeechMetricsResults

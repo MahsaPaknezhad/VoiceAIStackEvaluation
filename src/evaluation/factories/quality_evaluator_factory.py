@@ -1,3 +1,6 @@
+# Copyright (c) 2026 under the MIT License.
+# SPDX-License-Identifier: MIT
+
 """Factory for creating unified quality evaluators."""
 
 from typing import Optional

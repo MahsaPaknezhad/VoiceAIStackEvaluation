@@ -1,3 +1,6 @@
+# Copyright (c) 2026 under the MIT License.
+# SPDX-License-Identifier: MIT
+
 from typing import Literal
 from pydantic import BaseModel
 from pipecat.observers.base_observer import FramePushed

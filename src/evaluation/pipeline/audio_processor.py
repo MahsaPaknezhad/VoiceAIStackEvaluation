@@ -1,3 +1,6 @@
+# Copyright (c) 2026 under the MIT License.
+# SPDX-License-Identifier: MIT
+
 """
 Audio processor for voice evaluation framework.
 Handles audio file processing and pipeline execution.

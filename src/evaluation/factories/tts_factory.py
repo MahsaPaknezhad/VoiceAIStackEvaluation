@@ -1,3 +1,6 @@
+# Copyright (c) 2026 under the MIT License.
+# SPDX-License-Identifier: MIT
+
 import os
 from loguru import logger
 from typing import Dict, Any, Optional
