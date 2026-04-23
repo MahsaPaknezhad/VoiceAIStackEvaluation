@@ -2,9 +2,8 @@
 # Edit at https://www.toptal.com/developers/gitignore?templates=python,visualstudiocode,macos
 ### IGNORE MODEL FILES ###
 
-server/models/*
-server/trained_models/
-server/lily-data/*
+data/
+output/
 
 ### macOS ###
 # General

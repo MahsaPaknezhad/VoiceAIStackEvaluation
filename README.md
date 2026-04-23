@@ -2,7 +2,7 @@
 
 A comprehensive evaluation framework for voice assistants that measures speech-to-text accuracy, response quality, and latency metrics across different AI service combinations.
 
-![](demo.png)
+![Architecture Diagram](assets/diagram.jpg)
 
 ## Overview
 
@@ -23,55 +23,54 @@ This project provides a complete pipeline for building, testing, and evaluating 
 ## Project Structure
 
 ```
-├── client/                 # Frontend web application
-├── server/                 # Backend services
-│   ├── src/
-│   │   ├── core/          # Core voice bot logic
-│   │   │   ├── voice_bot.py         # Main bot implementation
-│   │   │   ├── agent_builder.py     # Agent configuration
-│   │   │   ├── llm_processor.py     # LLM integration
-│   │   │   ├── tts.py               # TTS service implementations
-│   │   │   ├── custom_rtvi_observer.py  # RTVI event handling
-│   │   │   └── nvidia/              # NVIDIA AI services
-│   │   ├── evaluation/    # Evaluation framework
-│   │   │   ├── config/              # Configuration management
-│   │   │   │   └── configuration_manager.py
-│   │   │   ├── factories/           # Service factory pattern
-│   │   │   │   ├── base_factory.py
-│   │   │   │   ├── stt_factory.py
-│   │   │   │   └── tts_factory.py
-│   │   │   ├── pipeline/            # Pipeline components
-│   │   │   │   ├── pipeline_builder.py
-│   │   │   │   ├── pipeline_executor.py
-│   │   │   │   └── audio_processor.py
-│   │   │   ├── services/            # Service management
-│   │   │   │   └── service_manager.py
-│   │   │   ├── results/             # Result collection
-│   │   │   │   └── result_collector.py
-│   │   │   ├── orchestration/       # Evaluation orchestration
-│   │   │   │   └── evaluation_orchestrator.py
-│   │   │   ├── voice_pipeline_evaluator.py  # Main evaluator entry point
-│   │   │   ├── models.py            # Pydantic data models
-│   │   │   ├── metrics_calculator.py        # WER, latency metrics
-│   │   │   ├── audio_quality_analyzer.py    # Voice quality analysis
-│   │   │   ├── frame_processor.py           # Audio frame processing
-│   │   │   └── dataset_generator.py         # Test data management
-│   │   └── transport/     # Audio transport layers
-│   │       ├── batch_audio_transport.py     # Batch processing
-│   │       └── realtime_transport.py        # Real-time streaming
-│   ├── scripts/           # Evaluation scripts
-│   ├── evaluation_data/   # Test datasets and configurations
-│   ├── evaluation_output/ # Results, metrics, and TTS audio
-│   ├── main_server.py     # FastAPI server entry point
-│   └── requirements.txt   # Python dependencies
-└── .gitignore             # Git ignore file
+├── src/
+│   ├── core/                  # Core voice bot logic
+│   │   ├── voice_bot.py
+│   │   ├── agent_builder.py
+│   │   ├── llm_processor.py
+│   │   ├── tts.py
+│   │   ├── custom_rtvi_observer.py
+│   │   └── nvidia/            # NVIDIA AI services
+│   ├── evaluation/            # Evaluation framework
+│   │   ├── config/            # Configuration management
+│   │   ├── factories/         # Service factory pattern
+│   │   ├── pipeline/          # Pipeline components
+│   │   ├── services/          # Service management
+│   │   ├── results/           # Result collection
+│   │   ├── orchestration/     # Evaluation orchestration
+│   │   ├── metrics/           # Quality metrics (NISQA, WER, etc.)
+│   │   ├── voice_pipeline_evaluator.py
+│   │   ├── models.py
+│   │   ├── metrics_calculator.py
+│   │   ├── audio_quality_analyzer.py
+│   │   └── dataset_generator.py
+│   └── transport/             # Audio transport layers
+├── data/                      # Input data (gitignored)
+│   ├── stt_bot_configs/       # STT service configurations
+│   ├── tts_bot_configs/       # TTS service configurations
+│   ├── voiceassistant_eval_new/  # Test datasets and audio input
+│   ├── training_dataset/      # Training data for audio scoring
+│   └── trained_models/        # Trained model weights
+├── output/                    # Output data (gitignored)
+│   ├── eval-results/          # Full evaluation run results
+│   ├── scoring_output/        # Audio quality scoring results
+│   ├── plots/                 # Generated visualizations
+│   ├── tts_audio/             # Generated TTS audio files
+│   └── *.json                 # Per-experiment result/evaluation files
+├── scripts/                   # Evaluation shell scripts
+├── visualize/                 # Plotting and visualization scripts
+├── audio_quality_scoring/     # Audio quality scoring tools
+├── tests/                     # Unit and integration tests
+├── rank_combinations.py       # STT+TTS combination ranking
+├── requirements.txt
+├── .env.example
+└── .gitignore
 ```
 
 ## Quick Start
 
 ### Prerequisites
 - Python 3.8+
-- Node.js 16+
 - ffmpeg (required for audio quality metrics)
 - AWS account with Transcribe/Polly access
 - API keys for desired AI services (see `.env.example`)
@@ -79,14 +78,11 @@ This project provides a complete pipeline for building, testing, and evaluating 
 ### 1. Environment Setup
 
 ```bash
-# Clone the repository
-cd nab-eba
-
 # Copy environment template
-cp server/.env.example server/.env
+cp .env.example .env
 
 # Edit .env and add your API keys
-nano server/.env
+nano .env
 ```
 
 Required keys:
@@ -97,18 +93,16 @@ Required keys:
 - `CARTESIA_API_KEY` - For Cartesia TTS (optional)
 - Additional keys for other providers (optional)
 
-### 2. Backend Setup
+### 2. Setup
 
 ```bash
 # Install system dependencies
 sudo apt-get update
 sudo apt-get install -y ffmpeg
 
-cd server/
-
 # Create virtual environment (recommended)
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
+python -m venv .venv
+source .venv/bin/activate
 
 # Install dependencies
 pip install -r requirements.txt
@@ -119,7 +113,7 @@ chmod +x ./scripts/fix_srmrpy.sh
 
 # Download Whisper models (required for local STT)
 python -c "import whisper; whisper.load_model('turbo'); whisper.load_model('large'); whisper.load_model('small')"
-
+```
 
 ## Evaluation
 
@@ -127,14 +121,12 @@ python -c "import whisper; whisper.load_model('turbo'); whisper.load_model('larg
 
 Evaluate AWS Transcribe + Polly pipeline:
 ```bash
-cd server/
 ./scripts/test_aws_transcribe_polly.sh
 ```
 
 ### NVIDIA Services
 
-For NVIDIA AI services setup and deployment instructions, see [server/src/core/nvidia/README.md](server/src/core/nvidia/README.md).
-
+For NVIDIA AI services setup and deployment instructions, see [src/core/nvidia/README.md](src/core/nvidia/README.md).
 
 ### Evaluation Metrics
 
@@ -164,18 +156,16 @@ The framework measures:
 
 ### Output
 
-Results are saved in `server/evaluation_output/`:
-- `metrics_summary.json` - Aggregated metrics
-- `detailed_results.json` - Per-utterance analysis
+Results are saved in `output/`:
+- `eval-results/` - Full evaluation run data
+- `scoring_output/` - Audio quality scoring results
+- `plots/` - Generated charts and visualizations
 - `tts_audio/` - Generated audio files for quality review
-- `visualizations/` - Charts and graphs
+- `*_results.json` / `*_evaluation.json` - Per-experiment metrics
 
 ## Development
 
 ### Core Components
-
-**Server Entry Point**
-- `main_server.py` - FastAPI application with WebSocket endpoints
 
 **Voice Bot Core**
 - `src/core/voice_bot.py` - Bot orchestration and pipeline management
@@ -188,44 +178,23 @@ Results are saved in `server/evaluation_output/`:
 - `src/evaluation/factories/` - Service factory pattern for STT/TTS creation
 - `src/evaluation/pipeline/` - Pipeline construction, execution, and audio processing
 - `src/evaluation/services/service_manager.py` - Service lifecycle management
-- `src/evaluation/results/result_collector.py` - Result collection and file operations
+- `src/evaluation/results/results_collector.py` - Result collection and file operations
 - `src/evaluation/orchestration/evaluation_orchestrator.py` - Evaluation workflow orchestration
 - `src/evaluation/models.py` - Pydantic data models for type safety
 - `src/evaluation/metrics_calculator.py` - Metric computation
 - `src/evaluation/audio_quality_analyzer.py` - Voice quality assessment
-- `src/evaluation/frame_processor.py` - Audio frame processing
-
-**Transport Layers**
-- `src/transport/batch_audio_transport.py` - Batch audio processing
-- `src/transport/realtime_transport.py` - Real-time streaming
 
 ### Adding New AI Services
 
-1. Add API key to `server/.env`
+1. Add API key to `.env`
 2. Update service configuration in `src/core/voice_bot.py`
-3. Create evaluation config in `evaluation_data/`
+3. Create evaluation config in `data/`
 4. Add evaluation script in `scripts/`
 
 ### Running Tests
 
 ```bash
-cd server/
 pytest tests/
-```
-
-## Configuration
-
-### STT/TTS Configuration
-
-Create JSON configs in `evaluation_data/` to define service combinations:
-
-```json
-{
-  "stt_service": "aws_transcribe",
-  "tts_service": "aws_polly",
-  "llm_service": "bedrock_claude",
-  "test_dataset": "common_voice"
-}
 ```
 
 ### Agent Configuration
@@ -238,11 +207,6 @@ Modify `src/core/agent_builder.py` to customize:
 
 ## Troubleshooting
 
-**Server won't start**
-- Check all required API keys are set in `.env`
-- Verify Python dependencies: `pip install -r requirements.txt`
-- Check port 8765 is available
-
 **Poor STT accuracy**
 - Verify audio quality (16kHz, mono recommended)
 - Check microphone permissions
@@ -252,11 +216,3 @@ Modify `src/core/agent_builder.py` to customize:
 - Check network connectivity
 - Consider regional endpoints (set `AWS_REGION`)
 - Use streaming STT/TTS services
-
-## License
-
-[Add your license information]
-
-## Contributing
-
-[Add contribution guidelines]
