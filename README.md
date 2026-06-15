@@ -2,8 +2,6 @@
 
 A comprehensive evaluation framework for voice assistants that measures speech-to-text accuracy, response quality, and latency metrics across different AI service combinations.
 
-![Architecture Diagram](assets/diagram.jpg)
-
 ## Overview
 
 This project provides a complete pipeline for building, testing, and evaluating voice assistants with multiple AI service providers. It enables systematic comparison of different STT/TTS/LLM combinations to optimize for accuracy, latency, and voice quality.
@@ -23,53 +21,6 @@ This project provides a complete pipeline for building, testing, and evaluating 
 - **Speech-to-Text (STT)**: AWS Transcribe, Deepgram Nova-3, Speechmatics, AssemblyAI, Gladia
 - **Text-to-Speech (TTS)**: AWS Polly, Deepgram Aura-2, ElevenLabs, Cartesia, PlayHT, LMNT, Rime
 - **Large Language Models (LLM)**: Amazon Bedrock (Claude 3.5 Haiku), OpenAI, Groq
-
-## Project Structure
-
-```
-├── src/
-│   ├── core/                  # Core voice bot logic
-│   │   ├── voice_bot.py
-│   │   ├── agent_builder.py
-│   │   ├── llm_processor.py
-│   │   ├── tts.py
-│   │   ├── custom_rtvi_observer.py
-│   │   └── nvidia/            # NVIDIA AI services
-│   ├── evaluation/            # Evaluation framework
-│   │   ├── config/            # Configuration management
-│   │   ├── factories/         # Service factory pattern
-│   │   ├── pipeline/          # Pipeline components
-│   │   ├── services/          # Service management
-│   │   ├── results/           # Result collection
-│   │   ├── orchestration/     # Evaluation orchestration
-│   │   ├── metrics/           # Quality metrics (NISQA, WER, etc.)
-│   │   ├── voice_pipeline_evaluator.py
-│   │   ├── models.py
-│   │   ├── metrics_calculator.py
-│   │   ├── audio_quality_analyzer.py
-│   │   └── dataset_generator.py
-│   └── transport/             # Audio transport layers
-├── data/                      # Input data (gitignored)
-│   ├── stt_bot_configs/       # STT service configurations
-│   ├── tts_bot_configs/       # TTS service configurations
-│   ├── voiceassistant_eval_new/  # Test datasets and audio input
-│   ├── training_dataset/      # Training data for audio scoring
-│   └── trained_models/        # Trained model weights
-├── output/                    # Output data (gitignored)
-│   ├── eval-results/          # Full evaluation run results
-│   ├── scoring_output/        # Audio quality scoring results
-│   ├── plots/                 # Generated visualizations
-│   ├── tts_audio/             # Generated TTS audio files
-│   └── *.json                 # Per-experiment result/evaluation files
-├── scripts/                   # Evaluation shell scripts
-├── visualize/                 # Plotting and visualization scripts
-├── audio_quality_scoring/     # Audio quality scoring tools
-├── tests/                     # Unit and integration tests
-├── rank_combinations.py       # STT+TTS combination ranking
-├── requirements.txt
-├── .env.example
-└── .gitignore
-```
 
 ## Quick Start
 
