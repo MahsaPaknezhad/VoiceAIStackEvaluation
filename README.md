@@ -10,6 +10,9 @@ This project provides a complete pipeline for building, testing, and evaluating 
 
 **Implementation Pipeline:** Overview of the voice pipeline evaluation framework. Audio inputs and configuration files are processed through a Pipecat-based pipeline (STT, LLM, TTS), followed by a four-phase evaluation comprising voice quality assessment (NISQA, SpeechMetrics, LLM Voice Judge, Audio LLM Judge), response quality scoring (correctness, relevance, completeness, clarity), transcription quality via Word Error Rate, and end-to-end latency measurement across each pipeline stage.
 
+> **Pre-computed results:** Evaluation results and generated TTS audio samples are available on Hugging Face:
+> [voice-ai-stack-evaluation](https://huggingface.co/datasets/MahsaPak/voice-ai-stack-evaluation)
+
 ## Architecture
 
 ### Core Frameworks
@@ -173,9 +176,6 @@ Results are saved in `output/` (gitignored due to size):
 - `tts_audio/` - Generated audio files for quality review
 - `*_results.json` / `*_evaluation.json` - Per-experiment metrics
 
-> **Pre-computed results:** Evaluation results and generated TTS audio samples are available on Hugging Face:
-> [MahsaPak/voice-ai-stack-evaluation](https://huggingface.co/datasets/MahsaPak/voice-ai-stack-evaluation)
-
 ## Development
 
 ### Core Components
@@ -229,3 +229,7 @@ Modify `src/core/agent_builder.py` to customize:
 - Check network connectivity
 - Consider regional endpoints (set `AWS_REGION`)
 - Use streaming STT/TTS services
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
