@@ -9,7 +9,7 @@ Usage:
     python audio_quality_scoring/label_audio.py --metric noisiness [--port 8900]
     python audio_quality_scoring/label_audio.py --metric loudness [--port 8901]
 
-Labels saved to evaluation_data/training_dataset/labels/<metric>.json
+Labels saved to data/training_dataset/labels/<metric>.json
 """
 
 import json
@@ -19,7 +19,7 @@ from urllib.parse import parse_qs, urlparse
 import argparse
 import string
 
-SAMPLES_DIR = "evaluation_data/training_dataset"
+SAMPLES_DIR = "data/training_dataset"
 SAMPLES_JSON = os.path.join(SAMPLES_DIR, "samples.json")
 LABELS_DIR = os.path.join(SAMPLES_DIR, "labels")
 
@@ -168,12 +168,22 @@ class LabelHandler(SimpleHTTPRequestHandler):
             sample = next((s for s in self.samples if s["id"] == sample_id), None)
             if sample:
                 labels = load_labels(self.metric)
-                labels.append({
+                new_entry = {
                     "audio_path": sample["audio_path"],
                     "sample_id": sample_id,
                     "split": sample["split"],
                     self.metric: int(params.get("score", [5])[0]),
-                })
+                }
+                # Overwrite any existing label for this sample_id (keep last value,
+                # no duplicates) rather than appending.
+                replaced = False
+                for i, existing in enumerate(labels):
+                    if existing.get("sample_id") == sample_id:
+                        labels[i] = new_entry
+                        replaced = True
+                        break
+                if not replaced:
+                    labels.append(new_entry)
                 save_labels(self.metric, labels)
                 self.labeled_ids.add(sample_id)
         elif action == "skip" and sample_id:

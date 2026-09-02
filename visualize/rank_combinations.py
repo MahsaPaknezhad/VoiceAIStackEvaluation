@@ -116,7 +116,7 @@ def collect_metrics(eval_dir):
                 if lj.get("llm_naturalness_score") is not None:
                     llm_voice_sub["naturalness"].append(lj["llm_naturalness_score"])
 
-                mcpm = vq.get("minicpm_finetuned") or vq.get("minicpm") or {}
+                mcpm = vq.get("minicpm_finetuned") or {}
                 if mcpm.get("naturalness") is not None:
                     minicpm_nat_list.append(mcpm["naturalness"])
                 if mcpm.get("noisiness") is not None:

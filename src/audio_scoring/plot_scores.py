@@ -41,12 +41,12 @@ def extract_tts(combo_name: str) -> str:
     return combo_name.rsplit("_", 1)[-1]
 
 
-def load_scores_from_evals(eval_dir: str) -> dict[str, dict[str, list[dict]]]:
-    """Load minicpm scores from evaluation JSONs, grouped by TTS model.
+def load_scores_from_evals(eval_dir: str) -> dict[str, list[dict]]:
+    """Load MiniCPM regression scores from evaluation JSONs, grouped by TTS model.
 
-    Returns: {mode: {tts_model: [score_dicts]}}
+    Returns: {tts_model: [score_dicts]}
     """
-    result = {"baseline": defaultdict(list), "finetuned": defaultdict(list)}
+    result = defaultdict(list)
 
     for jf in sorted(glob.glob(os.path.join(eval_dir, "*/*_evaluation.json"))):
         combo = os.path.basename(os.path.dirname(jf))
@@ -57,15 +57,14 @@ def load_scores_from_evals(eval_dir: str) -> dict[str, dict[str, list[dict]]]:
 
         for entry in data.get("evaluations", []):
             vq = entry.get("voice_quality") or {}
-            for mode, key in [("baseline", "minicpm"), ("finetuned", "minicpm_finetuned")]:
-                scores = vq.get(key) or {}
-                if scores and "error" not in scores:
-                    result[mode][tts].append(scores)
+            scores = vq.get("minicpm_finetuned") or {}
+            if scores and "error" not in scores:
+                result[tts].append(scores)
 
     return result
 
 
-def plot_metric(ax, data, metric, colors, mode):
+def plot_metric(ax, data, metric, colors):
     models = sorted(data.keys())
     means = [np.mean([s[metric] for s in data[m]]) for m in models]
     stds = [np.std([s[metric] for s in data[m]]) for m in models]
@@ -83,7 +82,7 @@ def plot_metric(ax, data, metric, colors, mode):
     pad = (max_val - min_val) * 0.15 or 0.3
     ax.set_xlim(max(0, min_val - pad), max_val + pad)
 
-    title = "Baseline" if mode == "baseline" else "Fine-tuned"
+    title = "Fine-tuned (regression)"
     ax.set_title(f"{title} — {metric.capitalize()}", fontsize=16, fontweight="bold")
     ax.grid(axis="x", linestyle="--", alpha=0.3)
 
@@ -94,24 +93,22 @@ def main():
                         help=f"Evaluation JSON directory (default: {DEFAULT_EVAL_DIR})")
     args = parser.parse_args()
 
-    all_data = load_scores_from_evals(args.eval_dir)
+    data = load_scores_from_evals(args.eval_dir)
 
-    for mode in ["baseline", "finetuned"]:
-        if not all_data[mode]:
-            print(f"No {mode} scores found in {args.eval_dir}")
-            return
-        n = sum(len(v) for v in all_data[mode].values())
-        print(f"{mode}: {n} scores across {len(all_data[mode])} TTS models")
+    if not data:
+        print(f"No MiniCPM regression scores found in {args.eval_dir}")
+        return
+    n = sum(len(v) for v in data.values())
+    print(f"finetuned: {n} scores across {len(data)} TTS models")
 
     output_dir = os.path.join("output/scoring_output", "plots")
     os.makedirs(output_dir, exist_ok=True)
 
-    fig, axes = plt.subplots(2, 3, figsize=(20, 10))
-    for row, mode in enumerate(["baseline", "finetuned"]):
-        for col, metric in enumerate(METRICS):
-            plot_metric(axes[row][col], all_data[mode], metric, COLORS, mode)
+    fig, axes = plt.subplots(1, 3, figsize=(20, 5))
+    for col, metric in enumerate(METRICS):
+        plot_metric(axes[col], data, metric, COLORS)
 
-    fig.suptitle("Voice Evaluation LLM Scores", fontsize=20, fontweight="bold", y=1.0)
+    fig.suptitle("Voice Evaluation LLM Scores", fontsize=20, fontweight="bold", y=1.02)
     plt.tight_layout()
     out_path = os.path.join(output_dir, "tts_combined.png")
     plt.savefig(out_path, dpi=150, bbox_inches="tight")

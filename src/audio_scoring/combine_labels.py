@@ -5,12 +5,12 @@
 Combine per-metric label files into a single labels.json for training.
 
 Reads:
-    evaluation_data/training_dataset/labels/naturalness.json
-    evaluation_data/training_dataset/labels/noisiness.json
-    evaluation_data/training_dataset/labels/loudness.json
+    data/training_dataset/labels/naturalness.json
+    data/training_dataset/labels/noisiness.json
+    data/training_dataset/labels/loudness.json
 
 Writes:
-    evaluation_data/training_dataset/labels/labels.json
+    data/training_dataset/labels/labels.json
 
 Only includes samples that have ALL three metrics labeled.
 """
@@ -18,7 +18,7 @@ Only includes samples that have ALL three metrics labeled.
 import json
 import os
 
-LABELS_DIR = "evaluation_data/training_dataset/labels"
+LABELS_DIR = "data/training_dataset/labels"
 METRICS = ["naturalness", "noisiness", "loudness"]
 OUTPUT = os.path.join(LABELS_DIR, "labels.json")
 

@@ -2,7 +2,7 @@
 # Copyright (c) 2026 under the MIT License.
 # SPDX-License-Identifier: MIT
 """
-Retrieve 100 diverse audio samples from VoiceAssistant-Eval splits NOT used
+Retrieve 500 diverse audio samples from VoiceAssistant-Eval splits NOT used
 by the existing evaluation dataset, for fine-tuning training data.
 
 Existing data uses only 'listening_general' (indices 1-4,6,7,9-16,19-22,28,29).
@@ -37,9 +37,9 @@ UNUSED_SPLITS = [
     "viewing_multi_discipline",
 ]
 
-OUTPUT_DIR = "evaluation_data/training_dataset"
-TOTAL_SAMPLES = 100
-SAMPLES_PER_UNUSED_SPLIT = 8  # 8 * 12 = 96, plus 4 from listening_general unused indices
+OUTPUT_DIR = "data/training_dataset"
+TOTAL_SAMPLES = 500
+SAMPLES_PER_UNUSED_SPLIT = 40  # 40 * 12 = 480, plus 20 from listening_general unused indices
 
 
 def save_audio(audio_bytes, path):
