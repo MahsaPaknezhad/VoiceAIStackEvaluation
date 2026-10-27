@@ -1,0 +1,16 @@
+\begin{table}[t]
+\centering
+\caption{\rev{Per-method provider naturalness. Methods agree that AWS Polly is least natural but disagree at the top, motivating caution in reading fine-grained differences. NISQA/MOSNet on MOS scale; MiniCPM scores on 1--10; LLM naturalness on its own scale.}}
+\label{tab:method-disagreement}
+\begin{tabular}{lccccc}
+\toprule
+Method & AWS Polly & Cartesia & Deepgram Aura & Groq & NVIDIA Magpie \\
+\midrule
+NISQA MOS & \textbf{4.90} & 4.68 & 4.81 & 4.70 & 4.64 \\
+MOSNet & 2.84 & \textbf{3.40} & 3.05 & 2.89 & 3.37 \\
+MiniCPM (zero-shot) & 9.36 & \textbf{9.36} & 9.05 & 9.29 & 9.04 \\
+LLM judge (nat.) & 2.85 & 2.97 & \textbf{3.97} & 3.68 & 2.93 \\
+Fine-tuned scorer & 4.06 & 6.49 & 5.92 & \textbf{6.77} & 6.42 \\
+\bottomrule
+\end{tabular}
+\end{table}

@@ -1,0 +1,702 @@
+{
+  "clip_0001": {
+    "provider": "aws_polly",
+    "provider_pretty": "AWS Polly",
+    "stt": "nvidia_parakeet",
+    "question_id": "speaking_reasoning_535",
+    "source_path": "/home/ubuntu/VoiceAIStackEvaluation/output/eval-results/tts_audio/nvidia_parakeet_aws_polly/speaking_reasoning_535_response.wav"
+  },
+  "clip_0002": {
+    "provider": "aws_polly",
+    "provider_pretty": "AWS Polly",
+    "stt": "nvidia_parakeet",
+    "question_id": "speaking_reasoning_103",
+    "source_path": "/home/ubuntu/VoiceAIStackEvaluation/output/eval-results/tts_audio/nvidia_parakeet_aws_polly/speaking_reasoning_103_response.wav"
+  },
+  "clip_0003": {
+    "provider": "aws_polly",
+    "provider_pretty": "AWS Polly",
+    "stt": "nvidia_parakeet",
+    "question_id": "speaking_reasoning_58",
+    "source_path": "/home/ubuntu/VoiceAIStackEvaluation/output/eval-results/tts_audio/nvidia_parakeet_aws_polly/speaking_reasoning_58_response.wav"
+  },
+  "clip_0004": {
+    "provider": "aws_polly",
+    "provider_pretty": "AWS Polly",
+    "stt": "nvidia_parakeet",
+    "question_id": "speaking_reasoning_784",
+    "source_path": "/home/ubuntu/VoiceAIStackEvaluation/output/eval-results/tts_audio/nvidia_parakeet_aws_polly/speaking_reasoning_784_response.wav"
+  },
+  "clip_0005": {
+    "provider": "aws_polly",
+    "provider_pretty": "AWS Polly",
+    "stt": "nvidia_parakeet",
+    "question_id": "speaking_reasoning_214",
+    "source_path": "/home/ubuntu/VoiceAIStackEvaluation/output/eval-results/tts_audio/nvidia_parakeet_aws_polly/speaking_reasoning_214_response.wav"
+  },
+  "clip_0006": {
+    "provider": "aws_polly",
+    "provider_pretty": "AWS Polly",
+    "stt": "nvidia_parakeet",
+    "question_id": "speaking_reasoning_192",
+    "source_path": "/home/ubuntu/VoiceAIStackEvaluation/output/eval-results/tts_audio/nvidia_parakeet_aws_polly/speaking_reasoning_192_response.wav"
+  },
+  "clip_0007": {
+    "provider": "aws_polly",
+    "provider_pretty": "AWS Polly",
+    "stt": "nvidia_parakeet",
+    "question_id": "speaking_reasoning_178",
+    "source_path": "/home/ubuntu/VoiceAIStackEvaluation/output/eval-results/tts_audio/nvidia_parakeet_aws_polly/speaking_reasoning_178_response.wav"
+  },
+  "clip_0008": {
+    "provider": "aws_polly",
+    "provider_pretty": "AWS Polly",
+    "stt": "nvidia_parakeet",
+    "question_id": "speaking_reasoning_117",
+    "source_path": "/home/ubuntu/VoiceAIStackEvaluation/output/eval-results/tts_audio/nvidia_parakeet_aws_polly/speaking_reasoning_117_response.wav"
+  },
+  "clip_0009": {
+    "provider": "aws_polly",
+    "provider_pretty": "AWS Polly",
+    "stt": "nvidia_parakeet",
+    "question_id": "speaking_reasoning_776",
+    "source_path": "/home/ubuntu/VoiceAIStackEvaluation/output/eval-results/tts_audio/nvidia_parakeet_aws_polly/speaking_reasoning_776_response.wav"
+  },
+  "clip_0010": {
+    "provider": "aws_polly",
+    "provider_pretty": "AWS Polly",
+    "stt": "nvidia_parakeet",
+    "question_id": "speaking_reasoning_98",
+    "source_path": "/home/ubuntu/VoiceAIStackEvaluation/output/eval-results/tts_audio/nvidia_parakeet_aws_polly/speaking_reasoning_98_response.wav"
+  },
+  "clip_0011": {
+    "provider": "aws_polly",
+    "provider_pretty": "AWS Polly",
+    "stt": "nvidia_parakeet",
+    "question_id": "speaking_reasoning_651",
+    "source_path": "/home/ubuntu/VoiceAIStackEvaluation/output/eval-results/tts_audio/nvidia_parakeet_aws_polly/speaking_reasoning_651_response.wav"
+  },
+  "clip_0012": {
+    "provider": "aws_polly",
+    "provider_pretty": "AWS Polly",
+    "stt": "nvidia_parakeet",
+    "question_id": "speaking_reasoning_458",
+    "source_path": "/home/ubuntu/VoiceAIStackEvaluation/output/eval-results/tts_audio/nvidia_parakeet_aws_polly/speaking_reasoning_458_response.wav"
+  },
+  "clip_0013": {
+    "provider": "aws_polly",
+    "provider_pretty": "AWS Polly",
+    "stt": "nvidia_parakeet",
+    "question_id": "speaking_reasoning_90",
+    "source_path": "/home/ubuntu/VoiceAIStackEvaluation/output/eval-results/tts_audio/nvidia_parakeet_aws_polly/speaking_reasoning_90_response.wav"
+  },
+  "clip_0014": {
+    "provider": "aws_polly",
+    "provider_pretty": "AWS Polly",
+    "stt": "nvidia_parakeet",
+    "question_id": "speaking_reasoning_485",
+    "source_path": "/home/ubuntu/VoiceAIStackEvaluation/output/eval-results/tts_audio/nvidia_parakeet_aws_polly/speaking_reasoning_485_response.wav"
+  },
+  "clip_0015": {
+    "provider": "aws_polly",
+    "provider_pretty": "AWS Polly",
+    "stt": "nvidia_parakeet",
+    "question_id": "speaking_reasoning_301",
+    "source_path": "/home/ubuntu/VoiceAIStackEvaluation/output/eval-results/tts_audio/nvidia_parakeet_aws_polly/speaking_reasoning_301_response.wav"
+  },
+  "clip_0016": {
+    "provider": "aws_polly",
+    "provider_pretty": "AWS Polly",
+    "stt": "nvidia_parakeet",
+    "question_id": "speaking_reasoning_62",
+    "source_path": "/home/ubuntu/VoiceAIStackEvaluation/output/eval-results/tts_audio/nvidia_parakeet_aws_polly/speaking_reasoning_62_response.wav"
+  },
+  "clip_0017": {
+    "provider": "aws_polly",
+    "provider_pretty": "AWS Polly",
+    "stt": "nvidia_parakeet",
+    "question_id": "speaking_reasoning_61",
+    "source_path": "/home/ubuntu/VoiceAIStackEvaluation/output/eval-results/tts_audio/nvidia_parakeet_aws_polly/speaking_reasoning_61_response.wav"
+  },
+  "clip_0018": {
+    "provider": "aws_polly",
+    "provider_pretty": "AWS Polly",
+    "stt": "nvidia_parakeet",
+    "question_id": "speaking_reasoning_93",
+    "source_path": "/home/ubuntu/VoiceAIStackEvaluation/output/eval-results/tts_audio/nvidia_parakeet_aws_polly/speaking_reasoning_93_response.wav"
+  },
+  "clip_0019": {
+    "provider": "aws_polly",
+    "provider_pretty": "AWS Polly",
+    "stt": "nvidia_parakeet",
+    "question_id": "speaking_reasoning_165",
+    "source_path": "/home/ubuntu/VoiceAIStackEvaluation/output/eval-results/tts_audio/nvidia_parakeet_aws_polly/speaking_reasoning_165_response.wav"
+  },
+  "clip_0020": {
+    "provider": "aws_polly",
+    "provider_pretty": "AWS Polly",
+    "stt": "nvidia_parakeet",
+    "question_id": "speaking_reasoning_183",
+    "source_path": "/home/ubuntu/VoiceAIStackEvaluation/output/eval-results/tts_audio/nvidia_parakeet_aws_polly/speaking_reasoning_183_response.wav"
+  },
+  "clip_0021": {
+    "provider": "cartesia",
+    "provider_pretty": "Cartesia",
+    "stt": "nvidia_parakeet",
+    "question_id": "speaking_reasoning_535",
+    "source_path": "/home/ubuntu/VoiceAIStackEvaluation/output/eval-results/tts_audio/nvidia_parakeet_cartesia/speaking_reasoning_535_response.wav"
+  },
+  "clip_0022": {
+    "provider": "cartesia",
+    "provider_pretty": "Cartesia",
+    "stt": "nvidia_parakeet",
+    "question_id": "speaking_reasoning_103",
+    "source_path": "/home/ubuntu/VoiceAIStackEvaluation/output/eval-results/tts_audio/nvidia_parakeet_cartesia/speaking_reasoning_103_response.wav"
+  },
+  "clip_0023": {
+    "provider": "cartesia",
+    "provider_pretty": "Cartesia",
+    "stt": "nvidia_parakeet",
+    "question_id": "speaking_reasoning_58",
+    "source_path": "/home/ubuntu/VoiceAIStackEvaluation/output/eval-results/tts_audio/nvidia_parakeet_cartesia/speaking_reasoning_58_response.wav"
+  },
+  "clip_0024": {
+    "provider": "cartesia",
+    "provider_pretty": "Cartesia",
+    "stt": "nvidia_parakeet",
+    "question_id": "speaking_reasoning_784",
+    "source_path": "/home/ubuntu/VoiceAIStackEvaluation/output/eval-results/tts_audio/nvidia_parakeet_cartesia/speaking_reasoning_784_response.wav"
+  },
+  "clip_0025": {
+    "provider": "cartesia",
+    "provider_pretty": "Cartesia",
+    "stt": "nvidia_parakeet",
+    "question_id": "speaking_reasoning_214",
+    "source_path": "/home/ubuntu/VoiceAIStackEvaluation/output/eval-results/tts_audio/nvidia_parakeet_cartesia/speaking_reasoning_214_response.wav"
+  },
+  "clip_0026": {
+    "provider": "cartesia",
+    "provider_pretty": "Cartesia",
+    "stt": "nvidia_parakeet",
+    "question_id": "speaking_reasoning_192",
+    "source_path": "/home/ubuntu/VoiceAIStackEvaluation/output/eval-results/tts_audio/nvidia_parakeet_cartesia/speaking_reasoning_192_response.wav"
+  },
+  "clip_0027": {
+    "provider": "cartesia",
+    "provider_pretty": "Cartesia",
+    "stt": "nvidia_parakeet",
+    "question_id": "speaking_reasoning_178",
+    "source_path": "/home/ubuntu/VoiceAIStackEvaluation/output/eval-results/tts_audio/nvidia_parakeet_cartesia/speaking_reasoning_178_response.wav"
+  },
+  "clip_0028": {
+    "provider": "cartesia",
+    "provider_pretty": "Cartesia",
+    "stt": "nvidia_parakeet",
+    "question_id": "speaking_reasoning_117",
+    "source_path": "/home/ubuntu/VoiceAIStackEvaluation/output/eval-results/tts_audio/nvidia_parakeet_cartesia/speaking_reasoning_117_response.wav"
+  },
+  "clip_0029": {
+    "provider": "cartesia",
+    "provider_pretty": "Cartesia",
+    "stt": "nvidia_parakeet",
+    "question_id": "speaking_reasoning_776",
+    "source_path": "/home/ubuntu/VoiceAIStackEvaluation/output/eval-results/tts_audio/nvidia_parakeet_cartesia/speaking_reasoning_776_response.wav"
+  },
+  "clip_0030": {
+    "provider": "cartesia",
+    "provider_pretty": "Cartesia",
+    "stt": "nvidia_parakeet",
+    "question_id": "speaking_reasoning_98",
+    "source_path": "/home/ubuntu/VoiceAIStackEvaluation/output/eval-results/tts_audio/nvidia_parakeet_cartesia/speaking_reasoning_98_response.wav"
+  },
+  "clip_0031": {
+    "provider": "cartesia",
+    "provider_pretty": "Cartesia",
+    "stt": "nvidia_parakeet",
+    "question_id": "speaking_reasoning_651",
+    "source_path": "/home/ubuntu/VoiceAIStackEvaluation/output/eval-results/tts_audio/nvidia_parakeet_cartesia/speaking_reasoning_651_response.wav"
+  },
+  "clip_0032": {
+    "provider": "cartesia",
+    "provider_pretty": "Cartesia",
+    "stt": "nvidia_parakeet",
+    "question_id": "speaking_reasoning_458",
+    "source_path": "/home/ubuntu/VoiceAIStackEvaluation/output/eval-results/tts_audio/nvidia_parakeet_cartesia/speaking_reasoning_458_response.wav"
+  },
+  "clip_0033": {
+    "provider": "cartesia",
+    "provider_pretty": "Cartesia",
+    "stt": "nvidia_parakeet",
+    "question_id": "speaking_reasoning_90",
+    "source_path": "/home/ubuntu/VoiceAIStackEvaluation/output/eval-results/tts_audio/nvidia_parakeet_cartesia/speaking_reasoning_90_response.wav"
+  },
+  "clip_0034": {
+    "provider": "cartesia",
+    "provider_pretty": "Cartesia",
+    "stt": "nvidia_parakeet",
+    "question_id": "speaking_reasoning_485",
+    "source_path": "/home/ubuntu/VoiceAIStackEvaluation/output/eval-results/tts_audio/nvidia_parakeet_cartesia/speaking_reasoning_485_response.wav"
+  },
+  "clip_0035": {
+    "provider": "cartesia",
+    "provider_pretty": "Cartesia",
+    "stt": "nvidia_parakeet",
+    "question_id": "speaking_reasoning_301",
+    "source_path": "/home/ubuntu/VoiceAIStackEvaluation/output/eval-results/tts_audio/nvidia_parakeet_cartesia/speaking_reasoning_301_response.wav"
+  },
+  "clip_0036": {
+    "provider": "cartesia",
+    "provider_pretty": "Cartesia",
+    "stt": "nvidia_parakeet",
+    "question_id": "speaking_reasoning_62",
+    "source_path": "/home/ubuntu/VoiceAIStackEvaluation/output/eval-results/tts_audio/nvidia_parakeet_cartesia/speaking_reasoning_62_response.wav"
+  },
+  "clip_0037": {
+    "provider": "cartesia",
+    "provider_pretty": "Cartesia",
+    "stt": "nvidia_parakeet",
+    "question_id": "speaking_reasoning_61",
+    "source_path": "/home/ubuntu/VoiceAIStackEvaluation/output/eval-results/tts_audio/nvidia_parakeet_cartesia/speaking_reasoning_61_response.wav"
+  },
+  "clip_0038": {
+    "provider": "cartesia",
+    "provider_pretty": "Cartesia",
+    "stt": "nvidia_parakeet",
+    "question_id": "speaking_reasoning_93",
+    "source_path": "/home/ubuntu/VoiceAIStackEvaluation/output/eval-results/tts_audio/nvidia_parakeet_cartesia/speaking_reasoning_93_response.wav"
+  },
+  "clip_0039": {
+    "provider": "cartesia",
+    "provider_pretty": "Cartesia",
+    "stt": "nvidia_parakeet",
+    "question_id": "speaking_reasoning_165",
+    "source_path": "/home/ubuntu/VoiceAIStackEvaluation/output/eval-results/tts_audio/nvidia_parakeet_cartesia/speaking_reasoning_165_response.wav"
+  },
+  "clip_0040": {
+    "provider": "cartesia",
+    "provider_pretty": "Cartesia",
+    "stt": "nvidia_parakeet",
+    "question_id": "speaking_reasoning_183",
+    "source_path": "/home/ubuntu/VoiceAIStackEvaluation/output/eval-results/tts_audio/nvidia_parakeet_cartesia/speaking_reasoning_183_response.wav"
+  },
+  "clip_0041": {
+    "provider": "deepgram_aura",
+    "provider_pretty": "Deepgram Aura",
+    "stt": "nvidia_parakeet",
+    "question_id": "speaking_reasoning_535",
+    "source_path": "/home/ubuntu/VoiceAIStackEvaluation/output/eval-results/tts_audio/nvidia_parakeet_deepgram_aura/speaking_reasoning_535_response.wav"
+  },
+  "clip_0042": {
+    "provider": "deepgram_aura",
+    "provider_pretty": "Deepgram Aura",
+    "stt": "nvidia_parakeet",
+    "question_id": "speaking_reasoning_103",
+    "source_path": "/home/ubuntu/VoiceAIStackEvaluation/output/eval-results/tts_audio/nvidia_parakeet_deepgram_aura/speaking_reasoning_103_response.wav"
+  },
+  "clip_0043": {
+    "provider": "deepgram_aura",
+    "provider_pretty": "Deepgram Aura",
+    "stt": "nvidia_parakeet",
+    "question_id": "speaking_reasoning_58",
+    "source_path": "/home/ubuntu/VoiceAIStackEvaluation/output/eval-results/tts_audio/nvidia_parakeet_deepgram_aura/speaking_reasoning_58_response.wav"
+  },
+  "clip_0044": {
+    "provider": "deepgram_aura",
+    "provider_pretty": "Deepgram Aura",
+    "stt": "nvidia_parakeet",
+    "question_id": "speaking_reasoning_784",
+    "source_path": "/home/ubuntu/VoiceAIStackEvaluation/output/eval-results/tts_audio/nvidia_parakeet_deepgram_aura/speaking_reasoning_784_response.wav"
+  },
+  "clip_0045": {
+    "provider": "deepgram_aura",
+    "provider_pretty": "Deepgram Aura",
+    "stt": "nvidia_parakeet",
+    "question_id": "speaking_reasoning_214",
+    "source_path": "/home/ubuntu/VoiceAIStackEvaluation/output/eval-results/tts_audio/nvidia_parakeet_deepgram_aura/speaking_reasoning_214_response.wav"
+  },
+  "clip_0046": {
+    "provider": "deepgram_aura",
+    "provider_pretty": "Deepgram Aura",
+    "stt": "nvidia_parakeet",
+    "question_id": "speaking_reasoning_192",
+    "source_path": "/home/ubuntu/VoiceAIStackEvaluation/output/eval-results/tts_audio/nvidia_parakeet_deepgram_aura/speaking_reasoning_192_response.wav"
+  },
+  "clip_0047": {
+    "provider": "deepgram_aura",
+    "provider_pretty": "Deepgram Aura",
+    "stt": "nvidia_parakeet",
+    "question_id": "speaking_reasoning_178",
+    "source_path": "/home/ubuntu/VoiceAIStackEvaluation/output/eval-results/tts_audio/nvidia_parakeet_deepgram_aura/speaking_reasoning_178_response.wav"
+  },
+  "clip_0048": {
+    "provider": "deepgram_aura",
+    "provider_pretty": "Deepgram Aura",
+    "stt": "nvidia_parakeet",
+    "question_id": "speaking_reasoning_117",
+    "source_path": "/home/ubuntu/VoiceAIStackEvaluation/output/eval-results/tts_audio/nvidia_parakeet_deepgram_aura/speaking_reasoning_117_response.wav"
+  },
+  "clip_0049": {
+    "provider": "deepgram_aura",
+    "provider_pretty": "Deepgram Aura",
+    "stt": "nvidia_parakeet",
+    "question_id": "speaking_reasoning_776",
+    "source_path": "/home/ubuntu/VoiceAIStackEvaluation/output/eval-results/tts_audio/nvidia_parakeet_deepgram_aura/speaking_reasoning_776_response.wav"
+  },
+  "clip_0050": {
+    "provider": "deepgram_aura",
+    "provider_pretty": "Deepgram Aura",
+    "stt": "nvidia_parakeet",
+    "question_id": "speaking_reasoning_98",
+    "source_path": "/home/ubuntu/VoiceAIStackEvaluation/output/eval-results/tts_audio/nvidia_parakeet_deepgram_aura/speaking_reasoning_98_response.wav"
+  },
+  "clip_0051": {
+    "provider": "deepgram_aura",
+    "provider_pretty": "Deepgram Aura",
+    "stt": "nvidia_parakeet",
+    "question_id": "speaking_reasoning_651",
+    "source_path": "/home/ubuntu/VoiceAIStackEvaluation/output/eval-results/tts_audio/nvidia_parakeet_deepgram_aura/speaking_reasoning_651_response.wav"
+  },
+  "clip_0052": {
+    "provider": "deepgram_aura",
+    "provider_pretty": "Deepgram Aura",
+    "stt": "nvidia_parakeet",
+    "question_id": "speaking_reasoning_458",
+    "source_path": "/home/ubuntu/VoiceAIStackEvaluation/output/eval-results/tts_audio/nvidia_parakeet_deepgram_aura/speaking_reasoning_458_response.wav"
+  },
+  "clip_0053": {
+    "provider": "deepgram_aura",
+    "provider_pretty": "Deepgram Aura",
+    "stt": "nvidia_parakeet",
+    "question_id": "speaking_reasoning_90",
+    "source_path": "/home/ubuntu/VoiceAIStackEvaluation/output/eval-results/tts_audio/nvidia_parakeet_deepgram_aura/speaking_reasoning_90_response.wav"
+  },
+  "clip_0054": {
+    "provider": "deepgram_aura",
+    "provider_pretty": "Deepgram Aura",
+    "stt": "nvidia_parakeet",
+    "question_id": "speaking_reasoning_485",
+    "source_path": "/home/ubuntu/VoiceAIStackEvaluation/output/eval-results/tts_audio/nvidia_parakeet_deepgram_aura/speaking_reasoning_485_response.wav"
+  },
+  "clip_0055": {
+    "provider": "deepgram_aura",
+    "provider_pretty": "Deepgram Aura",
+    "stt": "nvidia_parakeet",
+    "question_id": "speaking_reasoning_301",
+    "source_path": "/home/ubuntu/VoiceAIStackEvaluation/output/eval-results/tts_audio/nvidia_parakeet_deepgram_aura/speaking_reasoning_301_response.wav"
+  },
+  "clip_0056": {
+    "provider": "deepgram_aura",
+    "provider_pretty": "Deepgram Aura",
+    "stt": "nvidia_parakeet",
+    "question_id": "speaking_reasoning_62",
+    "source_path": "/home/ubuntu/VoiceAIStackEvaluation/output/eval-results/tts_audio/nvidia_parakeet_deepgram_aura/speaking_reasoning_62_response.wav"
+  },
+  "clip_0057": {
+    "provider": "deepgram_aura",
+    "provider_pretty": "Deepgram Aura",
+    "stt": "nvidia_parakeet",
+    "question_id": "speaking_reasoning_61",
+    "source_path": "/home/ubuntu/VoiceAIStackEvaluation/output/eval-results/tts_audio/nvidia_parakeet_deepgram_aura/speaking_reasoning_61_response.wav"
+  },
+  "clip_0058": {
+    "provider": "deepgram_aura",
+    "provider_pretty": "Deepgram Aura",
+    "stt": "nvidia_parakeet",
+    "question_id": "speaking_reasoning_93",
+    "source_path": "/home/ubuntu/VoiceAIStackEvaluation/output/eval-results/tts_audio/nvidia_parakeet_deepgram_aura/speaking_reasoning_93_response.wav"
+  },
+  "clip_0059": {
+    "provider": "deepgram_aura",
+    "provider_pretty": "Deepgram Aura",
+    "stt": "nvidia_parakeet",
+    "question_id": "speaking_reasoning_165",
+    "source_path": "/home/ubuntu/VoiceAIStackEvaluation/output/eval-results/tts_audio/nvidia_parakeet_deepgram_aura/speaking_reasoning_165_response.wav"
+  },
+  "clip_0060": {
+    "provider": "deepgram_aura",
+    "provider_pretty": "Deepgram Aura",
+    "stt": "nvidia_parakeet",
+    "question_id": "speaking_reasoning_183",
+    "source_path": "/home/ubuntu/VoiceAIStackEvaluation/output/eval-results/tts_audio/nvidia_parakeet_deepgram_aura/speaking_reasoning_183_response.wav"
+  },
+  "clip_0061": {
+    "provider": "groq",
+    "provider_pretty": "Groq",
+    "stt": "nvidia_parakeet",
+    "question_id": "speaking_reasoning_535",
+    "source_path": "/home/ubuntu/VoiceAIStackEvaluation/output/eval-results/tts_audio/nvidia_parakeet_groq/speaking_reasoning_535_response.wav"
+  },
+  "clip_0062": {
+    "provider": "groq",
+    "provider_pretty": "Groq",
+    "stt": "nvidia_parakeet",
+    "question_id": "speaking_reasoning_103",
+    "source_path": "/home/ubuntu/VoiceAIStackEvaluation/output/eval-results/tts_audio/nvidia_parakeet_groq/speaking_reasoning_103_response.wav"
+  },
+  "clip_0063": {
+    "provider": "groq",
+    "provider_pretty": "Groq",
+    "stt": "nvidia_parakeet",
+    "question_id": "speaking_reasoning_58",
+    "source_path": "/home/ubuntu/VoiceAIStackEvaluation/output/eval-results/tts_audio/nvidia_parakeet_groq/speaking_reasoning_58_response.wav"
+  },
+  "clip_0064": {
+    "provider": "groq",
+    "provider_pretty": "Groq",
+    "stt": "nvidia_parakeet",
+    "question_id": "speaking_reasoning_784",
+    "source_path": "/home/ubuntu/VoiceAIStackEvaluation/output/eval-results/tts_audio/nvidia_parakeet_groq/speaking_reasoning_784_response.wav"
+  },
+  "clip_0065": {
+    "provider": "groq",
+    "provider_pretty": "Groq",
+    "stt": "nvidia_parakeet",
+    "question_id": "speaking_reasoning_214",
+    "source_path": "/home/ubuntu/VoiceAIStackEvaluation/output/eval-results/tts_audio/nvidia_parakeet_groq/speaking_reasoning_214_response.wav"
+  },
+  "clip_0066": {
+    "provider": "groq",
+    "provider_pretty": "Groq",
+    "stt": "nvidia_parakeet",
+    "question_id": "speaking_reasoning_192",
+    "source_path": "/home/ubuntu/VoiceAIStackEvaluation/output/eval-results/tts_audio/nvidia_parakeet_groq/speaking_reasoning_192_response.wav"
+  },
+  "clip_0067": {
+    "provider": "groq",
+    "provider_pretty": "Groq",
+    "stt": "nvidia_parakeet",
+    "question_id": "speaking_reasoning_178",
+    "source_path": "/home/ubuntu/VoiceAIStackEvaluation/output/eval-results/tts_audio/nvidia_parakeet_groq/speaking_reasoning_178_response.wav"
+  },
+  "clip_0068": {
+    "provider": "groq",
+    "provider_pretty": "Groq",
+    "stt": "nvidia_parakeet",
+    "question_id": "speaking_reasoning_117",
+    "source_path": "/home/ubuntu/VoiceAIStackEvaluation/output/eval-results/tts_audio/nvidia_parakeet_groq/speaking_reasoning_117_response.wav"
+  },
+  "clip_0069": {
+    "provider": "groq",
+    "provider_pretty": "Groq",
+    "stt": "nvidia_parakeet",
+    "question_id": "speaking_reasoning_776",
+    "source_path": "/home/ubuntu/VoiceAIStackEvaluation/output/eval-results/tts_audio/nvidia_parakeet_groq/speaking_reasoning_776_response.wav"
+  },
+  "clip_0070": {
+    "provider": "groq",
+    "provider_pretty": "Groq",
+    "stt": "nvidia_parakeet",
+    "question_id": "speaking_reasoning_98",
+    "source_path": "/home/ubuntu/VoiceAIStackEvaluation/output/eval-results/tts_audio/nvidia_parakeet_groq/speaking_reasoning_98_response.wav"
+  },
+  "clip_0071": {
+    "provider": "groq",
+    "provider_pretty": "Groq",
+    "stt": "nvidia_parakeet",
+    "question_id": "speaking_reasoning_651",
+    "source_path": "/home/ubuntu/VoiceAIStackEvaluation/output/eval-results/tts_audio/nvidia_parakeet_groq/speaking_reasoning_651_response.wav"
+  },
+  "clip_0072": {
+    "provider": "groq",
+    "provider_pretty": "Groq",
+    "stt": "nvidia_parakeet",
+    "question_id": "speaking_reasoning_458",
+    "source_path": "/home/ubuntu/VoiceAIStackEvaluation/output/eval-results/tts_audio/nvidia_parakeet_groq/speaking_reasoning_458_response.wav"
+  },
+  "clip_0073": {
+    "provider": "groq",
+    "provider_pretty": "Groq",
+    "stt": "nvidia_parakeet",
+    "question_id": "speaking_reasoning_90",
+    "source_path": "/home/ubuntu/VoiceAIStackEvaluation/output/eval-results/tts_audio/nvidia_parakeet_groq/speaking_reasoning_90_response.wav"
+  },
+  "clip_0074": {
+    "provider": "groq",
+    "provider_pretty": "Groq",
+    "stt": "nvidia_parakeet",
+    "question_id": "speaking_reasoning_485",
+    "source_path": "/home/ubuntu/VoiceAIStackEvaluation/output/eval-results/tts_audio/nvidia_parakeet_groq/speaking_reasoning_485_response.wav"
+  },
+  "clip_0075": {
+    "provider": "groq",
+    "provider_pretty": "Groq",
+    "stt": "nvidia_parakeet",
+    "question_id": "speaking_reasoning_301",
+    "source_path": "/home/ubuntu/VoiceAIStackEvaluation/output/eval-results/tts_audio/nvidia_parakeet_groq/speaking_reasoning_301_response.wav"
+  },
+  "clip_0076": {
+    "provider": "groq",
+    "provider_pretty": "Groq",
+    "stt": "nvidia_parakeet",
+    "question_id": "speaking_reasoning_62",
+    "source_path": "/home/ubuntu/VoiceAIStackEvaluation/output/eval-results/tts_audio/nvidia_parakeet_groq/speaking_reasoning_62_response.wav"
+  },
+  "clip_0077": {
+    "provider": "groq",
+    "provider_pretty": "Groq",
+    "stt": "nvidia_parakeet",
+    "question_id": "speaking_reasoning_61",
+    "source_path": "/home/ubuntu/VoiceAIStackEvaluation/output/eval-results/tts_audio/nvidia_parakeet_groq/speaking_reasoning_61_response.wav"
+  },
+  "clip_0078": {
+    "provider": "groq",
+    "provider_pretty": "Groq",
+    "stt": "nvidia_parakeet",
+    "question_id": "speaking_reasoning_93",
+    "source_path": "/home/ubuntu/VoiceAIStackEvaluation/output/eval-results/tts_audio/nvidia_parakeet_groq/speaking_reasoning_93_response.wav"
+  },
+  "clip_0079": {
+    "provider": "groq",
+    "provider_pretty": "Groq",
+    "stt": "nvidia_parakeet",
+    "question_id": "speaking_reasoning_165",
+    "source_path": "/home/ubuntu/VoiceAIStackEvaluation/output/eval-results/tts_audio/nvidia_parakeet_groq/speaking_reasoning_165_response.wav"
+  },
+  "clip_0080": {
+    "provider": "groq",
+    "provider_pretty": "Groq",
+    "stt": "nvidia_parakeet",
+    "question_id": "speaking_reasoning_183",
+    "source_path": "/home/ubuntu/VoiceAIStackEvaluation/output/eval-results/tts_audio/nvidia_parakeet_groq/speaking_reasoning_183_response.wav"
+  },
+  "clip_0081": {
+    "provider": "nvidia_magpie",
+    "provider_pretty": "NVIDIA Magpie",
+    "stt": "nvidia_parakeet",
+    "question_id": "speaking_reasoning_535",
+    "source_path": "/home/ubuntu/VoiceAIStackEvaluation/output/eval-results/tts_audio/nvidia_parakeet_nvidia_magpie/speaking_reasoning_535_response.wav"
+  },
+  "clip_0082": {
+    "provider": "nvidia_magpie",
+    "provider_pretty": "NVIDIA Magpie",
+    "stt": "nvidia_parakeet",
+    "question_id": "speaking_reasoning_103",
+    "source_path": "/home/ubuntu/VoiceAIStackEvaluation/output/eval-results/tts_audio/nvidia_parakeet_nvidia_magpie/speaking_reasoning_103_response.wav"
+  },
+  "clip_0083": {
+    "provider": "nvidia_magpie",
+    "provider_pretty": "NVIDIA Magpie",
+    "stt": "nvidia_parakeet",
+    "question_id": "speaking_reasoning_58",
+    "source_path": "/home/ubuntu/VoiceAIStackEvaluation/output/eval-results/tts_audio/nvidia_parakeet_nvidia_magpie/speaking_reasoning_58_response.wav"
+  },
+  "clip_0084": {
+    "provider": "nvidia_magpie",
+    "provider_pretty": "NVIDIA Magpie",
+    "stt": "nvidia_parakeet",
+    "question_id": "speaking_reasoning_784",
+    "source_path": "/home/ubuntu/VoiceAIStackEvaluation/output/eval-results/tts_audio/nvidia_parakeet_nvidia_magpie/speaking_reasoning_784_response.wav"
+  },
+  "clip_0085": {
+    "provider": "nvidia_magpie",
+    "provider_pretty": "NVIDIA Magpie",
+    "stt": "nvidia_parakeet",
+    "question_id": "speaking_reasoning_214",
+    "source_path": "/home/ubuntu/VoiceAIStackEvaluation/output/eval-results/tts_audio/nvidia_parakeet_nvidia_magpie/speaking_reasoning_214_response.wav"
+  },
+  "clip_0086": {
+    "provider": "nvidia_magpie",
+    "provider_pretty": "NVIDIA Magpie",
+    "stt": "nvidia_parakeet",
+    "question_id": "speaking_reasoning_192",
+    "source_path": "/home/ubuntu/VoiceAIStackEvaluation/output/eval-results/tts_audio/nvidia_parakeet_nvidia_magpie/speaking_reasoning_192_response.wav"
+  },
+  "clip_0087": {
+    "provider": "nvidia_magpie",
+    "provider_pretty": "NVIDIA Magpie",
+    "stt": "nvidia_parakeet",
+    "question_id": "speaking_reasoning_178",
+    "source_path": "/home/ubuntu/VoiceAIStackEvaluation/output/eval-results/tts_audio/nvidia_parakeet_nvidia_magpie/speaking_reasoning_178_response.wav"
+  },
+  "clip_0088": {
+    "provider": "nvidia_magpie",
+    "provider_pretty": "NVIDIA Magpie",
+    "stt": "nvidia_parakeet",
+    "question_id": "speaking_reasoning_117",
+    "source_path": "/home/ubuntu/VoiceAIStackEvaluation/output/eval-results/tts_audio/nvidia_parakeet_nvidia_magpie/speaking_reasoning_117_response.wav"
+  },
+  "clip_0089": {
+    "provider": "nvidia_magpie",
+    "provider_pretty": "NVIDIA Magpie",
+    "stt": "nvidia_parakeet",
+    "question_id": "speaking_reasoning_776",
+    "source_path": "/home/ubuntu/VoiceAIStackEvaluation/output/eval-results/tts_audio/nvidia_parakeet_nvidia_magpie/speaking_reasoning_776_response.wav"
+  },
+  "clip_0090": {
+    "provider": "nvidia_magpie",
+    "provider_pretty": "NVIDIA Magpie",
+    "stt": "nvidia_parakeet",
+    "question_id": "speaking_reasoning_98",
+    "source_path": "/home/ubuntu/VoiceAIStackEvaluation/output/eval-results/tts_audio/nvidia_parakeet_nvidia_magpie/speaking_reasoning_98_response.wav"
+  },
+  "clip_0091": {
+    "provider": "nvidia_magpie",
+    "provider_pretty": "NVIDIA Magpie",
+    "stt": "nvidia_parakeet",
+    "question_id": "speaking_reasoning_651",
+    "source_path": "/home/ubuntu/VoiceAIStackEvaluation/output/eval-results/tts_audio/nvidia_parakeet_nvidia_magpie/speaking_reasoning_651_response.wav"
+  },
+  "clip_0092": {
+    "provider": "nvidia_magpie",
+    "provider_pretty": "NVIDIA Magpie",
+    "stt": "nvidia_parakeet",
+    "question_id": "speaking_reasoning_458",
+    "source_path": "/home/ubuntu/VoiceAIStackEvaluation/output/eval-results/tts_audio/nvidia_parakeet_nvidia_magpie/speaking_reasoning_458_response.wav"
+  },
+  "clip_0093": {
+    "provider": "nvidia_magpie",
+    "provider_pretty": "NVIDIA Magpie",
+    "stt": "nvidia_parakeet",
+    "question_id": "speaking_reasoning_90",
+    "source_path": "/home/ubuntu/VoiceAIStackEvaluation/output/eval-results/tts_audio/nvidia_parakeet_nvidia_magpie/speaking_reasoning_90_response.wav"
+  },
+  "clip_0094": {
+    "provider": "nvidia_magpie",
+    "provider_pretty": "NVIDIA Magpie",
+    "stt": "nvidia_parakeet",
+    "question_id": "speaking_reasoning_485",
+    "source_path": "/home/ubuntu/VoiceAIStackEvaluation/output/eval-results/tts_audio/nvidia_parakeet_nvidia_magpie/speaking_reasoning_485_response.wav"
+  },
+  "clip_0095": {
+    "provider": "nvidia_magpie",
+    "provider_pretty": "NVIDIA Magpie",
+    "stt": "nvidia_parakeet",
+    "question_id": "speaking_reasoning_301",
+    "source_path": "/home/ubuntu/VoiceAIStackEvaluation/output/eval-results/tts_audio/nvidia_parakeet_nvidia_magpie/speaking_reasoning_301_response.wav"
+  },
+  "clip_0096": {
+    "provider": "nvidia_magpie",
+    "provider_pretty": "NVIDIA Magpie",
+    "stt": "nvidia_parakeet",
+    "question_id": "speaking_reasoning_62",
+    "source_path": "/home/ubuntu/VoiceAIStackEvaluation/output/eval-results/tts_audio/nvidia_parakeet_nvidia_magpie/speaking_reasoning_62_response.wav"
+  },
+  "clip_0097": {
+    "provider": "nvidia_magpie",
+    "provider_pretty": "NVIDIA Magpie",
+    "stt": "nvidia_parakeet",
+    "question_id": "speaking_reasoning_61",
+    "source_path": "/home/ubuntu/VoiceAIStackEvaluation/output/eval-results/tts_audio/nvidia_parakeet_nvidia_magpie/speaking_reasoning_61_response.wav"
+  },
+  "clip_0098": {
+    "provider": "nvidia_magpie",
+    "provider_pretty": "NVIDIA Magpie",
+    "stt": "nvidia_parakeet",
+    "question_id": "speaking_reasoning_93",
+    "source_path": "/home/ubuntu/VoiceAIStackEvaluation/output/eval-results/tts_audio/nvidia_parakeet_nvidia_magpie/speaking_reasoning_93_response.wav"
+  },
+  "clip_0099": {
+    "provider": "nvidia_magpie",
+    "provider_pretty": "NVIDIA Magpie",
+    "stt": "nvidia_parakeet",
+    "question_id": "speaking_reasoning_165",
+    "source_path": "/home/ubuntu/VoiceAIStackEvaluation/output/eval-results/tts_audio/nvidia_parakeet_nvidia_magpie/speaking_reasoning_165_response.wav"
+  },
+  "clip_0100": {
+    "provider": "nvidia_magpie",
+    "provider_pretty": "NVIDIA Magpie",
+    "stt": "nvidia_parakeet",
+    "question_id": "speaking_reasoning_183",
+    "source_path": "/home/ubuntu/VoiceAIStackEvaluation/output/eval-results/tts_audio/nvidia_parakeet_nvidia_magpie/speaking_reasoning_183_response.wav"
+  }
+}

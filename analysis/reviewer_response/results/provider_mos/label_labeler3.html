@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Naturalness Labeling &mdash; labeler3</title>
+<style>
+  :root { --bg:#0f1221; --card:#1b1f36; --fg:#eef1ff; --muted:#9aa3c7;
+          --accent:#5b8cff; --good:#38c172; }
+  * { box-sizing:border-box; }
+  body { margin:0; font-family:system-ui,Segoe UI,Roboto,sans-serif;
+         background:var(--bg); color:var(--fg); }
+  header { padding:14px 20px; background:var(--card); position:sticky; top:0;
+           box-shadow:0 2px 10px rgba(0,0,0,.4); }
+  h1 { font-size:16px; margin:0 0 8px; }
+  .bar { height:8px; background:#2a2f4d; border-radius:6px; overflow:hidden; }
+  .bar > div { height:100%; width:0; background:var(--good); transition:width .2s; }
+  .wrap { max-width:720px; margin:40px auto; padding:0 20px; text-align:center; }
+  .clip { font-size:14px; color:var(--muted); letter-spacing:.5px; }
+  .counter { font-size:13px; color:var(--muted); margin-top:4px; }
+  button.play { margin:26px 0; padding:16px 30px; font-size:18px; border:0;
+                border-radius:12px; background:var(--accent); color:#fff;
+                cursor:pointer; }
+  .scale { display:flex; gap:10px; justify-content:center; margin-top:14px; }
+  .scale button { flex:1; max-width:120px; padding:16px 0; border:1px solid #333a5e;
+    border-radius:12px; background:var(--card); color:var(--fg); cursor:pointer;
+    font-size:16px; }
+  .scale button b { display:block; font-size:22px; margin-bottom:4px; }
+  .scale button:hover { border-color:var(--accent); }
+  .scale button.sel { background:var(--accent); border-color:var(--accent); }
+  .hint { margin-top:22px; font-size:12px; color:var(--muted); line-height:1.6; }
+  .nav { margin-top:18px; }
+  .nav button { background:transparent; color:var(--muted); border:1px solid #333a5e;
+    border-radius:8px; padding:8px 14px; cursor:pointer; margin:0 4px; }
+  .export { margin-top:26px; }
+  .export button { background:var(--good); color:#fff; border:0; border-radius:10px;
+    padding:12px 22px; font-size:15px; cursor:pointer; }
+  .done { color:var(--good); font-weight:600; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Naturalness labeling &mdash; annotator: labeler3</h1>
+  <div class="bar"><div id="prog"></div></div>
+</header>
+<div class="wrap">
+  <div class="clip" id="clipid">&mdash;</div>
+  <div class="counter"><span id="pos">0</span> / <span id="total">0</span>
+      &nbsp;&middot;&nbsp; rated: <span id="rated">0</span></div>
+  <audio id="au"></audio>
+  <div><button class="play" id="playbtn">&#9654; Play (Space)</button></div>
+  <div class="scale" id="scale"></div>
+  <div class="nav">
+    <button id="prev">&larr; Prev</button>
+    <button id="next">Next &rarr;</button>
+    <button id="replay">Replay (R)</button>
+  </div>
+  <div class="export">
+    <button id="exportbtn">Export CSV</button>
+    <span id="savemsg"></span>
+  </div>
+  <div class="hint">
+    5-point naturalness (ACR): <b>1</b> Bad &middot; <b>2</b> Poor &middot;
+    <b>3</b> Fair &middot; <b>4</b> Good &middot; <b>5</b> Excellent.<br>
+    Keys: <b>1&ndash;5</b> rate &amp; advance &middot; <b>R</b> replay &middot;
+    <b>&larr;/&rarr;</b> move &middot; <b>Space</b> play/pause.<br>
+    Ratings auto-save in this browser. Click <b>Export CSV</b> when finished and
+    send the file back.
+  </div>
+</div>
+<script>
+const ANN = "labeler3";
+const CLIPS = [{"position": 1, "clip_id": "clip_0003", "audio_file": "clips/clip_0003.wav"}, {"position": 2, "clip_id": "clip_0088", "audio_file": "clips/clip_0088.wav"}, {"position": 3, "clip_id": "clip_0054", "audio_file": "clips/clip_0054.wav"}, {"position": 4, "clip_id": "clip_0065", "audio_file": "clips/clip_0065.wav"}, {"position": 5, "clip_id": "clip_0037", "audio_file": "clips/clip_0037.wav"}, {"position": 6, "clip_id": "clip_0048", "audio_file": "clips/clip_0048.wav"}, {"position": 7, "clip_id": "clip_0075", "audio_file": "clips/clip_0075.wav"}, {"position": 8, "clip_id": "clip_0040", "audio_file": "clips/clip_0040.wav"}, {"position": 9, "clip_id": "clip_0018", "audio_file": "clips/clip_0018.wav"}, {"position": 10, "clip_id": "clip_0095", "audio_file": "clips/clip_0095.wav"}, {"position": 11, "clip_id": "clip_0072", "audio_file": "clips/clip_0072.wav"}, {"position": 12, "clip_id": "clip_0017", "audio_file": "clips/clip_0017.wav"}, {"position": 13, "clip_id": "clip_0033", "audio_file": "clips/clip_0033.wav"}, {"position": 14, "clip_id": "clip_0049", "audio_file": "clips/clip_0049.wav"}, {"position": 15, "clip_id": "clip_0091", "audio_file": "clips/clip_0091.wav"}, {"position": 16, "clip_id": "clip_0073", "audio_file": "clips/clip_0073.wav"}, {"position": 17, "clip_id": "clip_0004", "audio_file": "clips/clip_0004.wav"}, {"position": 18, "clip_id": "clip_0029", "audio_file": "clips/clip_0029.wav"}, {"position": 19, "clip_id": "clip_0059", "audio_file": "clips/clip_0059.wav"}, {"position": 20, "clip_id": "clip_0098", "audio_file": "clips/clip_0098.wav"}, {"position": 21, "clip_id": "clip_0046", "audio_file": "clips/clip_0046.wav"}, {"position": 22, "clip_id": "clip_0090", "audio_file": "clips/clip_0090.wav"}, {"position": 23, "clip_id": "clip_0076", "audio_file": "clips/clip_0076.wav"}, {"position": 24, "clip_id": "clip_0007", "audio_file": "clips/clip_0007.wav"}, {"position": 25, "clip_id": "clip_0036", "audio_file": "clips/clip_0036.wav"}, {"position": 26, "clip_id": "clip_0067", "audio_file": "clips/clip_0067.wav"}, {"position": 27, "clip_id": "clip_0024", "audio_file": "clips/clip_0024.wav"}, {"position": 28, "clip_id": "clip_0056", "audio_file": "clips/clip_0056.wav"}, {"position": 29, "clip_id": "clip_0012", "audio_file": "clips/clip_0012.wav"}, {"position": 30, "clip_id": "clip_0086", "audio_file": "clips/clip_0086.wav"}, {"position": 31, "clip_id": "clip_0009", "audio_file": "clips/clip_0009.wav"}, {"position": 32, "clip_id": "clip_0034", "audio_file": "clips/clip_0034.wav"}, {"position": 33, "clip_id": "clip_0097", "audio_file": "clips/clip_0097.wav"}, {"position": 34, "clip_id": "clip_0058", "audio_file": "clips/clip_0058.wav"}, {"position": 35, "clip_id": "clip_0071", "audio_file": "clips/clip_0071.wav"}, {"position": 36, "clip_id": "clip_0006", "audio_file": "clips/clip_0006.wav"}, {"position": 37, "clip_id": "clip_0068", "audio_file": "clips/clip_0068.wav"}, {"position": 38, "clip_id": "clip_0083", "audio_file": "clips/clip_0083.wav"}, {"position": 39, "clip_id": "clip_0060", "audio_file": "clips/clip_0060.wav"}, {"position": 40, "clip_id": "clip_0022", "audio_file": "clips/clip_0022.wav"}, {"position": 41, "clip_id": "clip_0053", "audio_file": "clips/clip_0053.wav"}, {"position": 42, "clip_id": "clip_0011", "audio_file": "clips/clip_0011.wav"}, {"position": 43, "clip_id": "clip_0078", "audio_file": "clips/clip_0078.wav"}, {"position": 44, "clip_id": "clip_0026", "audio_file": "clips/clip_0026.wav"}, {"position": 45, "clip_id": "clip_0081", "audio_file": "clips/clip_0081.wav"}, {"position": 46, "clip_id": "clip_0002", "audio_file": "clips/clip_0002.wav"}, {"position": 47, "clip_id": "clip_0087", "audio_file": "clips/clip_0087.wav"}, {"position": 48, "clip_id": "clip_0052", "audio_file": "clips/clip_0052.wav"}, {"position": 49, "clip_id": "clip_0035", "audio_file": "clips/clip_0035.wav"}, {"position": 50, "clip_id": "clip_0070", "audio_file": "clips/clip_0070.wav"}, {"position": 51, "clip_id": "clip_0005", "audio_file": "clips/clip_0005.wav"}, {"position": 52, "clip_id": "clip_0089", "audio_file": "clips/clip_0089.wav"}, {"position": 53, "clip_id": "clip_0043", "audio_file": "clips/clip_0043.wav"}, {"position": 54, "clip_id": "clip_0030", "audio_file": "clips/clip_0030.wav"}, {"position": 55, "clip_id": "clip_0061", "audio_file": "clips/clip_0061.wav"}, {"position": 56, "clip_id": "clip_0044", "audio_file": "clips/clip_0044.wav"}, {"position": 57, "clip_id": "clip_0093", "audio_file": "clips/clip_0093.wav"}, {"position": 58, "clip_id": "clip_0025", "audio_file": "clips/clip_0025.wav"}, {"position": 59, "clip_id": "clip_0019", "audio_file": "clips/clip_0019.wav"}, {"position": 60, "clip_id": "clip_0079", "audio_file": "clips/clip_0079.wav"}, {"position": 61, "clip_id": "clip_0055", "audio_file": "clips/clip_0055.wav"}, {"position": 62, "clip_id": "clip_0063", "audio_file": "clips/clip_0063.wav"}, {"position": 63, "clip_id": "clip_0100", "audio_file": "clips/clip_0100.wav"}, {"position": 64, "clip_id": "clip_0039", "audio_file": "clips/clip_0039.wav"}, {"position": 65, "clip_id": "clip_0014", "audio_file": "clips/clip_0014.wav"}, {"position": 66, "clip_id": "clip_0028", "audio_file": "clips/clip_0028.wav"}, {"position": 67, "clip_id": "clip_0015", "audio_file": "clips/clip_0015.wav"}, {"position": 68, "clip_id": "clip_0082", "audio_file": "clips/clip_0082.wav"}, {"position": 69, "clip_id": "clip_0077", "audio_file": "clips/clip_0077.wav"}, {"position": 70, "clip_id": "clip_0051", "audio_file": "clips/clip_0051.wav"}, {"position": 71, "clip_id": "clip_0064", "audio_file": "clips/clip_0064.wav"}, {"position": 72, "clip_id": "clip_0094", "audio_file": "clips/clip_0094.wav"}, {"position": 73, "clip_id": "clip_0038", "audio_file": "clips/clip_0038.wav"}, {"position": 74, "clip_id": "clip_0016", "audio_file": "clips/clip_0016.wav"}, {"position": 75, "clip_id": "clip_0057", "audio_file": "clips/clip_0057.wav"}, {"position": 76, "clip_id": "clip_0020", "audio_file": "clips/clip_0020.wav"}, {"position": 77, "clip_id": "clip_0085", "audio_file": "clips/clip_0085.wav"}, {"position": 78, "clip_id": "clip_0023", "audio_file": "clips/clip_0023.wav"}, {"position": 79, "clip_id": "clip_0062", "audio_file": "clips/clip_0062.wav"}, {"position": 80, "clip_id": "clip_0050", "audio_file": "clips/clip_0050.wav"}, {"position": 81, "clip_id": "clip_0021", "audio_file": "clips/clip_0021.wav"}, {"position": 82, "clip_id": "clip_0008", "audio_file": "clips/clip_0008.wav"}, {"position": 83, "clip_id": "clip_0099", "audio_file": "clips/clip_0099.wav"}, {"position": 84, "clip_id": "clip_0047", "audio_file": "clips/clip_0047.wav"}, {"position": 85, "clip_id": "clip_0066", "audio_file": "clips/clip_0066.wav"}, {"position": 86, "clip_id": "clip_0045", "audio_file": "clips/clip_0045.wav"}, {"position": 87, "clip_id": "clip_0092", "audio_file": "clips/clip_0092.wav"}, {"position": 88, "clip_id": "clip_0069", "audio_file": "clips/clip_0069.wav"}, {"position": 89, "clip_id": "clip_0031", "audio_file": "clips/clip_0031.wav"}, {"position": 90, "clip_id": "clip_0013", "audio_file": "clips/clip_0013.wav"}, {"position": 91, "clip_id": "clip_0041", "audio_file": "clips/clip_0041.wav"}, {"position": 92, "clip_id": "clip_0010", "audio_file": "clips/clip_0010.wav"}, {"position": 93, "clip_id": "clip_0032", "audio_file": "clips/clip_0032.wav"}, {"position": 94, "clip_id": "clip_0074", "audio_file": "clips/clip_0074.wav"}, {"position": 95, "clip_id": "clip_0084", "audio_file": "clips/clip_0084.wav"}, {"position": 96, "clip_id": "clip_0027", "audio_file": "clips/clip_0027.wav"}, {"position": 97, "clip_id": "clip_0042", "audio_file": "clips/clip_0042.wav"}, {"position": 98, "clip_id": "clip_0096", "audio_file": "clips/clip_0096.wav"}, {"position": 99, "clip_id": "clip_0001", "audio_file": "clips/clip_0001.wav"}, {"position": 100, "clip_id": "clip_0080", "audio_file": "clips/clip_0080.wav"}];   // [{position, clip_id, audio_file}]
+const KEY = "provmos_" + ANN;
+let ratings = JSON.parse(localStorage.getItem(KEY) || "{}");
+let i = 0;
+
+const au = document.getElementById("au");
+const scale = document.getElementById("scale");
+const LABELS = {1:"Bad",2:"Poor",3:"Fair",4:"Good",5:"Excellent"};
+for (let v=1; v<=5; v++) {
+  const b=document.createElement("button");
+  b.innerHTML = "<b>"+v+"</b>"+LABELS[v];
+  b.onclick=()=>rate(v);
+  b.dataset.v=v; scale.appendChild(b);
+}
+document.getElementById("total").textContent = CLIPS.length;
+
+function render() {
+  const c = CLIPS[i];
+  document.getElementById("clipid").textContent = c.clip_id;
+  document.getElementById("pos").textContent = (i+1);
+  au.src = c.audio_file;
+  au.play().catch(()=>{});
+  [...scale.children].forEach(b=>b.classList.toggle("sel",
+      ratings[c.clip_id]==b.dataset.v));
+  const n = Object.keys(ratings).length;
+  document.getElementById("rated").textContent = n;
+  document.getElementById("prog").style.width = (100*n/CLIPS.length)+"%";
+}
+function rate(v) {
+  ratings[CLIPS[i].clip_id] = v;
+  localStorage.setItem(KEY, JSON.stringify(ratings));
+  render();
+  setTimeout(()=>{ if (i < CLIPS.length-1) { i++; render(); } }, 180);
+}
+function go(d) { i = Math.max(0, Math.min(CLIPS.length-1, i+d)); render(); }
+
+document.getElementById("playbtn").onclick=()=>au.paused?au.play():au.pause();
+document.getElementById("replay").onclick=()=>{au.currentTime=0;au.play();};
+document.getElementById("prev").onclick=()=>go(-1);
+document.getElementById("next").onclick=()=>go(1);
+document.addEventListener("keydown",e=>{
+  if (e.key>="1" && e.key<="5") rate(parseInt(e.key));
+  else if (e.key.toLowerCase()==="r") {au.currentTime=0;au.play();}
+  else if (e.key==="ArrowLeft") go(-1);
+  else if (e.key==="ArrowRight") go(1);
+  else if (e.key===" ") {e.preventDefault(); au.paused?au.play():au.pause();}
+});
+document.getElementById("exportbtn").onclick=()=>{
+  let rows=[["position","clip_id","audio_file","naturalness_1to5"]];
+  CLIPS.forEach(c=>rows.push([c.position,c.clip_id,c.audio_file,
+      ratings[c.clip_id]||""]));
+  const csv=rows.map(r=>r.join(",")).join("\n");
+  const blob=new Blob([csv],{type:"text/csv"});
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(blob);
+  a.download="playlist_"+ANN+".csv";
+  a.click();
+  const n=Object.keys(ratings).length;
+  document.getElementById("savemsg").innerHTML =
+    " <span class='done'>exported "+n+"/"+CLIPS.length+"</span>";
+};
+render();
+</script>
+</body>
+</html>

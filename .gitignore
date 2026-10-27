@@ -232,3 +232,7 @@ pyrightconfig.json
 
 # End of https://www.toptal.com/developers/gitignore/api/python,visualstudiocode,macos
 hf_dataset/
+
+# Reviewer-response provider MOS study: audio clips are large, regenerable,
+# and (with hidden_key.json) would de-blind the study. Keep them out of git.
+analysis/reviewer_response/results/provider_mos/clips/

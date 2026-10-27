@@ -1,0 +1,236 @@
+{
+  "n_test": 76,
+  "raters": [
+    "labeler1",
+    "labeler2",
+    "labeler3"
+  ],
+  "iaa": [
+    {
+      "dimension": "naturalness",
+      "n_items": 76,
+      "pairwise": [
+        {
+          "pair": "labeler1-labeler2",
+          "n": 76,
+          "pearson_r": 0.7241784319583162,
+          "pearson_p": 1.437995662586659e-13,
+          "spearman_rho": 0.75960221879568,
+          "spearman_p": 1.802763006927893e-15
+        },
+        {
+          "pair": "labeler1-labeler3",
+          "n": 76,
+          "pearson_r": 0.761242298740136,
+          "pearson_p": 1.445472066728045e-15,
+          "spearman_rho": 0.7692069628071592,
+          "spearman_p": 4.819514141406175e-16
+        },
+        {
+          "pair": "labeler2-labeler3",
+          "n": 76,
+          "pearson_r": 0.8337410254170585,
+          "pearson_p": 9.01380944491733e-21,
+          "spearman_rho": 0.83331790445369,
+          "spearman_p": 9.823248159106762e-21
+        }
+      ],
+      "mean_human_human_pearson": 0.7730539187051703,
+      "mean_human_human_spearman": 0.7873756953521763,
+      "krippendorff_alpha_interval": 0.7350465394621007,
+      "icc_2_1": 0.7397926181468925,
+      "icc_2_k": 0.8950601181018333
+    },
+    {
+      "dimension": "noisiness",
+      "n_items": 76,
+      "pairwise": [
+        {
+          "pair": "labeler1-labeler2",
+          "n": 76,
+          "pearson_r": 0.4476173141420196,
+          "pearson_p": 5.030155781732503e-05,
+          "spearman_rho": 0.4108274609025168,
+          "spearman_p": 0.00022752277518360778
+        },
+        {
+          "pair": "labeler1-labeler3",
+          "n": 76,
+          "pearson_r": 0.45387905125664146,
+          "pearson_p": 3.8224801510773325e-05,
+          "spearman_rho": 0.4338309533804288,
+          "spearman_p": 9.037428566663962e-05
+        },
+        {
+          "pair": "labeler2-labeler3",
+          "n": 76,
+          "pearson_r": 0.5549091467788153,
+          "pearson_p": 1.973747811337575e-07,
+          "spearman_rho": 0.45283854949357455,
+          "spearman_p": 4.0023959701595225e-05
+        }
+      ],
+      "mean_human_human_pearson": 0.4854685040591588,
+      "mean_human_human_spearman": 0.43249898792550673,
+      "krippendorff_alpha_interval": 0.2433333333333333,
+      "icc_2_1": 0.31407391364271775,
+      "icc_2_k": 0.5787077347264546
+    },
+    {
+      "dimension": "loudness",
+      "n_items": 76,
+      "pairwise": [
+        {
+          "pair": "labeler1-labeler2",
+          "n": 76,
+          "pearson_r": 0.6344984211560106,
+          "pearson_p": 7.541273509115167e-10,
+          "spearman_rho": 0.5629148478549022,
+          "spearman_p": 1.2033656052873466e-07
+        },
+        {
+          "pair": "labeler1-labeler3",
+          "n": 76,
+          "pearson_r": 0.6004339235617113,
+          "pearson_p": 9.848043862659225e-09,
+          "spearman_rho": 0.5261028896114524,
+          "spearman_p": 1.0564439807329213e-06
+        },
+        {
+          "pair": "labeler2-labeler3",
+          "n": 76,
+          "pearson_r": 0.7871087921351055,
+          "pearson_p": 3.4498630217091526e-17,
+          "spearman_rho": 0.6457933222358998,
+          "spearman_p": 2.9956430945072335e-10
+        }
+      ],
+      "mean_human_human_pearson": 0.6740137122842759,
+      "mean_human_human_spearman": 0.5782703532340848,
+      "krippendorff_alpha_interval": 0.6304313013771752,
+      "icc_2_1": 0.6358295921291436,
+      "icc_2_k": 0.8396896812715501
+    }
+  ],
+  "model_vs_human": [
+    {
+      "dimension": "naturalness",
+      "model_vs_labeler1": {
+        "point": 0.7056546222911859,
+        "ci_low": 0.5907042455087121,
+        "ci_high": 0.7956425230410734,
+        "n": 76,
+        "n_boot": 10000
+      },
+      "model_vs_labeler2": {
+        "point": 0.6728690752739889,
+        "ci_low": 0.5640876087744477,
+        "ci_high": 0.7634070850377785,
+        "n": 76,
+        "n_boot": 10000
+      },
+      "model_vs_labeler3": {
+        "point": 0.74113604191348,
+        "ci_low": 0.6596494439839556,
+        "ci_high": 0.8139859200012731,
+        "n": 76,
+        "n_boot": 10000
+      },
+      "model_vs_consensus": {
+        "point": 0.766406745540401,
+        "ci_low": 0.6805938776973979,
+        "ci_high": 0.8366456960213321,
+        "n": 76,
+        "n_boot": 10000
+      }
+    },
+    {
+      "dimension": "noisiness",
+      "model_vs_labeler1": {
+        "point": 0.7102450607996621,
+        "ci_low": 0.5827699514253422,
+        "ci_high": 0.8142181307483437,
+        "n": 76,
+        "n_boot": 10000
+      },
+      "model_vs_labeler2": {
+        "point": 0.43371980264974397,
+        "ci_low": 0.2113352905382531,
+        "ci_high": 0.6176229339646137,
+        "n": 76,
+        "n_boot": 10000
+      },
+      "model_vs_labeler3": {
+        "point": 0.3074922719270017,
+        "ci_low": 0.08466669222867042,
+        "ci_high": 0.4994185692734851,
+        "n": 76,
+        "n_boot": 10000
+      },
+      "model_vs_consensus": {
+        "point": 0.6462184009496224,
+        "ci_low": 0.49682938616715433,
+        "ci_high": 0.7598457025395878,
+        "n": 76,
+        "n_boot": 10000
+      }
+    },
+    {
+      "dimension": "loudness",
+      "model_vs_labeler1": {
+        "point": 0.5815816892829532,
+        "ci_low": 0.46961681509137754,
+        "ci_high": 0.698308995096412,
+        "n": 76,
+        "n_boot": 10000
+      },
+      "model_vs_labeler2": {
+        "point": 0.5865736370965263,
+        "ci_low": 0.41835450110824335,
+        "ci_high": 0.7222012817362272,
+        "n": 76,
+        "n_boot": 10000
+      },
+      "model_vs_labeler3": {
+        "point": 0.6320340931944392,
+        "ci_low": 0.46238656562024333,
+        "ci_high": 0.7664352798060144,
+        "n": 76,
+        "n_boot": 10000
+      },
+      "model_vs_consensus": {
+        "point": 0.675786772495868,
+        "ci_low": 0.5494169174384356,
+        "ci_high": 0.7827745238744208,
+        "n": 76,
+        "n_boot": 10000
+      }
+    }
+  ],
+  "paper_reported_model_metrics": {
+    "naturalness": {
+      "n": 76,
+      "pearson_r": 0.705654622291186,
+      "pearson_p": 1.0948779141524262e-12,
+      "spearman_rho": 0.6915291497018152,
+      "spearman_p": 4.648136678523886e-12,
+      "mae": 1.468137640702097
+    },
+    "noisiness": {
+      "n": 76,
+      "pearson_r": 0.7102450607996619,
+      "pearson_p": 6.718949203198708e-13,
+      "spearman_rho": 0.709641824056876,
+      "spearman_p": 7.168070056921025e-13,
+      "mae": 1.6347078022203947
+    },
+    "loudness": {
+      "n": 76,
+      "pearson_r": 0.5815816892829535,
+      "pearson_p": 3.603105922374173e-08,
+      "spearman_rho": 0.6403090839040096,
+      "spearman_p": 4.712296198558256e-10,
+      "mae": 1.008532072368421
+    }
+  }
+}

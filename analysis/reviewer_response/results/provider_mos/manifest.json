@@ -1,0 +1,59 @@
+{
+  "design": "ITU-T P.800 ACR (Absolute Category Rating), unpaired",
+  "rating_scale": {
+    "1": "Bad",
+    "2": "Poor",
+    "3": "Fair",
+    "4": "Good",
+    "5": "Excellent"
+  },
+  "attribute": "naturalness",
+  "seed": 42,
+  "n_per_provider": 20,
+  "providers": [
+    "aws_polly",
+    "cartesia",
+    "deepgram_aura",
+    "groq",
+    "nvidia_magpie"
+  ],
+  "fixed_stt_per_provider": {
+    "aws_polly": "nvidia_parakeet",
+    "cartesia": "nvidia_parakeet",
+    "deepgram_aura": "nvidia_parakeet",
+    "groq": "nvidia_parakeet",
+    "nvidia_magpie": "nvidia_parakeet"
+  },
+  "chosen_question_ids": [
+    "speaking_reasoning_535",
+    "speaking_reasoning_103",
+    "speaking_reasoning_58",
+    "speaking_reasoning_784",
+    "speaking_reasoning_214",
+    "speaking_reasoning_192",
+    "speaking_reasoning_178",
+    "speaking_reasoning_117",
+    "speaking_reasoning_776",
+    "speaking_reasoning_98",
+    "speaking_reasoning_651",
+    "speaking_reasoning_458",
+    "speaking_reasoning_90",
+    "speaking_reasoning_485",
+    "speaking_reasoning_301",
+    "speaking_reasoning_62",
+    "speaking_reasoning_61",
+    "speaking_reasoning_93",
+    "speaking_reasoning_165",
+    "speaking_reasoning_183"
+  ],
+  "n_clips_total": 100,
+  "annotators": [
+    "labeler1",
+    "labeler2",
+    "labeler3"
+  ],
+  "blinding": "clips renamed to opaque IDs; provider only in hidden_key.json",
+  "order_constraint": "no two consecutive clips from same provider (best effort)",
+  "missing_clips": [],
+  "analysis": "score with analyze_provider_mos.py after ratings are filled"
+}
