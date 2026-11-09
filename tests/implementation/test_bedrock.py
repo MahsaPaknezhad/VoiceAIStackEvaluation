@@ -3,8 +3,6 @@
 
 # test_bedrock.py
 import boto3
-import os
-import json
 from dotenv import load_dotenv
 from botocore.config import Config
 
@@ -21,12 +19,15 @@ def test_bedrock():
             retries={'max_attempts': 1}
         )
         
+        # boto3 resolves credentials automatically from its default provider
+        # chain, which includes the standard AWS_ACCESS_KEY_ID /
+        # AWS_SECRET_ACCESS_KEY / AWS_SESSION_TOKEN environment variables that
+        # load_dotenv() populates above. We intentionally do NOT pass them
+        # explicitly: doing so is redundant and trips credential-handling
+        # scanners (secret detection / SAST) on the literal argument names.
         bedrock = boto3.client(
             'bedrock-runtime',
             region_name='us-east-1',
-            aws_access_key_id=os.getenv('AWS_ACCESS_KEY_ID'),
-            aws_secret_access_key=os.getenv('AWS_SECRET_ACCESS_KEY'),
-            aws_session_token=os.getenv('AWS_SESSION_TOKEN'),
             config=config
         )
         
